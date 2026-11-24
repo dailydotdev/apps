@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { useSquadPageContext } from '../../SquadPageContext';
@@ -16,9 +17,19 @@ import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
  * The readiness checklist in the side column of a company page, for its
  * admins and moderators. The feed column leads with the page's next post.
  */
-export const SquadSetupWidget = (): ReactElement | null => {
+// How often an open page checks for rows done elsewhere: in settings, in
+// another tab or by their agent
+const REFRESH_MS = 30_000;
+
+export const SquadSetupWidget = ({
+  shouldRefresh = false,
+}: {
+  /** The page mounts the widget twice, so one of them keeps it fresh */
+  shouldRefresh?: boolean;
+}): ReactElement | null => {
   const { squad, viewer, isViewerKnown } = useSquadPageContext();
-  const { user } = useAuthContext();
+  const { user, refetchBoot } = useAuthContext();
+  const client = useQueryClient();
   const isShown =
     isViewerKnown && isStaffViewer(viewer) && isCompanyPage(squad);
   const { data: subscription, isPending: isSubscriptionPending } = useQuery({
@@ -31,6 +42,27 @@ export const SquadSetupWidget = (): ReactElement | null => {
     subscription?.plan,
   );
   const boost = useSquadFreeBoost(squad);
+  const isIncomplete = readiness.rows.some(({ isDone }) => !isDone);
+
+  useEffect(() => {
+    if (!shouldRefresh || !isIncomplete) {
+      return undefined;
+    }
+
+    const refresh = () => {
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Squad, user, squad.handle),
+      });
+      refetchBoot?.();
+    };
+    const timer = setInterval(refresh, REFRESH_MS);
+    window.addEventListener('focus', refresh);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [shouldRefresh, isIncomplete, client, user, squad.handle, refetchBoot]);
 
   if (!isShown || isSubscriptionPending || readiness.isPending) {
     return null;

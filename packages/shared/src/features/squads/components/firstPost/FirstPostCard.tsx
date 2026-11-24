@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { FormEvent, ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
@@ -6,15 +6,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import {
-  ArrowIcon,
-  CopyIcon,
-  EditIcon,
-  LinkIcon,
-  MagicIcon,
-} from '../../../../components/icons';
+import { LinkIcon, MagicIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
-import { useCopyLink } from '../../../../hooks/useCopy';
 
 /** Something the page needs before its free boost can start */
 export interface FirstPostBoostStep {
@@ -23,207 +16,110 @@ export interface FirstPostBoostStep {
   href: string;
 }
 
-export interface FirstPostTrend {
-  tag: string;
-  /** Reads against a usual week: 2 means twice as many */
-  multiple: number;
-}
-
-export interface FirstPostIdeas {
-  /** This week's rising topics on daily.dev */
-  trends?: FirstPostTrend[];
-  /** The page's own weekly intel, on a paid plan */
-  intelUrl?: string;
-  /** Where the free page sees the Startup plan */
-  upgradeUrl?: string;
-  /** The prompt that asks their agent for ideas, built on click */
-  getAgentPrompt: () => string;
-}
-
 export interface FirstPostCardProps {
   /** The free boost the first post gets, unset without one */
   boostDollars?: number;
   /** What the page still needs before that boost starts */
   missingForBoost?: FirstPostBoostStep[];
-  ideas: FirstPostIdeas;
-  /** Opens the composer on the page */
-  onWrite: (starter?: string) => void;
-  /** Opens the composer on Share a link */
-  onShare: () => void;
-  onOpenIdeas?: () => void;
-  onUpgrade?: () => void;
-  onCopyAgentPrompt?: () => void;
-  isIdeasOpen?: boolean;
+  /** Opens the composer on Share a link with this link */
+  onShare: (url: string) => void;
+  onOpenIntel?: () => void;
+  /** The intel that helps them pick what to write, shown on "Find a topic" */
+  intel?: ReactNode;
+  isIntelOpen?: boolean;
   className?: string;
 }
-
-export const firstPostStarters = [
-  'A hard problem you solved, and how',
-  'Numbers from your work: a benchmark, a cost, a before and after',
-  'A decision you made, and why',
-  'Something you shipped, and what you learned building it',
-];
 
 const cabbageGlow =
   'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 9%, transparent), transparent 160px)';
 
-const Option = ({
+const Path = ({
   icon,
   title,
   hint,
   isSelected,
-  onClick,
+  children,
 }: {
   icon: ReactElement;
   title: string;
   hint: string;
   isSelected?: boolean;
-  onClick: () => void;
+  children: ReactNode;
 }): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-expanded={isSelected}
+  <div
     className={classNames(
-      'flex items-center gap-3 rounded-12 border bg-background-default p-3 text-left hover:border-border-subtlest-secondary tablet:flex-col tablet:items-start tablet:p-4',
+      'flex flex-col gap-3 rounded-12 border bg-background-default p-4',
       isSelected
         ? 'border-accent-cabbage-default'
         : 'border-border-subtlest-tertiary',
     )}
   >
-    <span className="flex size-10 shrink-0 items-center justify-center rounded-10 bg-overlay-float-cabbage text-accent-cabbage-default">
-      {React.cloneElement(icon, { size: IconSize.Medium })}
-    </span>
-    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-      <span className="font-bold typo-callout">{title}</span>
-      <span className="text-pretty text-text-tertiary typo-footnote">
-        {hint}
+    <div className="flex items-start gap-3">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-10 bg-overlay-float-cabbage text-accent-cabbage-default">
+        {React.cloneElement(icon, { size: IconSize.Medium })}
       </span>
-    </span>
-  </button>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="font-bold typo-callout">{title}</span>
+        <span className="text-pretty text-text-tertiary typo-footnote">
+          {hint}
+        </span>
+      </span>
+    </div>
+    <div className="mt-auto">{children}</div>
+  </div>
 );
 
-const PanelTitle = ({ children }: { children: ReactNode }): ReactElement => (
-  <p className="font-bold text-text-tertiary typo-caption1">{children}</p>
-);
+const ShareForm = ({
+  onShare,
+}: {
+  onShare: (url: string) => void;
+}): ReactElement => {
+  const [url, setUrl] = useState('');
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
 
-const multiple = (value: number): string =>
-  `${value.toFixed(1).replace(/\.0$/, '')}x`;
-
-const IdeasPanel = ({
-  ideas,
-  onWrite,
-  onUpgrade,
-  onCopyAgentPrompt,
-}: Pick<
-  FirstPostCardProps,
-  'ideas' | 'onWrite' | 'onUpgrade' | 'onCopyAgentPrompt'
->): ReactElement => {
-  const [isCopying, copy] = useCopyLink(ideas.getAgentPrompt);
+    if (url.trim()) {
+      onShare(url.trim());
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-4">
-      <div className="flex flex-col gap-1">
-        <PanelTitle>Posts that do well here come from your own work</PanelTitle>
-        <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">
-          {firstPostStarters.map((starter) => (
-            <li key={starter}>
-              <button
-                type="button"
-                onClick={() => onWrite(starter)}
-                className="flex w-full items-center gap-3 py-2.5 text-left typo-callout hover:text-text-primary"
-              >
-                <span className="min-w-0 flex-1">{starter}</span>
-                <ArrowIcon
-                  size={IconSize.XSmall}
-                  className="shrink-0 rotate-90 text-text-tertiary"
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      {!!ideas.trends?.length && (
-        <div className="flex flex-col gap-2">
-          <PanelTitle>Developers read more about these this week</PanelTitle>
-          <div className="flex flex-wrap gap-2">
-            {ideas.trends.map(({ tag, multiple: times }) => (
-              <span
-                key={tag}
-                className="flex items-center gap-1.5 rounded-10 bg-surface-float px-2.5 py-1 typo-footnote"
-              >
-                #{tag}
-                <span className="font-bold text-accent-avocado-default">
-                  {multiple(times)}
-                </span>
-              </span>
-            ))}
-          </div>
-          {ideas.intelUrl && (
-            <a
-              href={ideas.intelUrl}
-              className="text-text-link typo-footnote hover:underline"
-            >
-              See this week&apos;s intel for your topics
-            </a>
-          )}
-          {!ideas.intelUrl && ideas.upgradeUrl && (
-            <p className="text-text-tertiary typo-footnote">
-              Want this for your own topics and readers? Weekly intel comes
-              with the{' '}
-              <a
-                href={ideas.upgradeUrl}
-                onClick={onUpgrade}
-                className="text-text-link hover:underline"
-              >
-                Startup plan
-              </a>
-              .
-            </p>
-          )}
-        </div>
-      )}
-      <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary pt-4 tablet:flex-row tablet:items-center tablet:gap-4">
-        <p className="min-w-0 flex-1 text-text-tertiary typo-footnote">
-          Prefer to brainstorm with your agent? Copy a prompt that suggests
-          ideas from your recent work. You write the post.
-        </p>
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          icon={<CopyIcon />}
-          className="shrink-0 self-start tablet:self-auto"
-          onClick={() => {
-            copy();
-            onCopyAgentPrompt?.();
-          }}
-        >
-          {isCopying ? 'Copied' : 'Copy prompt'}
-        </Button>
-      </div>
-    </div>
+    <form onSubmit={onSubmit} className="flex gap-2">
+      <input
+        type="url"
+        value={url}
+        onChange={(event) => setUrl(event.target.value)}
+        placeholder="https://"
+        aria-label="Link to your content"
+        className="h-8 min-w-0 flex-1 rounded-10 bg-surface-float px-3 text-text-primary typo-footnote placeholder:text-text-quaternary focus:outline-none focus:ring-1 focus:ring-border-subtlest-secondary"
+      />
+      <Button
+        type="submit"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+        disabled={!url.trim()}
+      >
+        Share
+      </Button>
+    </form>
   );
 };
 
 /**
  * The one thing a company page's admins should do before anything else:
- * write the first post. Three ways in: write an idea they have, share
- * something they published, or get help finding an idea.
+ * get the first post out. They either share something they already
+ * published, or find a topic in the weekly intel and write something new.
  */
 export const FirstPostCard = ({
   boostDollars,
   missingForBoost = [],
-  ideas,
-  onWrite,
   onShare,
-  onOpenIdeas,
-  onUpgrade,
-  onCopyAgentPrompt,
-  isIdeasOpen: initialIdeasOpen = false,
+  onOpenIntel,
+  intel,
+  isIntelOpen: initialIntelOpen = false,
   className,
 }: FirstPostCardProps): ReactElement => {
-  const [isIdeasOpen, setIdeasOpen] = useState(initialIdeasOpen);
+  const [isIntelOpen, setIntelOpen] = useState(initialIntelOpen);
 
   return (
     <section
@@ -236,50 +132,47 @@ export const FirstPostCard = ({
       <div className="flex flex-col gap-1">
         <h2 className="font-bold typo-title2">
           {boostDollars
-            ? `Write your first post. We'll boost it with $${boostDollars}.`
-            : 'Write your first post'}
+            ? `Get your first post out. We'll boost it with $${boostDollars}.`
+            : 'Get your first post out'}
         </h2>
         <p className="text-text-secondary typo-callout">
           {boostDollars
             ? 'It goes out to thousands of developers in the US, Europe and other top markets on the day you post.'
-            : 'Developers find your page through your posts. Share what you build, fix and learn.'}
+            : 'Developers find your page through your posts.'}
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-3">
-        <Option
-          icon={<EditIcon />}
-          title="I have an idea"
-          hint="Write it in your own words"
-          onClick={() => onWrite()}
-        />
-        <Option
+      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
+        <Path
           icon={<LinkIcon />}
-          title="I already published something"
-          hint="Share a blog post, video or release notes"
-          onClick={onShare}
-        />
-        <Option
+          title="Share your best content"
+          hint="A blog post, video, release notes or docs page developers would learn from."
+        >
+          <ShareForm onShare={onShare} />
+        </Path>
+        <Path
           icon={<MagicIcon />}
-          title="I need an idea"
-          hint="See what developers read this week"
-          isSelected={isIdeasOpen}
-          onClick={() => {
-            if (!isIdeasOpen) {
-              onOpenIdeas?.();
-            }
+          title="Create something new"
+          hint="See what developers in your space read last week, and pick a topic."
+          isSelected={isIntelOpen}
+        >
+          <Button
+            type="button"
+            variant={isIntelOpen ? ButtonVariant.Float : ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            aria-expanded={isIntelOpen}
+            onClick={() => {
+              if (!isIntelOpen) {
+                onOpenIntel?.();
+              }
 
-            setIdeasOpen(!isIdeasOpen);
-          }}
-        />
+              setIntelOpen(!isIntelOpen);
+            }}
+          >
+            {isIntelOpen ? 'Hide the intel' : 'Find a topic'}
+          </Button>
+        </Path>
       </div>
-      {isIdeasOpen && (
-        <IdeasPanel
-          ideas={ideas}
-          onWrite={onWrite}
-          onUpgrade={onUpgrade}
-          onCopyAgentPrompt={onCopyAgentPrompt}
-        />
-      )}
+      {isIntelOpen && intel}
       {!!boostDollars && !!missingForBoost.length && (
         <p className="text-text-tertiary typo-footnote">
           Your boost starts once your page has{' '}

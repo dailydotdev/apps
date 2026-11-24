@@ -187,28 +187,6 @@ export const getIntelPrompt = (handle: string): string =>
 const connectLine = (handle: string): string =>
   `This is for our daily.dev company page @${handle}. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`;
 
-/**
- * Asks their agent for ideas for the page's first post. The founder writes
- * it: the agent never drafts it.
- */
-export const getFirstPostIdeasPrompt = ({
-  handle,
-  hasIntel,
-}: {
-  handle: string;
-  /** A paid page reads its weekly intel, a free one the weekly trends */
-  hasIntel: boolean;
-}): string =>
-  [
-    connectLine(handle),
-    '',
-    `Suggest three ideas for our first post with ${skillRef(
-      'daily-dev-content-ideas',
-    )}. Start from what I shipped, fixed or wrote recently, and say which numbers in ${
-      hasIntel ? 'our weekly intel' : "this week's daily.dev trends"
-    } back each one. I write the post myself, so don't write it or a draft.`,
-  ].join('\n');
-
 /** What a founder can ask their agent, one skill at a time. */
 export const getStartupsSkillPrompt = (
   skill: 'strategy' | 'ideas' | 'review' | 'routine',

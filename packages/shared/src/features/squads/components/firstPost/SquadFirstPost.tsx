@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { developerTrendsQueryOptions } from '../../../../graphql/developerTrends';
+import { squadIntelHighlightsQueryOptions } from '../../../../graphql/squadIntel';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
@@ -13,7 +13,6 @@ import { getSquadId } from '../../lib/features';
 import { isStaffViewer } from '../../lib/viewer';
 import { isCompanyPage } from '../../lib/companyPage';
 import {
-  getSquadIntelUrl,
   getSquadManageUrl,
   getStartupsCheckoutUrl,
   SquadManageSection,
@@ -22,14 +21,14 @@ import {
   isCompanyPageDescriptionReady,
   isPlaceholderSquadImage,
 } from '../../lib/readiness';
-import { getFirstPostIdeasPrompt } from '../../lib/setup';
+import { getStartupsSkillPrompt } from '../../lib/setup';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 import type { FirstPostBoostStep } from './FirstPostCard';
 import { FirstPostCard } from './FirstPostCard';
+import { FirstPostIntel } from './FirstPostIntel';
 
 const BOOST_DOLLARS = 100;
-const TRENDS_SHOWN = 4;
 
 /** Whether the page's admins see the first post card instead of the composer */
 export const useIsFirstPostShown = (): boolean => {
@@ -81,24 +80,18 @@ export const SquadFirstPost = (): ReactElement | null => {
     ...squadSubscriptionQueryOptions({ user, sourceId }),
     enabled: !!user && isShown,
   });
-  const { data: trends } = useQuery({
-    ...developerTrendsQueryOptions(),
-    enabled: isShown,
-  });
+  const { data: intel } = useQuery(
+    squadIntelHighlightsQueryOptions({ user, sourceId, enabled: isShown }),
+  );
 
   if (!isShown) {
     return null;
   }
 
-  const log = (targetId: string) =>
-    logStartups(LogEvent.ClickStartupsSetupStep, targetId, {
+  const log = (event: LogEvent, targetId: string) =>
+    logStartups(event, targetId, {
       origin: Origin.SquadPage,
       source_id: sourceId,
-    });
-  const openComposer = (initialKind: 'text' | 'link') =>
-    openModal({
-      type: LazyModal.SmartComposer,
-      props: { initialSquadHandle: squad.handle, initialKind },
     });
   const hasBoost = boost?.state === 'setup' || boost?.state === 'first_post';
   const isPaid = !!subscription?.plan;
@@ -108,38 +101,60 @@ export const SquadFirstPost = (): ReactElement | null => {
       className="mx-4 tablet:mx-0"
       boostDollars={hasBoost ? BOOST_DOLLARS : undefined}
       missingForBoost={boost?.state === 'setup' ? getMissingForBoost(squad) : []}
-      ideas={{
-        trends: trends?.risingTopics
-          .filter(({ broad }) => broad)
-          .slice(0, TRENDS_SHOWN),
-        intelUrl:
-          isPaid && squad.currentMember?.seat
-            ? getSquadIntelUrl(squad.handle)
-            : undefined,
-        upgradeUrl: isPaid ? undefined : getStartupsCheckoutUrl({ sourceId }),
-        getAgentPrompt: () =>
-          getFirstPostIdeasPrompt({ handle: squad.handle, hasIntel: isPaid }),
+      onShare={(url) => {
+        log(LogEvent.ClickStartupsSetupStep, 'first post share');
+        openModal({
+          type: LazyModal.SmartComposer,
+          props: {
+            initialSquadHandle: squad.handle,
+            initialKind: 'link',
+            initialUrl: url,
+          },
+        });
       }}
-      onWrite={(starter) => {
-        log(starter ? 'first post starter' : 'first post idea');
-        openComposer('text');
-      }}
-      onShare={() => {
-        log('first post share');
-        openComposer('link');
-      }}
-      onOpenIdeas={() => log('first post ideas')}
-      onUpgrade={() =>
-        logStartups(LogEvent.UpgradeSubscription, 'first post ideas', {
-          origin: Origin.SquadPage,
-          source_id: sourceId,
-        })
-      }
-      onCopyAgentPrompt={() =>
-        logStartups(LogEvent.CopyStartupsSetup, 'first post ideas', {
-          origin: Origin.SquadPage,
-          source_id: sourceId,
-        })
+      onOpenIntel={() => log(LogEvent.ClickStartupsSetupStep, 'first post intel')}
+      intel={
+        intel ? (
+          <FirstPostIntel
+            intel={intel}
+            name={squad.name}
+            editTopicsUrl={getSquadManageUrl(
+              squad.handle,
+              SquadManageSection.Intel,
+            )}
+            upgradeUrl={isPaid ? undefined : getStartupsCheckoutUrl({ sourceId })}
+            onUpgrade={() =>
+              log(LogEvent.UpgradeSubscription, 'first post intel')
+            }
+            onWrite={(tag) => {
+              log(
+                LogEvent.ClickStartupsSetupStep,
+                tag ? 'first post topic' : 'first post write',
+              );
+              openModal({
+                type: LazyModal.SmartComposer,
+                props: { initialSquadHandle: squad.handle, initialKind: 'text' },
+              });
+            }}
+            skills={[
+              {
+                id: 'ideas',
+                title: 'Get ideas from your own work',
+                hint: 'Your agent reads this intel and what you shipped lately, then suggests three posts.',
+                getPrompt: () => getStartupsSkillPrompt('ideas', squad.handle),
+              },
+              {
+                id: 'review',
+                title: 'Check your post before it goes live',
+                hint: 'Your agent flags what limits reach, like a post that reads as an ad.',
+                getPrompt: () => getStartupsSkillPrompt('review', squad.handle),
+              },
+            ]}
+            onCopySkill={(id) =>
+              log(LogEvent.CopyStartupsSetup, `first post ${id} skill`)
+            }
+          />
+        ) : undefined
       }
     />
   );

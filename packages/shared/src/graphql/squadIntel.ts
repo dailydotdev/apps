@@ -156,3 +156,107 @@ export const updateSquadIntelSettings = async ({
 
   return res.updateSquadIntelSettings;
 };
+
+export type IntelCompetition = 'open' | 'moderate' | 'crowded';
+
+// What the first post flow shows from a page's weekly intel. Proposed: the
+// API keeps each intel as data next to its markdown, and a free company page
+// gets its first intel as a trial, on tags picked from its website.
+export interface SquadIntelHighlights {
+  weekStart: string;
+  weekEnd: string;
+  /** Posts in the page's topics that last week's numbers come from */
+  postsAnalyzed: number;
+  /** Set while a free page tries the intel picked for it */
+  trial: {
+    endsAt: string;
+    /** The site its topics were picked from */
+    pickedFrom: string;
+  } | null;
+  topics: {
+    tag: string;
+    /** Share of the reads across the page's topics, 0 to 100 */
+    share: number;
+    /** Against the week before, in percent */
+    change: number;
+    competition: IntelCompetition;
+    /** Index where 100 is the average post */
+    readsPerPost: number;
+  }[];
+  formats: {
+    format: string;
+    posts: number;
+    /** Index where 100 is the average post */
+    readsPerPost: number;
+  }[];
+  topPosts: {
+    title: string;
+    source: string;
+    /** Reads against the average post */
+    readsVsAverage: number;
+    upvotes: number;
+    comments: number;
+    permalink: string;
+  }[];
+}
+
+const SQUAD_INTEL_HIGHLIGHTS_QUERY = gql`
+  query SquadIntelHighlights($sourceId: ID!) {
+    squadIntelHighlights(sourceId: $sourceId) {
+      weekStart
+      weekEnd
+      postsAnalyzed
+      trial {
+        endsAt
+        pickedFrom
+      }
+      topics {
+        tag
+        share
+        change
+        competition
+        readsPerPost
+      }
+      formats {
+        format
+        posts
+        readsPerPost
+      }
+      topPosts {
+        title
+        source
+        readsVsAverage
+        upvotes
+        comments
+        permalink
+      }
+    }
+  }
+`;
+
+export const squadIntelHighlightsQueryOptions = ({
+  user,
+  sourceId,
+  enabled = true,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  sourceId?: string;
+  enabled?: boolean;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.SquadIntel,
+    user,
+    sourceId,
+    'highlights',
+  ),
+  queryFn: async (): Promise<SquadIntelHighlights | null> => {
+    const res = await gqlClient.request<{
+      squadIntelHighlights: SquadIntelHighlights | null;
+    }>(SQUAD_INTEL_HIGHLIGHTS_QUERY, { sourceId });
+
+    return res.squadIntelHighlights;
+  },
+  enabled: enabled && !!user?.id && !!sourceId,
+  staleTime: StaleTime.Default,
+  retry: false,
+});

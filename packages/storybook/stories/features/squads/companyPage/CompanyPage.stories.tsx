@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useQueryClient } from '@tanstack/react-query';
 import { graphql, HttpResponse } from 'msw';
-import { subDays } from 'date-fns';
-import { fn } from 'storybook/test';
+import { addDays, subDays } from 'date-fns';
+import { fn, within } from 'storybook/test';
 import { useRouter } from 'next/router';
 import type {
   SourceMember,
@@ -223,21 +223,61 @@ const handlers = (scenario: Scenario) => {
         data: { startupsCashbackPromo: { percentage: 500, months: 12 } },
       }),
     ),
-    graphql.query('DeveloperTrends', () =>
+    graphql.query('SquadIntelHighlights', () =>
       HttpResponse.json({
         data: {
-          developerTrends: {
-            weekStart: '2026-11-09',
-            weekEnd: '2026-11-15',
-            risingTopics: [
-              { tag: 'tailscale', multiple: 4.2, broad: false },
-              { tag: 'code-review', multiple: 2.3, broad: true },
-              { tag: 'rust', multiple: 2.0, broad: true },
-              { tag: 'ollama', multiple: 1.9, broad: false },
-              { tag: 'postgresql', multiple: 1.7, broad: true },
-              { tag: 'ai-agents', multiple: 1.6, broad: true },
+          squadIntelHighlights: {
+            weekStart: '2026-11-16T00:00:00.000Z',
+            weekEnd: '2026-11-23T00:00:00.000Z',
+            postsAnalyzed: 4812,
+            trial: scenario.plan
+              ? null
+              : {
+                  endsAt: addDays(new Date(), 6).toISOString(),
+                  pickedFrom: 'coderabbit.ai',
+                },
+            topics: [
+              { tag: 'ai-agents', share: 41.2, change: 12, competition: 'crowded', readsPerPost: 118 },
+              { tag: 'code-review', share: 18.6, change: 27, competition: 'open', readsPerPost: 164 },
+              { tag: 'github', share: 14.1, change: -8, competition: 'moderate', readsPerPost: 97 },
+              { tag: 'testing', share: 11.3, change: 4, competition: 'open', readsPerPost: 121 },
+              { tag: 'devops', share: 8.9, change: -15, competition: 'crowded', readsPerPost: 74 },
+              { tag: 'security', share: 5.9, change: 0, competition: 'moderate', readsPerPost: 102 },
             ],
-            formats: [{ format: 'First-person build titles', comments: 2.9 }],
+            formats: [
+              { format: 'Tutorial', posts: 612, readsPerPost: 141 },
+              { format: 'Story', posts: 388, readsPerPost: 186 },
+              { format: 'Listicle', posts: 74, readsPerPost: 312 },
+              { format: 'Opinion', posts: 455, readsPerPost: 108 },
+              { format: 'Release', posts: 290, readsPerPost: 61 },
+              { format: 'News', posts: 341, readsPerPost: 52 },
+            ],
+            topPosts: [
+              {
+                title: 'We let an agent review 2,000 pull requests. Here is what it missed',
+                source: 'Engineering blog',
+                readsVsAverage: 38.4,
+                upvotes: 412,
+                comments: 57,
+                permalink: '#post-1',
+              },
+              {
+                title: 'Code review checklists are dead. Long live code review checklists',
+                source: 'Personal blog',
+                readsVsAverage: 21.7,
+                upvotes: 233,
+                comments: 41,
+                permalink: '#post-2',
+              },
+              {
+                title: 'How we cut our PR review time from 2 days to 3 hours',
+                source: 'Engineering blog',
+                readsVsAverage: 17.2,
+                upvotes: 198,
+                comments: 22,
+                permalink: '#post-3',
+              },
+            ],
           },
         },
       }),
@@ -381,6 +421,18 @@ const story = (name: ScenarioName): Story => ({
 export const NewPage = story('newPage');
 /** 2. The page is ready for its boost, nothing posted yet. */
 export const ReadyNoPost = story('readyNoPost');
+/** 2b. "Create something new" open: the intel that helps pick a topic. */
+export const CreateSomethingNew: Story = {
+  ...story('readyNoPost'),
+  play: async ({ canvasElement }) => {
+    const button = await within(canvasElement).findByText(
+      'Find a topic',
+      {},
+      { timeout: 60_000 },
+    );
+    button.click();
+  },
+};
 /** 3. The admin finishes the last setup rows while the page is open. */
 export const SetupDone = story('setupDone');
 /** 4. Boosting: from the first post until the day-long boost ends. */

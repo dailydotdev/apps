@@ -31,7 +31,7 @@ export const SquadWidgets = (): ReactElement => {
     <>
       <SquadPreviewToggle />
       <div className="hidden laptop:contents">
-        <SquadSetupWidget />
+        <SquadSetupWidget shouldRefresh />
         <SquadPlanWidget />
       </div>
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
