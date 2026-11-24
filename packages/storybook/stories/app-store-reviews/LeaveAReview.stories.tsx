@@ -35,6 +35,8 @@ import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphon
 import { DocsIcon } from '@dailydotdev/shared/src/components/icons/Docs';
 import { FeedbackIcon } from '@dailydotdev/shared/src/components/icons/Feedback';
 import { rateAppTitle } from '@dailydotdev/shared/src/hooks/useRateAppRow';
+import { AskCard } from '@dailydotdev/shared/src/components/appStoreReview/AskCard';
+import { streakReviewTargetId } from '@dailydotdev/shared/src/components/appStoreReview/common';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { defaultBootData, getBootMock } from '../../mock/boot';
@@ -412,6 +414,44 @@ const PlaySheet = (): ReactElement => (
   </div>
 );
 
+// Apple's in-app rating sheet: its text is fixed, the app only picks when
+// to request it.
+const AppleSheet = (): ReactElement => (
+  <div className="flex w-56 flex-col items-center gap-2 rounded-16 bg-surface-float pt-4 text-center shadow-2">
+    <span className="flex size-10 items-center justify-center rounded-10 bg-surface-invert">
+      <LogoIcon className={{ container: 'h-6 text-surface-primary' }} />
+    </span>
+    <Typography type={TypographyType.Callout} bold>
+      Enjoying daily.dev?
+    </Typography>
+    <Typography
+      type={TypographyType.Caption1}
+      color={TypographyColor.Tertiary}
+      className="px-4"
+    >
+      Tap a star to rate it on the App Store.
+    </Typography>
+    <div className="flex gap-2 text-accent-blueCheese-default">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <StarIcon key={star} size={IconSize.Medium} />
+      ))}
+    </div>
+    <span className="w-full border-t border-border-subtlest-tertiary py-2 font-bold text-accent-blueCheese-default typo-callout">
+      Not Now
+    </span>
+  </div>
+);
+
+const IOSRate = (): ReactElement => (
+  <div className="flex flex-col items-center gap-3">
+    <AskCard targetId={streakReviewTargetId} className="max-w-72" />
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      Rate daily.dev ↓
+    </Typography>
+    <AppleSheet />
+  </div>
+);
+
 const Stat = ({ value, label }: { value: string; label: string }) => (
   <div className="flex flex-1 flex-col gap-1 rounded-16 bg-surface-float p-4">
     <Typography type={TypographyType.Title2} bold>
@@ -535,6 +575,12 @@ const Overview = (): ReactElement => {
                 &ldquo;{rateAppTitle}&rdquo; on the iPhone You page and the iPad
                 profile menu.
               </Row>
+              <Row label="iOS Rate button" status="planned">
+                Rate daily.dev on our ask sheet and the streak card requests
+                Apple&apos;s in-app rating sheet instead of opening the App
+                Store, and the automatic request 2s after the ask goes away. The
+                profile row keeps opening the App Store.
+              </Row>
               <Row label="Chrome, Edge, Android" status="running">
                 Campaigns 65, 66 and 70. Turn off once the asks below ship on
                 each surface.
@@ -554,6 +600,14 @@ const Overview = (): ReactElement => {
             intro="Each ask uses the store's own page or sheet, and only shows to people who pass the eligibility rules below."
           >
             <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+              <Surface
+                platform="iOS"
+                title="Rate opens Apple's sheet"
+                status="planned"
+                note="Our ask sheet (campaigns 74, 75, 76) and the streak card stay; only the button changes, so people stay in the app. Apple shows its sheet at most 3 times a year and never says whether it did, so a tap can show nothing."
+              >
+                <IOSRate />
+              </Surface>
               <Surface
                 platform="Android"
                 title="Play rating sheet"
@@ -582,7 +636,7 @@ const Overview = (): ReactElement => {
                 platform="Extension"
                 title="Toast after a good action"
                 status="planned"
-                note="After an upvote, bookmark or claimed quest. Auto-dismisses like every toast; never repeats inside the cooldown."
+                note="After an upvote or bookmark, with the first word matching the action. Ships behind a flag with a holdout so it proves itself apart from the other asks. No claimed-quest trigger: the Chrome Web Store bans incentivized reviews."
               >
                 <ReviewToast />
               </Surface>
@@ -651,12 +705,6 @@ const Overview = (): ReactElement => {
                 &ldquo;Everywhere&rdquo; also means the Android app, which the
                 page doesn&apos;t show. Safari and Firefox users have no store
                 page: hide the row there, or link somewhere else?
-              </Row>
-              <Row label="Toast versions" status="open">
-                Only the upvote toast is drawn. Bookmark and claimed quest need
-                their own copy, and the toast is the closest of the asks to the
-                popover we&apos;re removing: ship it, or hold it until reviews
-                drop?
               </Row>
               <Row label="Bad moments" status="open">
                 The examples above are placeholders. Which events block an ask,
