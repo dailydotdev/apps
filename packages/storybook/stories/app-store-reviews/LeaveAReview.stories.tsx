@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -8,7 +8,7 @@ import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider'
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import type { MarketingCta } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketing/cta/common';
-import { MarketingCtaPopoverSmall } from '@dailydotdev/shared/src/components/marketing/cta/MarketingCtaPopoverSmall';
+import MarketingCtaModal from '@dailydotdev/shared/src/components/marketing/cta/MarketingCtaModal';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ButtonSize,
@@ -41,8 +41,9 @@ import { defaultBootData, getBootMock } from '../../mock/boot';
 
 // "Leave a review" popover: what runs today, what iOS already replaced it
 // with, and the asks that replace the Chrome, Edge and Android campaigns.
-// The popover is the production component; the new surfaces are mock-ups
-// built from production primitives, none of them shipped yet.
+// Today's popover is the production modal with each campaign's stored
+// payload; the new surfaces are mock-ups built from production primitives,
+// none of them shipped yet.
 
 const noop = (): void => undefined;
 
@@ -62,23 +63,101 @@ const Providers = ({ children }: { children: ReactNode }): ReactElement => {
         version="pwa"
         localBootData={getBootMock({ ...defaultBootData, user: defaultUser })}
       >
-        {children}
+        {/* Modal mounts on production's app root. */}
+        <div id="__next">{children}</div>
       </BootDataProvider>
     </QueryClientProvider>
   );
 };
 
-// Customer.io campaign 65 as it renders on Chrome today.
-const chromeCampaign: MarketingCta = {
-  campaignId: 'storybook-leave-a-review-chrome',
-  createdAt: new Date('2026-07-01T00:00:00.000Z'),
-  variant: MarketingCtaVariant.PopoverSmall,
-  flags: {
-    title: 'Enjoying daily.dev?',
-    description: "You're here every day! help other devs find us on Chrome!",
-    ctaText: 'Leave a review 💜',
-    ctaUrl: 'https://chromewebstore.google.com/',
+// The marketing_cta rows campaigns 65, 66 and 70 point at, verbatim. Their
+// variant is popover, which BootPopups opens as MarketingCtaModal.
+const todayFlags = {
+  title: 'Enjoying daily.dev?',
+  ctaText: 'Leave a review 💜',
+  tagText: '',
+  tagColor: 'avocado',
+};
+
+const todayCampaigns: { label: string; marketingCta: MarketingCta }[] = [
+  {
+    label: 'Chrome (65)',
+    marketingCta: {
+      campaignId: 'extension-review',
+      createdAt: new Date('2026-07-01T00:00:00.000Z'),
+      variant: MarketingCtaVariant.Popover,
+      flags: {
+        ...todayFlags,
+        description:
+          "You're here every day! help other devs find us on Chrome!",
+        image:
+          'https://media.daily.dev/image/upload/s--JUvMCrf9--/f_auto,q_auto/v1778147978/webapp/daily.dev_Reviews_cover',
+        ctaUrl:
+          'https://chromewebstore.google.com/detail/dailydev-the-homepage-dev/jlmpjdjjbgclbocgajdjefcidcncaied/reviews',
+      },
+    },
   },
+  {
+    label: 'Edge (66)',
+    marketingCta: {
+      campaignId: 'extension-review-edge',
+      createdAt: new Date('2026-07-01T00:00:00.000Z'),
+      variant: MarketingCtaVariant.Popover,
+      flags: {
+        ...todayFlags,
+        description: "You're here every day! help other devs find us on Edge!",
+        image:
+          'https://media.daily.dev/image/upload/s--8lpKAg9d--/f_auto,q_auto/v1779194154/webapp/image_8',
+        ctaUrl:
+          'https://microsoftedge.microsoft.com/addons/detail/dailydev-the-homepage-/cbdhgldgiancdheindpekpcbkccpjaeb',
+      },
+    },
+  },
+  {
+    label: 'Android (70)',
+    marketingCta: {
+      campaignId: 'extension-review-android',
+      createdAt: new Date('2026-07-01T00:00:00.000Z'),
+      variant: MarketingCtaVariant.Popover,
+      flags: {
+        ...todayFlags,
+        description:
+          "You're here every day! help other devs find us on android!",
+        image:
+          'https://media.daily.dev/image/upload/s--oyLIDRIG--/f_auto,q_auto/v1780662678/public/daily.dev%20Reviews%20cover%20-%20Google%20play',
+        ctaUrl:
+          'https://play.google.com/store/apps/details?id=dev.daily&showAllReviews=true',
+      },
+    },
+  },
+];
+
+// Opened after mount: Modal binds to #__next, which exists once rendered.
+const TodayModal = ({
+  marketingCta,
+  onRequestClose,
+}: {
+  marketingCta: MarketingCta;
+  onRequestClose: () => void;
+}): ReactElement | null => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return (
+    <MarketingCtaModal
+      marketingCta={marketingCta}
+      isOpen
+      ariaHideApp={false}
+      onRequestClose={onRequestClose}
+    />
+  );
 };
 
 type Status = 'shipped' | 'running' | 'planned' | 'dropped' | 'open';
@@ -370,212 +449,243 @@ const Row = ({
   </li>
 );
 
-const Overview = (): ReactElement => (
-  <Providers>
-    <div className="flex min-h-screen justify-center bg-background-subtle px-4 py-10">
-      <div className="flex w-full max-w-[60rem] flex-col gap-12">
-        <header className="flex flex-col gap-2">
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Brand}
-            bold
+const Overview = (): ReactElement => {
+  const [openCampaign, setOpenCampaign] = useState<MarketingCta | null>(null);
+
+  return (
+    <Providers>
+      <div className="flex min-h-screen justify-center bg-background-subtle px-4 py-10">
+        <div className="flex w-full max-w-[60rem] flex-col gap-12">
+          <header className="flex flex-col gap-2">
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Brand}
+              bold
+            >
+              LEAVE A REVIEW POPOVER
+            </Typography>
+            <Typography
+              type={TypographyType.LargeTitle}
+              tag={TypographyTag.H1}
+              bold
+            >
+              From one popover to asks at happy moments
+            </Typography>
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Tertiary}
+            >
+              iOS already asks in Apple&apos;s own sheet. Chrome, Edge and
+              Android still run the July popover. This page shows what replaces
+              it on each surface.
+            </Typography>
+          </header>
+
+          <Section
+            title="Today"
+            intro="Customer.io campaigns 65 (Chrome), 66 (Edge) and 70 (Android), unchanged since July. On the extension it returns on every new tab until it's closed."
           >
-            LEAVE A REVIEW POPOVER
-          </Typography>
-          <Typography
-            type={TypographyType.LargeTitle}
-            tag={TypographyTag.H1}
-            bold
+            <div className="flex flex-col gap-3 tablet:flex-row">
+              <Stat
+                value="1.6%"
+                label="of people who saw it in 90 days tapped"
+              />
+              <Stat value="1 in 10" label="saw it 27 or more times" />
+              <Stat value="3" label="campaigns still running" />
+            </div>
+            <div className="flex flex-col items-center gap-3 rounded-16 bg-background-default p-6">
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Open the production modal with each campaign&apos;s stored copy
+                and image:
+              </Typography>
+              <div className="flex flex-wrap justify-center gap-2">
+                {todayCampaigns.map(({ label, marketingCta }) => (
+                  <Button
+                    key={marketingCta.campaignId}
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Small}
+                    onClick={() => setOpenCampaign(marketingCta)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            {openCampaign && (
+              <TodayModal
+                marketingCta={openCampaign}
+                onRequestClose={() => setOpenCampaign(null)}
+              />
+            )}
+          </Section>
+
+          <Section title="Where it stands">
+            <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
+              <Row label="iOS rating sheet" status="shipped">
+                Apple&apos;s native sheet at a 30+ day streak milestone, 120-day
+                cooldown, behind <code>app_store_review</code> (#7364, #7475).
+                The old custom prompt (campaign 69) stopped Nov 19; campaigns
+                74, 75 and 76 replaced it. Ante owns the setup and its daily
+                health check.
+              </Row>
+              <Row label="iOS rate row" status="shipped">
+                &ldquo;{rateAppTitle}&rdquo; on the iPhone You page and the iPad
+                profile menu.
+              </Row>
+              <Row label="Chrome, Edge, Android" status="running">
+                Campaigns 65, 66 and 70. Turn off once the asks below ship on
+                each surface.
+              </Row>
+              <Row label="Android, extension, web" status="planned">
+                The Play rating sheet, the popup line, the toast, the day-14
+                bell and the rate row below.
+              </Row>
+              <Row label="Changelog line" status="dropped">
+                Overlaps campaign 76 (big feature launch).
+              </Row>
+            </ul>
+          </Section>
+
+          <Section
+            title="What replaces it"
+            intro="Each ask uses the store's own page or sheet, and only shows to people who pass the eligibility rules below."
           >
-            From one popover to asks at happy moments
-          </Typography>
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Tertiary}
+            <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+              <Surface
+                platform="Android"
+                title="Play rating sheet"
+                status="planned"
+                note="Same moments as iOS: streak milestone, achievement, upvote or bookmark. Needs the next Android release for Google's in-app review API."
+              >
+                <PlaySheet />
+              </Surface>
+              <Surface
+                platform="Extension"
+                title="Line in the streak popup"
+                status="planned"
+                note="One row under the existing popup content. Opens the browser's own store page: Chrome Web Store or Edge Add-ons."
+              >
+                <StreakPopup />
+              </Surface>
+              <Surface
+                platform="Extension"
+                title="Line in the achievement popup"
+                status="planned"
+                note="The same row, so both celebrations read the same."
+              >
+                <AchievementPopup />
+              </Surface>
+              <Surface
+                platform="Extension"
+                title="Toast after a good action"
+                status="planned"
+                note="After an upvote, bookmark or claimed quest. Auto-dismisses like every toast; never repeats inside the cooldown."
+              >
+                <ReviewToast />
+              </Surface>
+              <Surface
+                platform="Extension"
+                title="Day-14 bell notification"
+                status="planned"
+                note="On the first day someone passes the minimum (14 days, 5 active days). Once in a lifetime, in the bell, not over the feed. Moved from day 7, which broke the minimum."
+              >
+                <BellNotification />
+              </Surface>
+              <Surface
+                platform="Web and extension"
+                title="Rate row next to Support"
+                status="planned"
+                note="The iOS row's title, on every surface. Always visible, since it's only opened on purpose."
+              >
+                <RateRow />
+              </Surface>
+            </div>
+          </Section>
+
+          <Section
+            title="Who sees an ask"
+            intro="One new minimum, and the iOS cooldown reused so every surface shares one clock."
           >
-            iOS already asks in Apple&apos;s own sheet. Chrome, Edge and Android
-            still run the July popover. This page shows what replaces it on each
-            surface.
-          </Typography>
-        </header>
+            <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
+              <Row label="Minimum" status="planned">
+                At least 14 days since signup and 5 active days. Nothing checks
+                account age today: segment 121 (iOS only, 10+ page views in 30
+                days) and each campaign&apos;s trigger decide eligibility. The
+                iOS streak ask already passes, since it needs a 30+ day streak.
+              </Row>
+              <Row label="Cooldown" status="shipped">
+                At most once per 120 days across all surfaces. Asking anywhere
+                sets <code>review_ask_at</code>; segment 143 (&ldquo;asked in
+                last 120 days&rdquo;) excludes those people from campaigns 74,
+                75 and 76.
+              </Row>
+              <Row label="Bad moments" status="planned">
+                Never right after an error, a report, a downvote or a failed
+                payment.
+              </Row>
+              <Row label="Rate row" status="planned">
+                Exempt from the cooldown: it never shows on its own.
+              </Row>
+            </ul>
+          </Section>
 
-        <Section
-          title="Today"
-          intro="Customer.io campaigns 65 (Chrome), 66 (Edge) and 70 (Android), unchanged since July. On the extension it returns on every new tab until it's closed."
-        >
-          <div className="flex flex-col gap-3 tablet:flex-row">
-            <Stat value="1.6%" label="of people who saw it in 90 days tapped" />
-            <Stat value="1 in 10" label="saw it 27 or more times" />
-            <Stat value="3" label="campaigns still running" />
-          </div>
-          <div className="flex justify-center rounded-16 bg-background-default p-6">
-            <MarketingCtaPopoverSmall marketingCta={chromeCampaign} />
-          </div>
-        </Section>
-
-        <Section title="Where it stands">
-          <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
-            <Row label="iOS rating sheet" status="shipped">
-              Apple&apos;s native sheet at a 30+ day streak milestone, 120-day
-              cooldown, behind <code>app_store_review</code> (#7364, #7475). The
-              old custom prompt (campaign 69) stopped Nov 19; campaigns 74, 75
-              and 76 replaced it. Ante owns the setup and its daily health
-              check.
-            </Row>
-            <Row label="iOS rate row" status="shipped">
-              &ldquo;{rateAppTitle}&rdquo; on the iPhone You page and the iPad
-              profile menu.
-            </Row>
-            <Row label="Chrome, Edge, Android" status="running">
-              Campaigns 65, 66 and 70. Turn off once the asks below ship on each
-              surface.
-            </Row>
-            <Row label="Android, extension, web" status="planned">
-              The Play rating sheet, the popup line, the toast, the day-14 bell
-              and the rate row below.
-            </Row>
-            <Row label="Changelog line" status="dropped">
-              Overlaps campaign 76 (big feature launch).
-            </Row>
-          </ul>
-        </Section>
-
-        <Section
-          title="What replaces it"
-          intro="Each ask uses the store's own page or sheet, and only shows to people who pass the eligibility rules below."
-        >
-          <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
-            <Surface
-              platform="Android"
-              title="Play rating sheet"
-              status="planned"
-              note="Same moments as iOS: streak milestone, achievement, upvote or bookmark. Needs the next Android release for Google's in-app review API."
-            >
-              <PlaySheet />
-            </Surface>
-            <Surface
-              platform="Extension"
-              title="Line in the streak popup"
-              status="planned"
-              note="One row under the existing popup content. Opens the browser's own store page: Chrome Web Store or Edge Add-ons."
-            >
-              <StreakPopup />
-            </Surface>
-            <Surface
-              platform="Extension"
-              title="Line in the achievement popup"
-              status="planned"
-              note="The same row, so both celebrations read the same."
-            >
-              <AchievementPopup />
-            </Surface>
-            <Surface
-              platform="Extension"
-              title="Toast after a good action"
-              status="planned"
-              note="After an upvote, bookmark or claimed quest. Auto-dismisses like every toast; never repeats inside the cooldown."
-            >
-              <ReviewToast />
-            </Surface>
-            <Surface
-              platform="Extension"
-              title="Day-14 bell notification"
-              status="planned"
-              note="On the first day someone passes the minimum (14 days, 5 active days). Once in a lifetime, in the bell, not over the feed. Moved from day 7, which broke the minimum."
-            >
-              <BellNotification />
-            </Surface>
-            <Surface
-              platform="Web and extension"
-              title="Rate row next to Support"
-              status="planned"
-              note="The iOS row's title, on every surface. Always visible, since it's only opened on purpose."
-            >
-              <RateRow />
-            </Surface>
-          </div>
-        </Section>
-
-        <Section
-          title="Who sees an ask"
-          intro="One new minimum, and the iOS cooldown reused so every surface shares one clock."
-        >
-          <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
-            <Row label="Minimum" status="planned">
-              At least 14 days since signup and 5 active days. Nothing checks
-              account age today: segment 121 (iOS only, 10+ page views in 30
-              days) and each campaign&apos;s trigger decide eligibility. The iOS
-              streak ask already passes, since it needs a 30+ day streak.
-            </Row>
-            <Row label="Cooldown" status="shipped">
-              At most once per 120 days across all surfaces. Asking anywhere
-              sets <code>review_ask_at</code>; segment 143 (&ldquo;asked in last
-              120 days&rdquo;) excludes those people from campaigns 74, 75 and
-              76.
-            </Row>
-            <Row label="Bad moments" status="planned">
-              Never right after an error, a report, a downvote or a failed
-              payment.
-            </Row>
-            <Row label="Rate row" status="planned">
-              Exempt from the cooldown: it never shows on its own.
-            </Row>
-          </ul>
-        </Section>
-
-        <Section
-          title="Open questions"
-          intro="Parts of the proposal this page doesn't settle yet."
-        >
-          <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
-            <Row label="iOS moments" status="open">
-              The proposal asks after a streak, achievement, upvote or bookmark.
-              iOS ships only the 30+ day streak milestone. Add the other three,
-              or keep iOS to the one moment?
-            </Row>
-            <Row label="Rate row title" status="open">
-              The proposal says &ldquo;Rate daily.dev&rdquo; next to Send
-              feedback. The page reuses the iOS title, <q>{rateAppTitle}</q>,
-              after Support. Which title and position?
-            </Row>
-            <Row label="Rate row reach" status="open">
-              &ldquo;Everywhere&rdquo; also means the Android app, which the
-              page doesn&apos;t show. Safari and Firefox users have no store
-              page: hide the row there, or link somewhere else?
-            </Row>
-            <Row label="Toast versions" status="open">
-              Only the upvote toast is drawn. Bookmark and claimed quest need
-              their own copy, and the toast is the closest of the asks to the
-              popover we&apos;re removing: ship it, or hold it until reviews
-              drop?
-            </Row>
-            <Row label="Bad moments" status="open">
-              The examples above are placeholders. Which events block an ask,
-              and for how long?
-            </Row>
-            <Row label="Segment 143" status="open">
-              It only matches when <code>review_ask_at</code> moves from an old
-              value to a recent one, so a second ask inside 120 days
-              doesn&apos;t match on its own. Campaigns re-check the field before
-              sending, so nothing breaks, but the count may be low. Ante to
-              confirm.
-            </Row>
-          </ul>
-        </Section>
-
-        <Section title="Later">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
+          <Section
+            title="Open questions"
+            intro="Parts of the proposal this page doesn't settle yet."
           >
-            Chrome is adding its own &ldquo;Rate it&rdquo; link to the
-            extensions menu, which needs nothing from us.
-          </Typography>
-        </Section>
+            <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
+              <Row label="iOS moments" status="open">
+                The proposal asks after a streak, achievement, upvote or
+                bookmark. iOS ships only the 30+ day streak milestone. Add the
+                other three, or keep iOS to the one moment?
+              </Row>
+              <Row label="Rate row title" status="open">
+                The proposal says &ldquo;Rate daily.dev&rdquo; next to Send
+                feedback. The page reuses the iOS title, <q>{rateAppTitle}</q>,
+                after Support. Which title and position?
+              </Row>
+              <Row label="Rate row reach" status="open">
+                &ldquo;Everywhere&rdquo; also means the Android app, which the
+                page doesn&apos;t show. Safari and Firefox users have no store
+                page: hide the row there, or link somewhere else?
+              </Row>
+              <Row label="Toast versions" status="open">
+                Only the upvote toast is drawn. Bookmark and claimed quest need
+                their own copy, and the toast is the closest of the asks to the
+                popover we&apos;re removing: ship it, or hold it until reviews
+                drop?
+              </Row>
+              <Row label="Bad moments" status="open">
+                The examples above are placeholders. Which events block an ask,
+                and for how long?
+              </Row>
+              <Row label="Segment 143" status="open">
+                It only matches when <code>review_ask_at</code> moves from an
+                old value to a recent one, so a second ask inside 120 days
+                doesn&apos;t match on its own. Campaigns re-check the field
+                before sending, so nothing breaks, but the count may be low.
+                Ante to confirm.
+              </Row>
+            </ul>
+          </Section>
+
+          <Section title="Later">
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              Chrome is adding its own &ldquo;Rate it&rdquo; link to the
+              extensions menu, which needs nothing from us.
+            </Typography>
+          </Section>
+        </div>
       </div>
-    </div>
-  </Providers>
-);
+    </Providers>
+  );
+};
 
 const meta: Meta = {
   title: 'Growth/App Store reviews/Leave a review popover',
@@ -590,4 +700,45 @@ type Story = StoryObj;
 export const Plan: Story = {
   name: 'Overview',
   render: () => <Overview />,
+};
+
+// The modal as people see it today, over an empty page.
+const Today = ({ index }: { index: number }): ReactElement => {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <Providers>
+      <div className="flex min-h-screen items-center justify-center bg-background-subtle">
+        {isOpen ? (
+          <TodayModal
+            marketingCta={todayCampaigns[index].marketingCta}
+            onRequestClose={() => setIsOpen(false)}
+          />
+        ) : (
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => setIsOpen(true)}
+          >
+            Open it again
+          </Button>
+        )}
+      </div>
+    </Providers>
+  );
+};
+
+export const TodayChrome: Story = {
+  name: 'Today: Chrome (65)',
+  render: () => <Today index={0} />,
+};
+
+export const TodayEdge: Story = {
+  name: 'Today: Edge (66)',
+  render: () => <Today index={1} />,
+};
+
+export const TodayAndroid: Story = {
+  name: 'Today: Android (70)',
+  render: () => <Today index={2} />,
 };
