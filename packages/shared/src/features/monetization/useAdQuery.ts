@@ -97,12 +97,12 @@ export const useAdQuery = ({
     queryKey: [
       ...queryKey,
       ...(refreshOnPageView ? [pageViewId] : []),
-      entity?.entity,
-      entity?.id,
       consent?.gdprApplies,
       consent?.consentString ?? '',
       consent?.consentExists ?? '',
       isLoggedIn,
+      entity?.entity,
+      entity?.id,
     ],
     queryFn: async () => (consent ? fetchAdByPlacement(fetchOptions) : null),
     // A refreshable slot waits for the engine flag, so its first request
