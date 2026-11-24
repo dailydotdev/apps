@@ -125,6 +125,8 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
       return `survey-${item.survey.id}`;
     case 'ad':
       return `ad-${index}`;
+    case 'widget':
+      return `widget-${item.widget.id}`;
     default:
       return `placeholder-${index}`;
   }

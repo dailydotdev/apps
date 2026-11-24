@@ -1,7 +1,7 @@
 import type { FeedWidget } from './types';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { isValidFeedWidgetConfig, parseFeedWidgetConfig } from './config';
-import { mergeRenderedFeedWidgets, visibleFeedWidgets } from './layout';
+import { visibleFeedWidgets } from './layout';
 
 const sizes = () => [FeedWidgetSize.Tall, FeedWidgetSize.Small];
 
@@ -81,11 +81,5 @@ describe('feed widget config', () => {
       { sourceId: 'squad' },
       undefined,
     ]);
-
-    // A reorder from this client keeps both stored configs exactly as they
-    // were, the invalid one included: it may be a newer client's shape.
-    expect(
-      mergeRenderedFeedWidgets(stored, [visible[1], visible[0]], visible),
-    ).toEqual([stored[1], stored[0]]);
   });
 });

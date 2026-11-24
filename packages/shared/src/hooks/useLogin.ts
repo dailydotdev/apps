@@ -17,6 +17,7 @@ import {
   getBetterAuthErrorMessage,
   getBetterAuthSocialRedirectData,
 } from '../lib/betterAuth';
+import type { SignupIntent } from '../lib/betterAuth';
 import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import type { SignBackProvider } from './auth/useSignBack';
@@ -39,6 +40,8 @@ interface UseLogin {
 interface UseLoginProps {
   trigger?: string;
   provider?: string;
+  // A social login creates the account when there is none yet
+  signupIntent?: SignupIntent;
   onSuccessfulLogin?:
     | (() => Promise<void>)
     | ((shouldVerify?: boolean) => void);
@@ -47,6 +50,7 @@ interface UseLoginProps {
 const useLogin = ({
   trigger,
   provider: providerProp,
+  signupIntent,
   onSuccessfulLogin,
 }: UseLoginProps = {}): UseLogin => {
   const { onUpdateSignBack } = useSignBack();
@@ -138,6 +142,7 @@ const useLogin = ({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
+          ...(signupIntent && { additionalData: { signupIntent } }),
         });
         if (result.error) {
           logEvent({
@@ -190,6 +195,7 @@ const useLogin = ({
       const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
         provider,
         callbackURL,
+        signupIntent && { signupIntent },
       );
       if (!socialUrl) {
         logEvent({
@@ -210,7 +216,7 @@ const useLogin = ({
       }
       window.location.href = socialUrl;
     },
-    [displayToast, logEvent, refetchBoot, onUpdateSignBack],
+    [displayToast, logEvent, refetchBoot, onUpdateSignBack, signupIntent],
   );
 
   const onSubmitPasswordLogin = useCallback(

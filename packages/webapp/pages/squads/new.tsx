@@ -26,7 +26,7 @@ import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/int
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { CompanyPageCreate } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageCreate';
+import { CompanyPageFromWebsite } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageFromWebsite';
 import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads/lib/checkoutAttribution';
 import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainLayout from '../../components/layouts/MainLayout';
@@ -45,7 +45,7 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const NewSquad = (): ReactElement => {
+const NewSquad = (): ReactElement | null => {
   const [selectedChannel, setSelectedChannel] = useState<string | null>();
   const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
@@ -92,7 +92,9 @@ const NewSquad = (): ReactElement => {
     !isRouteReady ||
     (isIntegrationLoading && !!shouldLoadIntegration)
   ) {
-    return <MangeSquadPageSkeleton />;
+    // The company page funnel opens on a blank page, like the checkout, not
+    // on the Squad form's skeleton
+    return query.company ? null : <MangeSquadPageSkeleton />;
   }
 
   if (query.company) {
@@ -103,7 +105,7 @@ const NewSquad = (): ReactElement => {
           title={companySeoTitles.title}
           openGraph={{ ...seo.openGraph, ...companySeoTitles.openGraph }}
         />
-        <CompanyPageCreate />
+        <CompanyPageFromWebsite />
         <PromptElement />
         <Toast autoDismissNotifications />
         {/* The landing CTAs open here, so the recording carries on from /startups/ */}

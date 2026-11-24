@@ -17,6 +17,7 @@ import {
 } from '../lib/betterAuth';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
+import type { SignupIntent } from '../lib/betterAuth';
 import { useLogContext } from '../contexts/LogContext';
 import { webappUrl } from '../lib/constants';
 
@@ -29,6 +30,7 @@ interface UseRegistrationProps {
   enabled?: boolean;
   params?: Record<string, string>;
   keepSession?: boolean;
+  signupIntent?: SignupIntent;
 }
 
 interface UseRegistration {
@@ -51,6 +53,7 @@ const useRegistration = ({
   onRedirect,
   onInvalidRegistration,
   onInitializeVerification,
+  signupIntent,
 }: UseRegistrationProps): UseRegistration => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -78,6 +81,7 @@ const useRegistration = ({
       timezone?: string;
       region?: string;
       acceptedMarketing?: boolean;
+      signupIntent?: SignupIntent;
     }) => {
       logEvent({
         event_name: 'click',
@@ -146,11 +150,12 @@ const useRegistration = ({
       referralOrigin: referralOrigin ?? undefined,
       timezone,
       region: geo?.region,
+      signupIntent,
     });
   };
 
   const onSocialRegistration = async (provider: string) => {
-    const additionalData = { timezone };
+    const additionalData = { timezone, signupIntent };
 
     if (isNativeAuthSupported(provider)) {
       const res = await iosNativeAuth(provider);

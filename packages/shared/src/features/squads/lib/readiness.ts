@@ -52,17 +52,15 @@ const PROFILE_SKILL_URL =
 export const isPlaceholderSquadImage = (image?: string): boolean =>
   !image || image.includes('squad_placeholder');
 
-/** Mirrors COMPANY_PAGE_MIN_DESCRIPTION_LENGTH in daily-api */
-export const COMPANY_PAGE_MIN_DESCRIPTION_LENGTH = 40;
-
 /** What a company page needs before its free boost can start */
 export const FREE_BOOST_SETUP_ROWS = ['logo', 'website', 'description'];
 
+// Any description counts, however short, as in daily-api
 export const isCompanyPageDescriptionReady = (description?: string): boolean =>
-  (description?.trim().length ?? 0) >= COMPANY_PAGE_MIN_DESCRIPTION_LENGTH;
+  !!description?.trim();
 
 /**
- * Mirrors isCompanyPageReady in daily-api: a logo, a website and a real
+ * Mirrors isCompanyPageReady in daily-api: a logo, a website and a
  * description. Only then does the page get its free boost and count as an ad
  * conversion.
  */

@@ -315,11 +315,12 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-// Experiment: the hero as a rail of widgets the reader arranges, with the ad
-// slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
-// only; relaunched from `feed_widgets_v2` with the new default rail so
-// readers enrolled before it start fresh.
-export const featureFeedWidgets = new Feature('feed_widgets_v3', false);
+// Experiment: widgets the reader places in the feed itself, each taking the
+// place of a feed card (never an ad's), from a Customize mode over the grid.
+// Supersedes `feed_hero` where it is on. Laptop grid only; relaunched from
+// `feed_widgets_v3`, the header rail, so readers enrolled in the rail start
+// fresh.
+export const featureFeedWidgets = new Feature('feed_widgets_v4', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
@@ -410,20 +411,16 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
-// The widget rail a reader who never customized gets. A flag rather than a
-// constant, so the default composition can be tested without a deploy and
-// older extension builds stop carrying a stale one. `id` is recorded on the
-// reader's rail when they first change it, so they can be offered what a
-// newer default adds.
+// The widgets a reader who never customized gets in the feed, each on a
+// `slot` (the index of the feed card it takes). None by default: the feed
+// reads as it always did until the reader places a widget. Rotated from
+// `feed_widgets_default`, whose rail widgets have no slot.
 export const featureFeedWidgetsDefault = new Feature<{
   id: string;
-  widgets: { id: string; kind: string; size: string }[];
-}>('feed_widgets_default', {
-  id: 'default-3',
-  widgets: [
-    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
-    { id: 'streak', kind: 'streak', size: 'small' },
-  ],
+  widgets: { id: string; kind: string; size: string; slot: number }[];
+}>('feed_widgets_in_feed_default', {
+  id: 'none',
+  widgets: [],
 });
 
 // Weekly picks: gates the home card, the /bookmarks button and /picks/new.
@@ -446,4 +443,13 @@ export const featureWeeklyPicksChecks = new Feature(
 export const featureAgentOnboardingEntry = new Feature(
   'agent_onboarding_entry',
   false,
+);
+
+// How loudly a 2x bonus-reward quest and its Swap button stand out in the
+// sidebar quest list and the quest dropdown (desktop popover and mobile
+// drawer). `control` is the current look; each `vN` is one treatment, so new
+// ones can be added without touching the flag.
+export const featureQuestBonusHighlight = new Feature(
+  'quest_bonus_highlight',
+  'control',
 );

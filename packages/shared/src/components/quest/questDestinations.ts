@@ -53,8 +53,10 @@ export const getQuestDestination = (
     case 'visit_explore_page':
       return { label: 'Explore', path: '/posts' };
     case 'visit_read_it_later_page':
+    case 'bookmark_read':
       return { label: 'Later', path: '/bookmarks/later' };
     case 'visit_marketplace':
+    case 'plugin_upvote':
       return { label: 'Marketplace', path: '/marketplace' };
     case 'plugin_submit':
       return { label: 'Submit plugin', path: '/marketplace/submit' };

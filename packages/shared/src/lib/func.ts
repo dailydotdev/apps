@@ -121,6 +121,18 @@ export const isIOSNative = (): boolean => {
   );
 };
 
+const metaInAppBrowserMatch = /FBAN|FBAV|FB_IAB|Instagram/i;
+
+export const isAndroidMetaInAppBrowser = (): boolean => {
+  const userAgent = globalThis?.navigator?.userAgent ?? '';
+  return /Android/i.test(userAgent) && metaInAppBrowserMatch.test(userAgent);
+};
+
+export const getChromeIntentUrl = (url: string): string => {
+  const { host, pathname, search } = new URL(url);
+  return `intent://${host}${pathname}${search}#Intent;scheme=https;package=com.android.chrome;end`;
+};
+
 export enum ArrowKeyEnum {
   Up = 'ArrowUp',
   Right = 'ArrowRight',

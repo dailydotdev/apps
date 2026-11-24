@@ -91,6 +91,22 @@ describe('trackCompanyPageReady', () => {
     expect(localStorage.getItem(getUnreadyPageKey('acme'))).toBeNull();
   });
 
+  it('skips an older page this browser last saw unready more than 48 hours ago', () => {
+    const trackEvent = jest.fn();
+    localStorage.setItem(
+      getUnreadyPageKey('acme'),
+      String(daysAgo(3).getTime()),
+    );
+
+    trackCompanyPageReady(
+      trackEvent,
+      companyPage({ createdAt: daysAgo(5) }),
+      founder,
+    );
+
+    expect(trackEvent).not.toHaveBeenCalled();
+  });
+
   it.each([
     ['a moderator', { currentMember: { role: SourceMemberRole.Moderator } }],
     ['a community squad', { flags: {} }],
@@ -127,8 +143,9 @@ describe('trackCompanyPageFirstPost', () => {
   });
 
   it.each([
-    ['a page that is not ready', { description: 'Acme' }],
+    ['a page that is not ready', { description: '' }],
     ['a page older than a month', { createdAt: daysAgo(31) }],
+    ['a post after the first', { flags: { company: true, totalPosts: 2 } }],
     ['a community squad', { flags: {} }],
   ])('skips %s', (_, overrides) => {
     const trackEvent = jest.fn();

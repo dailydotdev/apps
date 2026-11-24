@@ -108,6 +108,12 @@ export const betterAuthSignIn = async ({
   );
 };
 
+// Tells daily-api who is signing up, so a founder's account starts with
+// gamification off
+export enum SignupIntent {
+  Company = 'company',
+}
+
 export const betterAuthSignUp = async ({
   name,
   email,
@@ -123,6 +129,7 @@ export const betterAuthSignUp = async ({
   timezone,
   region,
   acceptedMarketing,
+  signupIntent,
 }: {
   name: string;
   email: string;
@@ -138,6 +145,7 @@ export const betterAuthSignUp = async ({
   timezone?: string;
   region?: string;
   acceptedMarketing?: boolean;
+  signupIntent?: SignupIntent;
 }): Promise<BetterAuthResponse> => {
   const headers: Record<string, string> = {};
   if (turnstileToken) {
@@ -159,6 +167,7 @@ export const betterAuthSignUp = async ({
       timezone,
       region,
       acceptedMarketing,
+      signupIntent,
     },
     'Sign up failed',
     Object.keys(headers).length > 0 ? headers : undefined,
@@ -292,16 +301,23 @@ export const betterAuthSignInWithIdToken = async ({
 export const betterAuthOneTapCallback = async ({
   idToken,
   timezone,
+  signupIntent,
 }: {
   idToken: string;
   timezone?: string;
-}): Promise<BetterAuthResponse> =>
-  betterAuthPost(
+  signupIntent?: SignupIntent;
+}): Promise<BetterAuthResponse> => {
+  const headers: Record<string, string> = {
+    ...(timezone && { 'x-timezone': timezone }),
+    ...(signupIntent && { 'x-signup-intent': signupIntent }),
+  };
+  return betterAuthPost(
     'one-tap/callback',
     { idToken },
     'One Tap sign in failed',
-    timezone ? { 'x-timezone': timezone } : undefined,
+    Object.keys(headers).length > 0 ? headers : undefined,
   );
+};
 
 export const getBetterAuthLinkSocialUrl = (
   provider: string,

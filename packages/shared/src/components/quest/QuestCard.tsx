@@ -15,10 +15,19 @@ import type { QuestReward, QuestType, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
+  getQuestChainLabel,
   getQuestRewardLabel,
   isQuestClaimed,
 } from '../../graphql/quests';
-import { QuestBonusRewardBadge } from './QuestBonusRewardBadge';
+import {
+  QuestBonusAmount,
+  QuestBonusHighlight,
+  QuestBonusRewardBadge,
+  QuestSwapButton,
+  getQuestBonusContainerClassName,
+  getQuestBonusMultiplier,
+  useQuestBonusHighlight,
+} from './QuestBonusRewardBadge';
 import type { QuestRewardSource } from './QuestRewardAnimations';
 
 type ClaimedStampMaskHole = {
@@ -149,16 +158,37 @@ export const getQuestStatusLabel = (quest: UserQuest): string => {
 const QuestRewardChip = ({
   reward,
   rewardRef,
+  multiplier = 1,
+  highlight = QuestBonusHighlight.Control,
 }: {
   reward: QuestReward;
   rewardRef?: (element: HTMLSpanElement | null) => void;
+  multiplier?: number;
+  highlight?: QuestBonusHighlight;
 }): ReactElement => {
+  const isBoosted = multiplier > 1;
+  const isGold = isBoosted && highlight === QuestBonusHighlight.V1;
+
   return (
     <span
       ref={rewardRef}
-      className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-1 typo-caption1"
+      className={classNames(
+        'inline-flex items-center gap-1 rounded-8 px-2 py-1 typo-caption1',
+        isGold
+          ? 'bg-[color-mix(in_srgb,var(--theme-accent-cheese-default)_16%,transparent)] font-bold text-accent-cheese-default'
+          : 'bg-surface-float',
+      )}
     >
-      {getRewardIcon(reward)}+{reward.amount.toLocaleString()}{' '}
+      {getRewardIcon(reward)}
+      {isBoosted && highlight === QuestBonusHighlight.V2 ? (
+        <QuestBonusAmount
+          amount={reward.amount}
+          multiplier={multiplier}
+          prefix="+"
+        />
+      ) : (
+        `+${reward.amount.toLocaleString()}`
+      )}{' '}
       {getQuestRewardLabel(reward.type)}
     </span>
   );
@@ -187,6 +217,8 @@ export type QuestCardProps = {
   statusLabel?: string;
   showLockIcon?: boolean;
   onRefresh?: (quest: UserQuest) => void;
+  /** Pins the bonus highlight (Storybook); the flag decides otherwise. */
+  highlight?: QuestBonusHighlight;
 };
 
 export const QuestCard = ({
@@ -205,6 +237,7 @@ export const QuestCard = ({
   statusLabel,
   showLockIcon = true,
   onRefresh,
+  highlight: pinnedHighlight,
 }: QuestCardProps): ReactElement => {
   const { value, percentage, target } = getProgress(
     quest.progress,
@@ -234,27 +267,54 @@ export const QuestCard = ({
     !isVisuallyDisabled;
   const canRefresh =
     typeof quest.refreshCost === 'number' && !!onRefresh && !isVisuallyDisabled;
+  const multiplier = getQuestBonusMultiplier(quest, visibleRewards);
+  const hasBonus = multiplier > 1;
+  const flagHighlight = useQuestBonusHighlight(
+    !pinnedHighlight && (hasBonus || canRefresh),
+  );
+  const highlight = pinnedHighlight ?? flagHighlight;
+  const showBonusHighlight = hasBonus && !isClaimed;
+  const eyebrowContent = eyebrow ?? getQuestChainLabel(quest);
   const disabledContentClass = classNames(
     'flex flex-col gap-2 transition-[opacity,filter] duration-200',
     isVisuallyDisabled && 'opacity-50 grayscale',
   );
 
   return (
-    <article className="relative overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2">
+    <article
+      className={classNames(
+        'relative overflow-hidden rounded-12 border p-2',
+        showBonusHighlight && highlight === QuestBonusHighlight.V1
+          ? 'border-accent-cheese-default'
+          : 'border-border-subtlest-tertiary',
+        getQuestBonusContainerClassName(highlight, showBonusHighlight),
+      )}
+    >
       <div className="flex flex-col gap-2">
         <div className={disabledContentClass}>
           <header className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              {eyebrow && (
+              {eyebrowContent && (
                 <p className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption2">
-                  {eyebrow}
+                  {eyebrowContent}
                 </p>
               )}
               <div className="flex items-center gap-2">
                 <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
                   {quest.quest.name}
                 </p>
-                <QuestBonusRewardBadge quest={quest} rewards={visibleRewards} />
+                <QuestBonusRewardBadge
+                  quest={quest}
+                  rewards={visibleRewards}
+                  highlight={highlight}
+                />
+                {canRefresh && highlight === QuestBonusHighlight.V2 && (
+                  <QuestSwapButton
+                    quest={quest}
+                    highlight={highlight}
+                    onRefresh={onRefresh}
+                  />
+                )}
                 {shouldShowDestination && destination && onDestinationClick && (
                   <Tooltip content={`Go to ${destination.label}`}>
                     <Button
@@ -323,6 +383,8 @@ export const QuestCard = ({
                           reward.type
                         }-${index.toString()}`}
                         reward={reward}
+                        multiplier={quest.rewardMultipliers?.[reward.type] ?? 1}
+                        highlight={highlight}
                         rewardRef={(element) => {
                           rewardRefs.current[rewardKey] = element;
                         }}
@@ -330,7 +392,7 @@ export const QuestCard = ({
                     );
                   })}
                 </div>
-                {canRefresh && (
+                {canRefresh && highlight === QuestBonusHighlight.Control && (
                   <Button
                     type="button"
                     variant={ButtonVariant.Tertiary}
@@ -342,6 +404,15 @@ export const QuestCard = ({
                     Swap
                   </Button>
                 )}
+                {canRefresh &&
+                  (highlight === QuestBonusHighlight.V1 ||
+                    highlight === QuestBonusHighlight.V3) && (
+                    <QuestSwapButton
+                      quest={quest}
+                      highlight={highlight}
+                      onRefresh={onRefresh}
+                    />
+                  )}
               </div>
             )}
 

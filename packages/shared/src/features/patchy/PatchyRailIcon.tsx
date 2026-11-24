@@ -7,7 +7,12 @@ import { StreakGoalArc } from '../../components/sidebar/StreakBadge';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 import type { PatchyEmote, PatchyFace } from './patchyConfig';
 import type { PatchyMotion } from './patchyIdle';
-import { getPatchyConfig } from './patchyConfig';
+import {
+  getPatchyConfig,
+  patchyBoneImage,
+  isPatchyOneShotFace,
+} from './patchyConfig';
+import { usePatchyFaceUrl } from './patchyFacePlayback';
 
 // The ring keeps the streak tab's state language: pink once read (or
 // selected), amber/red when the day is at risk, blue on a rest day.
@@ -67,6 +72,31 @@ const Drop = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const Cloud = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 16 16" className={className} aria-hidden>
+    <path
+      d="M4.5 11.5a3 3 0 0 1-.4-6 4 4 0 0 1 7.6-.6 3.3 3.3 0 0 1 .3 6.6z"
+      fill="currentColor"
+    />
+    <path
+      d="M6 13l-.6 1.6M9 13l-.6 1.6"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+export const PatchyBoneImage = ({ className }: { className?: string }) => (
+  <img
+    src={patchyBoneImage}
+    alt=""
+    aria-hidden
+    className={classNames('object-contain', className)}
+    draggable={false}
+  />
+);
+
 const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
   switch (emote) {
     case 'hearts':
@@ -89,6 +119,10 @@ const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
       );
     case 'sweat':
       return <Drop className="size-2.5 text-accent-blueCheese-default" />;
+    case 'bone':
+      return <PatchyBoneImage className="size-3.5" />;
+    case 'cloud':
+      return <Cloud className="size-3 text-text-tertiary" />;
     case 'dots':
       return (
         <span className="rounded-6 bg-surface-invert px-1 text-[0.5rem] font-bold leading-3 text-surface-primary">
@@ -143,6 +177,9 @@ interface PatchyRailIconProps {
   emote?: PatchyEmote | null;
   emoteCount?: number;
   emoteKey?: number;
+  // The streak ring, goal arc and flame. Off where he isn't the streak
+  // (his own rail spot and panel): a plain circle.
+  showStreak?: boolean;
 }
 
 // A face that is not uploaded yet falls back to his neutral one instead of
@@ -175,11 +212,19 @@ const FaceImage = ({
     },
     [onFail],
   );
+  const isOneShot = isPatchyOneShotFace(shown);
+  const src = usePatchyFaceUrl(faceImage[shown], motionKey ?? '', isOneShot);
+  let key = 'still';
+  if (isOneShot) {
+    key = `${shown}-${motionKey}`;
+  } else if (motion) {
+    key = `${motionKey}-${motion}`;
+  }
   return (
     <img
-      key={motion ? `${motionKey}-${motion}` : 'still'}
+      key={key}
       ref={ref}
-      src={faceImage[shown]}
+      src={src}
       alt=""
       className={classNames(
         'size-full object-cover',
@@ -206,44 +251,61 @@ export const PatchyRailIcon = ({
   emote = null,
   emoteCount = 1,
   emoteKey = 0,
-}: PatchyRailIconProps): ReactElement => (
-  <span className="relative flex size-6 items-center justify-center">
-    <span
-      aria-hidden
-      className={classNames(
-        'absolute -inset-1 overflow-hidden rounded-full border-2 bg-surface-float transition-colors',
-        selected && (state === 'none' || state === 'pending')
-          ? 'border-accent-bacon-default'
-          : ringByState[state],
-        state === 'celebration' && 'animate-streak-earn-border',
-        HOVER_STATES.has(state) &&
-          !(selected && state !== 'safe') &&
-          'group-hover/streaktab:border-text-primary',
+  showStreak = true,
+}: PatchyRailIconProps): ReactElement => {
+  let ringClass: string;
+  if (!showStreak) {
+    ringClass = selected
+      ? 'border-accent-bacon-default'
+      : 'border-border-subtlest-secondary group-hover/patchytab:border-text-primary';
+  } else {
+    ringClass = classNames(
+      selected && (state === 'none' || state === 'pending')
+        ? 'border-accent-bacon-default'
+        : ringByState[state],
+      state === 'celebration' && 'animate-streak-earn-border',
+      HOVER_STATES.has(state) &&
+        !(selected && state !== 'safe') &&
+        'group-hover/streaktab:border-text-primary',
+    );
+  }
+  return (
+    <span className="relative flex size-6 items-center justify-center">
+      <span
+        aria-hidden
+        className={classNames(
+          'absolute -inset-1 overflow-hidden rounded-full border-2 bg-surface-float transition-colors',
+          ringClass,
+        )}
+      >
+        <FaceImage face={face} motion={motion} motionKey={motionKey} />
+      </span>
+      {/* The ring is the 32px box around the 24px glyph with a 2px border, so
+          the stroke centre sits at radius 16 - 1 = 15. */}
+      {showStreak && (
+        <StreakGoalArc
+          state={state}
+          progress={goalProgress}
+          selected={selected}
+          size={32}
+          radius={15}
+          strokeWidth={2}
+          className="-left-1 -top-1 size-8"
+        />
       )}
-    >
-      <FaceImage face={face} motion={motion} motionKey={motionKey} />
+      {emote && <Emotes key={emoteKey} emote={emote} count={emoteCount} />}
+      {showStreak && (
+        <span
+          aria-hidden
+          className="absolute -bottom-2 -right-2 flex size-4 items-center justify-center rounded-full bg-background-default"
+        >
+          <HotIcon
+            secondary={hasReadToday || state === 'freeze'}
+            size={IconSize.Size16}
+            className={classNames('size-3', flameByState[state])}
+          />
+        </span>
+      )}
     </span>
-    {/* The ring is the 32px box around the 24px glyph with a 2px border, so
-        the stroke centre sits at radius 16 - 1 = 15. */}
-    <StreakGoalArc
-      state={state}
-      progress={goalProgress}
-      selected={selected}
-      size={32}
-      radius={15}
-      strokeWidth={2}
-      className="-left-1 -top-1 size-8"
-    />
-    {emote && <Emotes key={emoteKey} emote={emote} count={emoteCount} />}
-    <span
-      aria-hidden
-      className="absolute -bottom-2 -right-2 flex size-4 items-center justify-center rounded-full bg-background-default"
-    >
-      <HotIcon
-        secondary={hasReadToday || state === 'freeze'}
-        size={IconSize.Size16}
-        className={classNames('size-3', flameByState[state])}
-      />
-    </span>
-  </span>
-);
+  );
+};

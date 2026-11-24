@@ -9,9 +9,9 @@ import { trackCompanyPageFirstPost } from '../lib/startupsAdEvents';
 import { isUserAudience } from '../../../components/post/composer/useComposerAudience';
 
 /**
- * Reports a post to a ready company page in its first month. The composer's audiences come from
- * boot, which has no company flag or creation date, so each squad is read
- * from the squad page's query.
+ * Reports the first post to a ready company page in its first month. The
+ * composer's audiences come from boot, which has no company flag, creation
+ * date or post count, so each squad is read again after the post.
  */
 export const useTrackCompanyPageFirstPost = (): ((
   audiences: Squad[],
@@ -29,6 +29,7 @@ export const useTrackCompanyPageFirstPost = (): ((
             .fetchQuery({
               queryKey: generateQueryKey(RequestKey.Squad, user, handle),
               queryFn: () => getSquad(handle),
+              staleTime: 0,
             })
             .then((squad) =>
               trackCompanyPageFirstPost(trackEvent, squad, user?.email),

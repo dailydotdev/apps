@@ -13,9 +13,31 @@ export enum FeedWidgetKind {
   Streak = 'streak',
   Weather = 'weather',
   TodoList = 'todoList',
-  Shortcuts = 'shortcuts',
   GettingStarted = 'gettingStarted',
 }
+
+/**
+ * The kinds this build ships a widget for. The enum runs ahead of it (a kind
+ * is named before its widget is built), so the feed seats only these: a kind
+ * outside the list, unbuilt here or added by a newer client, stays stored but
+ * takes no cell. `feedWidgetComponents` must have exactly these keys, so the
+ * list cannot drift from the widgets. Kept here, not read from the components,
+ * so the feed's own bundle stays free of the widgets' code.
+ */
+export const builtFeedWidgetKinds = [
+  FeedWidgetKind.TopStory,
+  FeedWidgetKind.HappeningNow,
+  FeedWidgetKind.Briefing,
+  FeedWidgetKind.Notifications,
+  FeedWidgetKind.Messages,
+  FeedWidgetKind.SquadUpdates,
+  FeedWidgetKind.ReadingList,
+  FeedWidgetKind.Streak,
+  FeedWidgetKind.TodoList,
+  FeedWidgetKind.GettingStarted,
+] as const;
+
+export type BuiltFeedWidgetKind = (typeof builtFeedWidgetKinds)[number];
 
 /**
  * The rail's unit is one feed column by half the rail's height, so every
@@ -35,10 +57,6 @@ export type FeedWidgetConfigByKind = {
   [FeedWidgetKind.SquadUpdates]: { sourceId?: string };
   [FeedWidgetKind.TopicalDigest]: { tags?: string[] };
   [FeedWidgetKind.Weather]: { location?: string; unit?: 'c' | 'f' };
-  [FeedWidgetKind.Shortcuts]: {
-    layout?: 'grid' | 'list';
-    showMostVisited?: boolean;
-  };
 };
 
 export type FeedWidgetConfig<K extends FeedWidgetKind = FeedWidgetKind> =
@@ -58,6 +76,34 @@ export type FeedWidget<K extends FeedWidgetKind = FeedWidgetKind> = {
   config?: FeedWidgetConfig<K>;
   /** Shape version of `config` (daily-api#4446); absent means 1. */
   v?: number;
+  /**
+   * The feed card it takes the place of: its index among the feed's items,
+   * ads included. A widget without one was placed on the old header rail and
+   * is not shown in the feed.
+   */
+  slot?: number;
+};
+
+/**
+ * The size a widget renders at in the feed by default: one card, the rail's
+ * full height by one column. Every kind supports it.
+ */
+export const FEED_WIDGET_IN_FEED_SIZE = FeedWidgetSize.Tall;
+
+/**
+ * The sizes the feed has room for: one card, or two cards wide as a hero
+ * card is. A kind offers the ones of these it supports.
+ */
+export const feedWidgetInFeedSizes: FeedWidgetSize[] = [
+  FeedWidgetSize.Tall,
+  FeedWidgetSize.Large,
+];
+
+export const feedWidgetInFeedSizeLabel: Partial<
+  Record<FeedWidgetSize, string>
+> = {
+  [FeedWidgetSize.Tall]: 'Single',
+  [FeedWidgetSize.Large]: 'Wide',
 };
 
 /** How long a removal on the rail can be undone from its toast. */
@@ -115,11 +161,33 @@ export type FeedWidgetRailState = {
    */
   fromDefault?: string;
   /**
-   * The daily.dev tips over our slot. Opt-in: only `false` shows them, so
-   * unset reads as hidden.
+   * The reader hid widgets from their feed. Kept here rather than in the
+   * rail's `feedWidgetsOptOut`, so hiding the rail does not hide these.
    */
-  tipsHidden?: boolean;
+  hidden?: boolean;
+  /**
+   * The feed's invite to a first widget the reader acted on, by id, so it
+   * ends once per account rather than once per device.
+   */
+  promoSeen?: string;
+  /** The visits the invite has shown on, up to its cap. */
+  promoViews?: number;
   [field: string]: unknown;
 };
+
+/**
+ * The feed's invite to a first widget, for readers who met the earlier rails
+ * and the ones who did not. A new id shows a new invite to everyone.
+ */
+export const FEED_WIDGETS_INTRO_ID = 'take-two';
+
+/**
+ * Where the feed's invite to a first widget sits: the first card from this
+ * index on that can take one, a row down on most grids, so it never leads.
+ */
+export const FEED_WIDGETS_PROMO_FROM = 4;
+
+/** The visits the invite shows on before it stops asking. */
+export const FEED_WIDGETS_PROMO_MAX_VIEWS = 5;
 
 export const FEED_WIDGET_RAIL_VERSION = 1;

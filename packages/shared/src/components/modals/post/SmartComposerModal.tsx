@@ -466,7 +466,8 @@ export function SmartComposerModal({
           queryKey: getPostByIdKey(editPost.id),
         });
       }
-      if (!editPost?.id) {
+      // A scheduled post counts once it goes live, on the server
+      if (!editPost?.id && !(canSchedule && schedule.isScheduled)) {
         trackFirstPost(selected);
       }
       onPosted?.();

@@ -5,7 +5,6 @@ import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
 import { AtIcon, LinkIcon, SquadIcon } from '../../../../components/icons';
-import OrDivider from '../../../../components/auth/OrDivider';
 import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
   Typography,
@@ -13,7 +12,6 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useLogContext } from '../../../../contexts/LogContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
 import { checkExistingHandle, PrivacyOption } from '../../../../graphql/squads';
@@ -21,14 +19,11 @@ import { SourceMemberRole } from '../../../../graphql/sources';
 import { AuthTriggers } from '../../../../lib/auth';
 import { cloudinarySquadsImageFallback } from '../../../../lib/image';
 import { parseHttpUrl } from '../../../../lib/links';
-import { LogEvent } from '../../../../lib/log';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
 import { toSquadHandle } from '../../lib/handle';
 import { getStartupsCheckoutUrl } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import { isSquadPlan, SquadPlan } from '../../lib/plans';
-import { companyPagePrompt } from '../../lib/companyPage';
-import { AgentPromptButton } from '../AgentPromptButton';
 import {
   CheckoutCta,
   CheckoutShell,
@@ -52,34 +47,33 @@ const CompanyPageSignUp = (): ReactElement => (
   />
 );
 
-/** Copies the setup prompt; the founder pastes it into their agent. */
-const AgentSetupButton = (): ReactElement => {
-  const { logEvent } = useLogContext();
-
-  return (
-    <AgentPromptButton
-      getPrompt={() => companyPagePrompt}
-      label="Continue with your agent"
-      hint="Copies a prompt for Claude Code, Codex, Cursor or any agent."
-      copiedHint="Paste it into your agent to set up the page."
-      onCopy={() => logEvent({ event_name: LogEvent.CopyCompanyPagePrompt })}
-    />
-  );
-};
-
 /**
  * The free company page form: a public squad where only its team posts, with
  * no privacy or posting settings to choose.
  */
-export const CompanyPageCreate = (): ReactElement => {
+export interface CompanyPagePrefill {
+  name?: string;
+  handle?: string;
+  description?: string;
+  website?: string;
+}
+
+interface CompanyPageCreateProps {
+  /** What we could read from the founder's site before it fell short. */
+  prefill?: CompanyPagePrefill;
+}
+
+export const CompanyPageCreate = ({
+  prefill,
+}: CompanyPageCreateProps = {}): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
-  const [name, setName] = useState('');
-  const [handle, setHandle] = useState('');
-  const [isHandleEdited, setHandleEdited] = useState(false);
+  const [name, setName] = useState(prefill?.name ?? '');
+  const [handle, setHandle] = useState(prefill?.handle ?? '');
+  const [isHandleEdited, setHandleEdited] = useState(!!prefill?.handle);
   const [handleHint, setHandleHint] = useState<string>();
-  const [description, setDescription] = useState('');
-  const [website, setWebsite] = useState('');
+  const [description, setDescription] = useState(prefill?.description ?? '');
+  const [website, setWebsite] = useState(prefill?.website ?? '');
   const [categoryId, setCategoryId] = useState<string>();
   const [image, setImage] = useState<{ preview: string; file: File }>();
   const [isChecking, setChecking] = useState(false);
@@ -159,24 +153,26 @@ export const CompanyPageCreate = (): ReactElement => {
       isTall
       aside={<StartupsNameStunt name={name} />}
     >
-      <CheckoutTitle
-        title="Set up your company page"
-        description="Your agent can fill it in from your site, or you can do it here."
-      />
+      {prefill?.website ? (
+        <CheckoutTitle
+          title="Finish your company page"
+          description={`We couldn't get everything from ${prefill.website.replace(
+            /^https?:\/\//,
+            '',
+          )}. Add what's missing and you're done.`}
+        />
+      ) : (
+        <CheckoutTitle
+          title="Set up your company page"
+          description="Add your logo, name and a short description."
+        />
+      )}
       <form
         id={FORM_ID}
         className="flex w-full flex-col gap-6"
         onSubmit={onSubmit}
         noValidate
       >
-        <AgentSetupButton />
-        <OrDivider
-          label="or fill it in yourself"
-          className={{
-            text: 'text-text-tertiary',
-            border: 'bg-border-subtlest-tertiary',
-          }}
-        />
         <div className="flex items-center gap-4">
           <div className="relative size-24 shrink-0">
             <img
