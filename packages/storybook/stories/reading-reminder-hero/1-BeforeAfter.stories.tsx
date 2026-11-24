@@ -134,7 +134,7 @@ export const Responsive: StoryObj = {
   render: () => (
     <Page
       title="Centered on every width"
-      intro="Today is what production renders, the same components with the same props: ReadingReminderFeedHero at the top of the feed on phones and tablets (a left-aligned row from tablet up), and TopHero in the strip above the feed frame from 1024px up. Only the feed around it is a mock. The proposal keeps each slot and its height, centered, with Patchy and the reader's own hour."
+      intro="Today is what production renders, the same components with the same props: ReadingReminderFeedHero at the top of the feed on phones and tablets (a left-aligned row from tablet up), and TopHero in the strip above the feed frame from 1020px up. Only the feed around it is a mock. The proposal keeps each slot and its height, centered, with Patchy and the reader's own hour."
     >
       <Pair device="phone" height={640} />
       <Pair device="tablet" height={640} />
@@ -148,7 +148,7 @@ export const Themes: StoryObj = {
   render: () => (
     <Page
       title="Light theme on phones"
-      intro="Today's card is drawn in fixed dark colors, so in light theme the title and button disappear. The proposal uses theme tokens and reads in both."
+      intro="Today's card mixes fixed dark colors with theme colors, so in light theme its small title line (“Never miss a learning day”) and the button’s background disappear. The proposal uses theme tokens and reads in both."
     >
       <div className="flex flex-col gap-6">
         <h2 className="font-bold text-text-primary typo-title3">Light</h2>

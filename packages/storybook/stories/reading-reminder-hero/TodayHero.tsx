@@ -33,7 +33,7 @@ export const TodayHero = ({
   onEnable,
   onClose,
 }: {
-  /** useLaptopLayout: the v2 shell from 1024px up. */
+  /** useLaptopLayout: the v2 shell from 1020px up. */
   isLaptop: boolean;
   kind?: TodayKind;
   onEnable?: () => void;

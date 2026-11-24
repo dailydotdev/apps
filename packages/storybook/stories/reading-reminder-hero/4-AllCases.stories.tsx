@@ -148,7 +148,7 @@ export const Today: StoryObj<CaseArgs> = {
   render: ({ themes }) => (
     <Page
       title="Today in production"
-      intro="What readers get now, rendered with the production components and props: ReadingReminderFeedHero inline on phones and tablets, TopHero in the strip above the feed from 1024px up. In light theme the phone and tablet card loses its eyebrow line and its button background."
+      intro="What readers get now, rendered with the production components and props: ReadingReminderFeedHero inline on phones and tablets, TopHero in the strip above the feed from 1020px up. On phones and tablets, in light theme its small title line (“Never miss a learning day”) and the button’s background disappear."
     >
       {todayKinds.map(({ kind, title, note }) => (
         <Group key={kind} title={title} note={note}>
@@ -472,6 +472,12 @@ const whoCases: {
     note: 'Once a day per device; it stays for the session once shown.',
   },
   {
+    reader: 'Opened another feed first today, then the home feed',
+    today: 'none',
+    proposed: 'offer',
+    note: 'Today the day is used up on any feed where they qualify, even with no card shown. Proposed: stamp only when shown.',
+  },
+  {
     reader: 'iOS Safari, not installed (no web push)',
     today: 'offer',
     proposed: 'none',
@@ -504,7 +510,25 @@ const whoCases: {
     reader: 'Phone or tablet feed with other top content',
     today: 'none',
     proposed: 'none',
-    note: 'Unless keepTopHero is set.',
+    note: 'keepTopHero would keep it, but only tests set it.',
+  },
+  {
+    reader: 'Feed hero on (without feed widgets)',
+    today: 'none',
+    proposed: 'none',
+    note: 'disableTopHero hides it.',
+  },
+  {
+    reader: 'Weekly picks still deciding',
+    today: 'none',
+    proposed: 'none',
+    note: 'Held back for a moment so both cards land together.',
+  },
+  {
+    reader: 'Search page on laptop',
+    today: 'none',
+    proposed: 'none',
+    note: 'The strip card is skipped there.',
   },
 ];
 

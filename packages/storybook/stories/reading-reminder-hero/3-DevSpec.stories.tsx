@@ -202,7 +202,25 @@ export const DevSpec: StoryObj = {
             ],
             [
               <Code key="f">components/Feed.tsx</Code>,
-              'No change to the layout branch.',
+              'Keeps its layout branch, but renders the new laptop card in the strip instead of TopHero.',
+            ],
+            [
+              <Code key="f">components/picks/WeeklyPicksHero.tsx</Code>,
+              'Its phone and tablet panel copies today’s reminder panel: move it to the same frame and tokens (see 2).',
+            ],
+            [
+              <Code key="f">hooks/picks/useWeeklyPicksHero.ts</Code>,
+              'Waits on useReadingReminderHeroSettled; that has to include the account-level close (see 5).',
+            ],
+            [
+              <Code key="f">
+                components/onboarding/FeedPatchy/useFeedPatchyReminder.ts
+              </Code>,
+              'Already tells granted, denied and dismissed apart: reuse it with saving moved after the answer (see 3).',
+            ],
+            [
+              <Code key="f">contexts/PushNotificationContext.tsx</Code>,
+              'iOS push-subscribe has no timeout (see 3).',
             ],
             [
               <Code key="f">graphql/actions.ts</Code>,
@@ -284,9 +302,14 @@ export const DevSpec: StoryObj = {
             ],
             [
               'At most once a day',
-              'Per device: the last-seen stamp; once shown it stays for the session.',
-              'Same',
-              <Tag key="t" kind="same" />,
+              <>
+                Per device, and the last-seen stamp is written whenever the
+                reader is eligible, on any feed (<Code>useFeed.ts</Code> calls
+                the hook for every feed), so the day can be used up on another
+                feed without the card ever showing.
+              </>,
+              'Stamp it only when the card is actually on screen.',
+              <Tag key="t" kind="changed" />,
             ],
             [
               'Push can work here',
@@ -315,6 +338,27 @@ export const DevSpec: StoryObj = {
               'Same',
               <Tag key="t" kind="same" />,
             ],
+            [
+              'Other top cards win',
+              <>
+                <Code>disableTopHero</Code> hides it when the feed hero (
+                <Code>featureFeedHero</Code>, without feed widgets) is on, and
+                while Weekly picks is still deciding (
+                <Code>MainFeedLayout.tsx</Code>). On phones and tablets it also
+                gives way to any other top content of the feed.
+              </>,
+              'Same',
+              <Tag key="t" kind="same" />,
+            ],
+            [
+              'Search page on laptop',
+              <>
+                Not rendered in the strip (<Code>!isSearchPageLaptop</Code> in{' '}
+                <Code>Feed.tsx</Code>).
+              </>,
+              'Same',
+              <Tag key="t" kind="same" />,
+            ],
           ]}
         />
       </Section>
@@ -322,25 +366,25 @@ export const DevSpec: StoryObj = {
       <Section
         id="devices"
         title="2. Devices and surfaces"
-        intro="Native iOS and Android run the webapp shell, so they get the phone layout. The platform comes from getDailyClientPlatform, never from an extension or webapp flag."
+        intro="Native iOS and Android run the webapp shell, so they get whichever layout their screen width gets: phones the phone card, tablets the tablet card. The platform comes from getDailyClientPlatform, never from an extension or webapp flag."
       >
         <Table
           head={['Surface', 'Card today', 'Card proposed', 'Push path']}
           rows={[
             [
-              'Phone web (< 768)',
+              'Phone web (< 656px)',
               'ReadingReminderFeedHero, stacked, cat below',
               'Stacked, Patchy 128px',
               'OneSignal web push. iOS Safari outside an installed app: unsupported, so the card is hidden.',
             ],
             [
-              'Tablet web (768–1023)',
+              'Tablet web (656–1019px)',
               'ReadingReminderFeedHero, left-aligned row, cat right',
               'Stacked, Patchy 64px, subtitle on one line',
               'OneSignal',
             ],
             [
-              'Laptop (≥ 1024, useLaptopLayout)',
+              'Laptop (≥ 1020px, useLaptopLayout)',
               <>
                 TopHero in the top-hero strip above the feed frame (
                 <Code>MainLayout.tsx</Code>).
@@ -350,8 +394,8 @@ export const DevSpec: StoryObj = {
             ],
             [
               'iOS app',
-              'Phone layout',
-              'Phone layout',
+              'By width (phone card on iPhone)',
+              'By width',
               <>
                 Native bridge <Code>push-subscribe</Code>, answers a boolean. No
                 “denied” state and no timeout.
@@ -359,8 +403,8 @@ export const DevSpec: StoryObj = {
             ],
             [
               'Android app',
-              'Phone layout',
-              'Phone layout',
+              'By width',
+              'By width',
               'OneSignal web push inside the Chrome shell (no native path).',
             ],
             ['Extension', 'Not shown', 'Not shown', 'None'],
@@ -390,8 +434,9 @@ export const DevSpec: StoryObj = {
             </>,
             <>
               <strong className="text-text-primary">Phones and tablets:</strong>{' '}
-              the inline card only shows when the feed has no other top content,
-              unless <Code>keepTopHero</Code> is set (<Code>Feed.tsx</Code>).
+              the inline card only shows when the feed has no other top content
+              (<Code>Feed.tsx</Code>). <Code>keepTopHero</Code> would keep it,
+              but no production caller sets it; only tests do.
             </>,
           ]}
         />
@@ -406,7 +451,7 @@ export const DevSpec: StoryObj = {
   if isSubscribed                      → save(hour) → "saved"
   if web && Notification.permission === 'denied'
                                        → "blocked" (nothing saved)
-  granted = await subscribe(source)
+  granted = await onEnablePush(source)   // permission is not denied here, so it asks
   if granted                           → save(hour) → "saved"
   else if web && Notification.permission === 'denied'
                                        → "blocked" (nothing saved)
@@ -464,11 +509,17 @@ export const DevSpec: StoryObj = {
               <Code>lib/timezones.ts</Code>. Today it’s a hard-coded{' '}
               <Code>DEFAULT_READING_REMINDER_HOUR = 9</Code>.
             </>,
-            'Because that hour is already under way, the first reminder is tomorrow: the saved copy says so.',
-            '“Other time” offers 9 AM, 1 PM and 8 PM, with the current hour in place of the nearest one, with sun and moon icons as in the mockup.',
+            'At the current hour the first reminder is tomorrow, since that hour is under way. A later hour picked under Other time can still arrive today; the saved copy says which.',
             <>
-              <Code>subscribePersonalizedDigest</Code> sends <Code>hour</Code>{' '}
-              only; the backend uses the profile’s timezone. The client’s
+              <Code>getHourTimezone</Code> formats with{' '}
+              <Code>hour12: false</Code>, which can return 24 at midnight: take
+              it modulo 24.
+            </>,
+            '“Other time” offers 9 AM, 1 PM and 8 PM, with the current hour in place of the nearest one, with sun and moon icons as in the mockup. Times read the same way everywhere on the card: “8 PM”.',
+            <>
+              <Code>subscribePersonalizedDigest</Code> sends <Code>hour</Code>,{' '}
+              <Code>day</Code>, <Code>type</Code> and <Code>sendType</Code>, but
+              no timezone; the backend uses the profile’s timezone. The client’s
               fallback (<Code>user.timezone ?? device</Code>) only goes into the
               log today.
             </>,
@@ -509,8 +560,10 @@ export const DevSpec: StoryObj = {
             <>
               <Code>ReadingReminderFeedHero</Code> uses{' '}
               <Code>bg-raw-pepper-90</Code>, <Code>text-white</Code> and pepper
-              gradient fades. In light theme the primary button turns dark on
-              the dark card and the eyebrow line drops out.
+              gradient fades, next to theme-driven parts like the primary
+              button. In light theme its small title line (“Never miss a
+              learning day”) and the button’s background disappear on the dark
+              card (Before and after · Themes).
             </>,
             'Replace them with semantic tokens (bg-background-default, text-text-primary, text-text-tertiary). TopHero already uses tokens.',
             'Check both themes on phone, tablet and laptop, and in the iOS and Android apps.',
@@ -554,8 +607,8 @@ export const DevSpec: StoryObj = {
             ['Other time opened', '—', 'New click event.'],
             [
               'Push answer',
-              'Not logged by the hero',
-              'ReadingReminderPermission with granted, denied or dismissed (as useFeedPatchyReminder logs it).',
+              'Grants are logged by the push provider (ClickEnableNotification, origin reading reminder). Denied and dismissed are not logged.',
+              'Also log denied and dismissed: ReadingReminderPermission, as useFeedPatchyReminder does.',
             ],
             [
               'Reminder saved',
@@ -592,6 +645,12 @@ export const DevSpec: StoryObj = {
               <Tag key="t" kind="decide" />,
             ],
             [
+              'Is the reminder really “one top pick”?',
+              'The copy promises a post from their feed. Confirm what the reading reminder push contains. “Pick” also overlaps with Weekly picks, which may confuse.',
+              'Backend, product',
+              <Tag key="t" kind="decide" />,
+            ],
+            [
               'Late-night hours (midnight to 5 AM)?',
               'Someone reading at 1 AM would get “Send it at 1 AM”. Keep, or suggest the next morning?',
               'Product',
@@ -604,8 +663,8 @@ export const DevSpec: StoryObj = {
               <Tag key="t" kind="decide" />,
             ],
             [
-              'Match onboarding',
-              'Onboarding tests Patchy, push first and a time picker (PR 7175). The hero should follow the winner.',
+              'Stay consistent with onboarding',
+              'Onboarding settled on a time picker step and is dropping its push-only variant (PR 7175). Keep the hero’s time choice consistent with that step.',
               'Product',
               <Tag key="t" kind="decide" />,
             ],

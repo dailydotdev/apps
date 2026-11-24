@@ -94,7 +94,7 @@ export const ReadMe: StoryObj = {
           a Storybook demo only: production still runs the June version
           (useReadingReminderHero). The pages render the real production cards
           next to the proposal: ReadingReminderFeedHero on phones and tablets,
-          TopHero above the feed from 1024px up.
+          TopHero above the feed from 1020px up.
         </p>
         <div className="flex flex-wrap gap-2">
           <a
@@ -128,7 +128,7 @@ export const ReadMe: StoryObj = {
         <Change
           index={1}
           title="Centered on every width"
-          today="Left-aligned: a row with the cat on the right on tablets, and a compact row above the feed with the cat on the left from 1024px up. The desktop row gets 2.8% taps."
+          today="Left-aligned: a row with the cat on the right on tablets, and a compact row above the feed with the cat on the left from 1020px up. The desktop row gets 2.8% taps."
           proposed="Centered everywhere, like phones and the apps, which get 5–9%. Laptop keeps its slot above the feed and its height."
           story={`${beforeAfter}--responsive`}
         />
@@ -136,7 +136,7 @@ export const ReadMe: StoryObj = {
           index={2}
           title="Reading Patchy and copy that sells the post"
           today="Sleeping cat. “Turn on your daily reading reminder and keep your routine.”"
-          proposed="Patchy. “Make reading a daily habit. One top pick a day at 8:00 PM, when you’re reading now. Skipped on days you’ve read.” The reading Patchy art still needs uploading to media.daily.dev before it ships."
+          proposed="Patchy. “Make reading a daily habit. One top pick a day at 8 PM, when you’re reading now. Skipped on days you’ve read.” The reading Patchy art still needs uploading to media.daily.dev before it ships."
           story={`${beforeAfter}--responsive`}
         />
         <Change
@@ -156,7 +156,7 @@ export const ReadMe: StoryObj = {
         <Change
           index={5}
           title="Light theme on phones"
-          today="Fixed dark colors: in light theme the title and button disappear."
+          today="Fixed dark colors mixed with theme colors: in light theme its small title line (“Never miss a learning day”) and the button’s background disappear."
           proposed="Theme tokens, so it reads in both themes."
           story={`${beforeAfter}--themes`}
         />
@@ -183,9 +183,10 @@ export const ReadMe: StoryObj = {
             Title and subtitle come from reading_reminder_hero_copy. Check that
             no experiment runs on it before replacing the copy in code.
           </Note>
-          <Note title="Onboarding is testing the same ideas">
-            Patchy art, push first, and a time picker (#7175). Match the hero to
-            whichever onboarding version wins.
+          <Note title="Stay consistent with onboarding">
+            Onboarding settled on a time picker step and is dropping its
+            push-only variant (#7175). Keep the hero’s time choice consistent
+            with it.
           </Note>
         </div>
       </section>

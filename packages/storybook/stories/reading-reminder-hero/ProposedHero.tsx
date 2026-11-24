@@ -12,6 +12,7 @@ import { MoonIcon } from '@dailydotdev/shared/src/components/icons/Moon';
 import { SunIcon } from '@dailydotdev/shared/src/components/icons/Sun';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
+import { readingReminderPushPromptCopy } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderPushPrompt';
 
 // The proposed "Never miss a learning day" hero: the production slot and
 // frame, centered on every width, theme tokens instead of fixed dark colors,
@@ -29,10 +30,6 @@ export type HeroStep =
 /** 20 → "8 PM", 9 → "9 AM". */
 export const shortHour = (hour: number): string =>
   `${hour % 12 || 12} ${hour < 12 ? 'AM' : 'PM'}`;
-
-/** 20 → "8:00 PM". */
-export const longHour = (hour: number): string =>
-  `${hour % 12 || 12}:00 ${hour < 12 ? 'AM' : 'PM'}`;
 
 /** The mockup's three presets, with the current hour in place of the nearest. */
 export const hourChoices = (readingHour: number): number[] => {
@@ -56,6 +53,8 @@ interface ProposedHeroProps {
   step: HeroStep;
   /** The hour the reader sees the card, in their timezone, rounded down. */
   readingHour: number;
+  /** The hour they chose, when it isn't the current one. */
+  savedHour?: number;
   onSend?: (hour: number) => void;
   onPickTime?: () => void;
   onRetry?: () => void;
@@ -77,13 +76,16 @@ const heroContent = (
   {
     step,
     readingHour,
+    savedHour = readingHour,
     onSend,
     onPickTime,
     onRetry,
   }: Omit<ProposedHeroProps, 'onClose' | 'className'>,
   size: ButtonSize,
 ): HeroContent => {
-  const time = longHour(readingHour);
+  const time = shortHour(savedHour);
+  // The current hour is under way, so only a later one can still come today.
+  const day = savedHour > readingHour ? 'today' : 'tomorrow';
   const status = 'flex h-8 items-center gap-1 typo-callout';
 
   switch (step) {
@@ -91,7 +93,7 @@ const heroContent = (
       return {
         title: 'When do you like to read?',
         subtitle:
-          "Pick a time for one top pick a day. Skipped on days you've read.",
+          'Pick a time for one top pick a day. Skipped on days you’ve read.',
         actions: hourChoices(readingHour).map((hour) => (
           <Button
             key={hour}
@@ -119,8 +121,8 @@ const heroContent = (
       };
     case 'saved':
       return {
-        title: "You're all set",
-        subtitle: `Your first top pick arrives tomorrow at ${time}. Skipped on days you've read.`,
+        title: 'You’re all set',
+        subtitle: `Your first top pick arrives ${day} at ${time}. Skipped on days you’ve read.`,
         actions: (
           <span
             className={classNames(
@@ -136,7 +138,7 @@ const heroContent = (
       return {
         title: 'Notifications are blocked',
         subtitle:
-          "Without them your top pick can't reach you. Turn them on in your browser settings, then try again.",
+          'Without them your top pick can’t reach you. Turn them on in your settings, then try again.',
         actions: (
           <Button
             type="button"
@@ -150,8 +152,8 @@ const heroContent = (
       };
     case 'paused':
       return {
-        title: "Your reminder is on, but we can't reach you",
-        subtitle: 'Turn on notifications to get your daily reading reminder.',
+        title: readingReminderPushPromptCopy.title,
+        subtitle: readingReminderPushPromptCopy.heroSubtitle,
         actions: (
           <Button
             type="button"
@@ -159,14 +161,14 @@ const heroContent = (
             variant={ButtonVariant.Primary}
             onClick={onRetry}
           >
-            Turn on notifications
+            {readingReminderPushPromptCopy.cta}
           </Button>
         ),
       };
     default:
       return {
         title: 'Make reading a daily habit',
-        subtitle: `One top pick a day at ${time}, when you're reading now. Skipped on days you've read.`,
+        subtitle: `One top pick a day at ${time}, when you’re reading now. Skipped on days you’ve read.`,
         actions: (
           <>
             <Button
@@ -208,6 +210,7 @@ export const ProposedHero = ({
           <div className="top-hero-glow pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full opacity-40 blur-3xl" />
           {onClose && (
             <CloseButton
+              type="button"
               className="absolute right-2 top-2 z-2"
               size={ButtonSize.Small}
               aria-label="Close banner"

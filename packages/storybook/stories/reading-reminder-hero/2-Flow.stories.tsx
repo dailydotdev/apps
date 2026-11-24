@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   Button,
@@ -10,10 +10,10 @@ import { Device } from '../sources/device';
 import { FeedMock } from './FeedMock';
 import type { HeroStep } from './ProposedHero';
 import {
-  longHour,
   PermissionPrompt,
   ProposedHero,
   ProposedTopHero,
+  shortHour,
 } from './ProposedHero';
 
 type Permission = 'default' | 'granted' | 'denied';
@@ -85,13 +85,13 @@ const InteractiveFlow = ({
   const [lines, setLines] = useState<string[]>([]);
   const log = (line: string) => setLines((current) => [...current, line]);
 
-  const restart = () => {
+  const restart = useCallback(() => {
     setStep('offer');
     setHour(readingHour);
     setPermission(initialPermission);
     setLines([]);
-  };
-  useEffect(restart, [readingHour, initialPermission]);
+  }, [readingHour, initialPermission]);
+  useEffect(restart, [restart]);
 
   useEffect(() => {
     if (step !== 'saved') {
@@ -102,7 +102,7 @@ const InteractiveFlow = ({
   }, [step]);
 
   const save = (pickedHour: number) => {
-    log(`Reminder saved: daily at ${longHour(pickedHour)}, reader's timezone`);
+    log(`Reminder saved: daily at ${shortHour(pickedHour)}, reader’s timezone`);
     setStep('saved');
   };
 
@@ -131,7 +131,8 @@ const InteractiveFlow = ({
               step === 'gone' ? undefined : (
                 <ProposedHero
                   step={step}
-                  readingHour={hour}
+                  readingHour={readingHour}
+                  savedHour={hour}
                   onSend={send}
                   onPickTime={() => setStep('picking')}
                   onRetry={() => {
@@ -206,7 +207,7 @@ const states: { step: HeroStep; label: string; note: string }[] = [
   {
     step: 'offer',
     label: 'Offer',
-    note: 'The hour they see the card, in their timezone, rounded down. The first reminder is tomorrow.',
+    note: 'The hour they see the card, in their timezone, rounded down. At that hour the first reminder is tomorrow; a later hour picked under Other time can come today.',
   },
   {
     step: 'picking',
