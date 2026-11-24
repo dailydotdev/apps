@@ -23,9 +23,12 @@ import { getStartupsContentPrompt } from '../../lib/setup';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { SquadPageLayout } from '../SquadPageLayout';
 import { SquadSubPageHeader } from '../SquadSubPageHeader';
+import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 import { FirstPostIntel, FirstPostIntelWrite } from './FirstPostIntel';
 import { FirstPostIntelProgress } from './FirstPostIntelProgress';
 import { FirstPostTrends } from './FirstPostTrends';
+
+const BOOST_DOLLARS = 100;
 
 // Pages whose admin already watched the intel being put together, so it
 // opens straight on the intel the next time
@@ -58,6 +61,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
   const { data: trends } = useQuery(
     developerTrendsQueryOptions({ user, enabled: intel === null }),
   );
+  const boost = useSquadFreeBoost(squad);
   const [isAnalyzing, setAnalyzing] = useState(
     () => !analysisSeen.has(sourceId) && !prefersReducedMotion(),
   );
@@ -76,6 +80,15 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
       source_id: sourceId,
     });
   const close = () => setIntelOpen(false);
+  const write = () => {
+    close();
+    log(LogEvent.ClickStartupsSetupStep, 'first post write');
+    openModal({
+      type: LazyModal.SmartComposer,
+      props: { initialSquadHandle: squad.handle, initialKind: 'text' },
+    });
+  };
+  const hasBoost = boost?.state === 'setup' || boost?.state === 'first_post';
   const upgradeUrl = subscription?.plan
     ? undefined
     : getStartupsCheckoutUrl({ sourceId });
@@ -92,23 +105,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
           backUrl={getSquadUrl(squad.handle)}
           backLabel={`Back to ${squad.name}`}
           onBack={close}
-          action={
-            !isAnalyzingIntel && (
-              <FirstPostIntelWrite
-                onWrite={() => {
-                  close();
-                  log(LogEvent.ClickStartupsSetupStep, 'first post write');
-                  openModal({
-                    type: LazyModal.SmartComposer,
-                    props: {
-                      initialSquadHandle: squad.handle,
-                      initialKind: 'text',
-                    },
-                  });
-                }}
-              />
-            )
-          }
+          action={!isAnalyzingIntel && <FirstPostIntelWrite onWrite={write} />}
         />
       }
     >
@@ -137,6 +134,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
       {intel && !isAnalyzing && (
         <FirstPostIntel
           intel={intel}
+          name={squad.name}
           editTopicsUrl={getSquadManageUrl(
             squad.handle,
             SquadManageSection.Intel,
@@ -149,6 +147,8 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
           onUpgrade={() =>
             log(LogEvent.UpgradeSubscription, 'first post intel')
           }
+          boostDollars={hasBoost ? BOOST_DOLLARS : undefined}
+          onWrite={write}
         />
       )}
     </SquadPageLayout>

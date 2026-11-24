@@ -16,11 +16,12 @@ import {
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { useCopyLink } from '../../../../hooks/useCopy';
-import type {
-  IntelCompetition,
-  SquadIntelHighlights,
-} from '../../../../graphql/squadIntel';
-import { startupsLavender } from '../../../../styles/custom';
+import type { SquadIntelHighlights } from '../../../../graphql/squadIntel';
+import {
+  startupsLavender,
+  startupsLavenderBorder,
+  startupsLavenderWash,
+} from '../../../../styles/custom';
 import {
   formatIntelIndex,
   getIntelOpening,
@@ -30,25 +31,30 @@ import { AgentMarks } from '../AgentPromptButton';
 import { StartupsFreeChip } from '../StartupsFreeChip';
 import { SquadStatsRow } from '../valuePanel/SquadStatsRow';
 import { FirstPostIntelMap } from './FirstPostIntelMap';
+import {
+  competitionChipClassName,
+  competitionFillClassName,
+  competitionLabel,
+} from './intelCompetition';
 
 interface FirstPostIntelProps {
   intel: SquadIntelHighlights;
+  name: string;
   editTopicsUrl: string;
   /** The prompt that starts the content skills, built on click */
   getAgentPrompt: () => string;
   onCopyPrompt?: () => void;
   upgradeUrl?: string;
   onUpgrade?: () => void;
+  /** The free boost the first post gets, unset without one */
+  boostDollars?: number;
+  /** Opens the composer on a blank post */
+  onWrite: () => void;
 }
 
+// Monday first, as the intel's days are
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const RISING_SHOWN = 3;
-
-const competitionLabel: Record<IntelCompetition, string> = {
-  open: 'Open',
-  moderate: 'Moderate',
-  crowded: 'Crowded',
-};
 
 const number = (value: number): string => value.toLocaleString('en-US');
 
@@ -102,21 +108,15 @@ export const IntelSection = ({
 
 export const IntelBar = ({
   percentage,
-  isHighlighted,
+  fillClassName = 'bg-text-quaternary',
 }: {
   percentage: number;
-  isHighlighted?: boolean;
+  fillClassName?: string;
 }): ReactElement => (
   <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-50 bg-border-subtlest-tertiary">
     <div
-      className={classNames(
-        'h-full rounded-50',
-        !isHighlighted && 'bg-text-quaternary',
-      )}
-      style={{
-        width: `${Math.max(percentage, 2)}%`,
-        background: isHighlighted ? startupsLavender : undefined,
-      }}
+      className={classNames('h-full rounded-50', fillClassName)}
+      style={{ width: `${Math.max(percentage, 2)}%` }}
     />
   </div>
 );
@@ -125,9 +125,9 @@ const Change = ({ value }: { value: number | null }): ReactElement => (
   <span
     className={classNames(
       'w-12 shrink-0 text-right tabular-nums typo-footnote',
-      value === null || value > 0
-        ? 'text-accent-avocado-default'
-        : 'text-text-tertiary',
+      (value === null || value > 0) && 'text-accent-avocado-default',
+      value !== null && value < 0 && 'text-accent-ketchup-default',
+      value === 0 && 'text-text-tertiary',
     )}
   >
     {formatChange(value)}
@@ -205,12 +205,10 @@ const AgentStrip = ({
     <div className="flex flex-col gap-3 rounded-16 bg-surface-float p-4 tablet:flex-row tablet:items-center">
       <AgentMarks className="size-8 rounded-10" glyphClassName="size-5" />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <strong className="typo-callout">
-          Give your agent everything on this page
-        </strong>
+        <strong className="typo-callout">Work on it with your agent</strong>
         <p className="text-pretty text-text-tertiary typo-footnote">
-          It reads this intel, then helps you pick an idea, plan what you
-          publish or check your draft. You write the post.
+          It reads this intel, then plans what you publish, suggests post ideas
+          or checks a post you wrote. You write the post.
         </p>
       </div>
       <Button
@@ -223,7 +221,7 @@ const AgentStrip = ({
           onCopy?.();
         }}
       >
-        {isCopying ? 'Prompt copied' : 'Copy prompt'}
+        {isCopying ? 'Copied' : 'Copy prompt'}
       </Button>
     </div>
   );
@@ -234,10 +232,14 @@ const AgentStrip = ({
  * under it are the weekly intel on the page's own topics.
  */
 const FreeIssueLine = ({
+  name,
+  pickedFrom,
   endsAt,
   upgradeUrl,
   onUpgrade,
 }: {
+  name: string;
+  pickedFrom: string;
   endsAt: string;
   upgradeUrl?: string;
   onUpgrade?: () => void;
@@ -245,7 +247,7 @@ const FreeIssueLine = ({
   <div className="flex flex-col gap-1 border-t border-border-subtlest-tertiary pt-6">
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
       <h3 className="font-bold typo-title3">Your weekly intel</h3>
-      <StartupsFreeChip label="Free this once" />
+      <StartupsFreeChip label="One-time free" />
       {upgradeUrl && (
         <a
           href={upgradeUrl}
@@ -258,10 +260,94 @@ const FreeIssueLine = ({
       )}
     </div>
     <p className="text-pretty text-text-tertiary typo-footnote">
-      {`Everything from here down is on your own topics. After ${day(endsAt)}, a free page gets the general daily.dev trends instead.`}
+      {`We picked ${name}'s topics from ${pickedFrom} for this one. From ${day(endsAt)}, you get the general daily.dev trends instead.`}
     </p>
   </div>
 );
+
+/**
+ * How the intel ends: their audience reads every day, so no day is worth
+ * waiting for, and the last thing on the page starts the post.
+ */
+const PublishNow = ({
+  days,
+  boostDollars,
+  onWrite,
+}: {
+  /** Share of the week's reads by day, Monday first */
+  days: number[];
+  boostDollars?: number;
+  onWrite: () => void;
+}): ReactElement => {
+  const today = (new Date().getDay() + 6) % 7;
+
+  return (
+    <div
+      className="flex flex-col gap-4 rounded-16 p-4 tablet:flex-row tablet:items-center tablet:p-5"
+      style={{ background: startupsLavenderWash }}
+    >
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h3 className="font-bold typo-body">
+            The best day to publish is today
+          </h3>
+          <p className="text-pretty text-text-secondary typo-footnote">
+            Developers read your topics every day of the week, so no day is
+            worth waiting for.
+            {!!boostDollars &&
+              ` Your first post gets a free $${boostDollars} boost.`}
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<EditIcon />}
+          className="self-start"
+          onClick={onWrite}
+        >
+          Write a post
+        </Button>
+      </div>
+      {!!days.length && (
+        <figure className="flex w-full shrink-0 flex-col gap-1.5 tablet:w-56">
+          <div className="flex gap-1">
+            {days.map((share, index) => {
+              const isToday = index === today;
+
+              return (
+                <span
+                  key={DAYS[index]}
+                  className="flex min-w-0 flex-1 flex-col items-center gap-1"
+                >
+                  <span
+                    className="h-6 w-full rounded-6"
+                    style={{
+                      background: isToday
+                        ? startupsLavender
+                        : startupsLavenderBorder,
+                    }}
+                  />
+                  <span
+                    className={classNames(
+                      'typo-caption2',
+                      isToday ? 'font-bold' : 'text-text-tertiary',
+                    )}
+                  >
+                    {isToday ? 'Today' : DAYS[index]}
+                  </span>
+                </span>
+              );
+            })}
+          </div>
+          <figcaption className="text-text-tertiary typo-caption2">
+            Your audience reads every day
+          </figcaption>
+        </figure>
+      )}
+    </div>
+  );
+};
 
 type TopPost = SquadIntelHighlights['topPosts'][number];
 
@@ -328,16 +414,18 @@ const PostRow = ({
  */
 export const FirstPostIntel = ({
   intel,
+  name,
   editTopicsUrl,
   getAgentPrompt,
   onCopyPrompt,
   upgradeUrl,
   onUpgrade,
+  boostDollars,
+  onWrite,
 }: FirstPostIntelProps): ReactElement => {
   const { topics, alsoRead, timing } = intel;
   const maxShare = Math.max(...topics.map(({ share }) => share), 1);
   const maxAffinity = Math.max(...alsoRead.map(({ affinity }) => affinity), 1);
-  const maxDay = Math.max(...timing.days, 1);
   const opening = getIntelOpening(topics);
   // New tags first, then the ones that grew most
   const rising = [...alsoRead]
@@ -353,7 +441,9 @@ export const FirstPostIntel = ({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="font-bold typo-title3">Overview</h3>
+            <h3 className="font-bold typo-title3">
+              Last week in {name}&apos;s topics
+            </h3>
             {intel.trial && <StartupsFreeChip />}
             <a
               href={editTopicsUrl}
@@ -363,7 +453,7 @@ export const FirstPostIntel = ({
             </a>
           </div>
           <p className="text-text-tertiary typo-footnote">
-            {`Week of ${getIntelWeekLabel(intel)}`}
+            {`What developers read on daily.dev, ${getIntelWeekLabel(intel)}.`}
           </p>
         </div>
         {intel.postsAnalyzed !== null && (
@@ -387,12 +477,9 @@ export const FirstPostIntel = ({
             <span className="text-text-tertiary typo-footnote">
               Our pick for your first post
             </span>
-            <strong className="typo-title3">{`Write about #${opening.tag}`}</strong>
+            <strong className="typo-title3">{`#${opening.tag} is your opening`}</strong>
             <p className="text-pretty text-text-secondary typo-callout">
               {`Posts there get ${formatIntelIndex(opening.readsPerPost)} the average reads, and few new posts compete for them.`}
-              {timing.bestDay &&
-                timing.bestHours &&
-                ` Publish on ${timing.bestDay}, ${timing.bestHours}.`}
             </p>
           </div>
         )}
@@ -400,6 +487,8 @@ export const FirstPostIntel = ({
 
       {intel.trial && (
         <FreeIssueLine
+          name={name}
+          pickedFrom={intel.trial.pickedFrom}
           endsAt={intel.trial.endsAt}
           upgradeUrl={upgradeUrl}
           onUpgrade={onUpgrade}
@@ -407,8 +496,8 @@ export const FirstPostIntel = ({
       )}
 
       <IntelSection
-        title="Your topics"
-        hint="Share of attention is the part of your audience's reads in your topics that went to each one. Change is against the week before."
+        title="Where developers' attention went"
+        hint="Share of the reads across your topics, and the change from the week before. Green is where few new posts compete."
       >
         <FirstPostIntelMap topics={topics} openingTag={opening?.tag} />
         <div className="flex flex-col gap-2.5">
@@ -422,19 +511,28 @@ export const FirstPostIntel = ({
               Bookmarks
             </Head>
             <Head className="hidden w-14 text-right tablet:block">Top 10%</Head>
-            <Head className="hidden w-20 text-right tablet:block">
+            <Head className="hidden w-20 text-center tablet:block">
               Competition
             </Head>
           </div>
           <ul className="flex flex-col gap-2.5">
             {topics.map((topic) => (
               <li key={topic.tag} className="flex items-center gap-3">
-                <span className="w-24 shrink-0 truncate typo-footnote tablet:w-32">
+                <span
+                  className={classNames(
+                    'w-24 shrink-0 truncate typo-footnote tablet:w-32',
+                    topic.tag === opening?.tag && 'font-bold',
+                  )}
+                >
                   #{topic.tag}
                 </span>
                 <IntelBar
                   percentage={(topic.share / maxShare) * 100}
-                  isHighlighted={topic.tag === opening?.tag}
+                  fillClassName={
+                    topic.competition
+                      ? competitionFillClassName[topic.competition]
+                      : undefined
+                  }
                 />
                 <span className="w-12 shrink-0 text-right font-bold tabular-nums typo-footnote">
                   {topic.share}%
@@ -455,9 +553,9 @@ export const FirstPostIntel = ({
                 </span>
                 <span
                   className={classNames(
-                    'hidden w-20 shrink-0 text-right typo-footnote tablet:block',
-                    topic.competition === 'open'
-                      ? 'font-bold'
+                    'hidden w-20 shrink-0 rounded-6 px-1.5 py-0.5 text-center font-bold typo-caption2 tablet:block',
+                    topic.competition
+                      ? competitionChipClassName[topic.competition]
                       : 'text-text-tertiary',
                   )}
                 >
@@ -509,7 +607,7 @@ export const FirstPostIntel = ({
         </IntelSection>
       )}
 
-      <IntelSection title="Top posts this week">
+      <IntelSection title="Top posts in your topics">
         <ol className="flex flex-col">
           {intel.topPosts.map((post, index) => (
             <PostRow key={post.permalink} post={post} rank={index + 1} />
@@ -517,57 +615,11 @@ export const FirstPostIntel = ({
         </ol>
       </IntelSection>
 
-      <IntelSection
-        title="Timing"
-        hint="When your audience reads, as a share of the week's reads."
-      >
-        <div className="flex items-end gap-2">
-          {timing.days.map((share, index) => {
-            const isBest = !!timing.bestDay?.startsWith(DAYS[index]);
-
-            return (
-              <div
-                key={DAYS[index]}
-                className="flex min-w-0 flex-1 flex-col items-center gap-1.5"
-              >
-                <span
-                  className={classNames(
-                    'tabular-nums typo-caption1',
-                    isBest ? 'font-bold' : 'text-text-tertiary',
-                  )}
-                >
-                  {share}%
-                </span>
-                <span
-                  className={classNames(
-                    'w-full rounded-6',
-                    !isBest && 'bg-border-subtlest-secondary',
-                  )}
-                  style={{
-                    height: `${Math.max((share / maxDay) * 4, 0.25)}rem`,
-                    background: isBest ? startupsLavender : undefined,
-                  }}
-                />
-                <span
-                  className={classNames(
-                    'typo-caption1',
-                    isBest ? 'font-bold' : 'text-text-tertiary',
-                  )}
-                >
-                  {DAYS[index]}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-        {timing.bestDay && timing.bestHours && (
-          <p className="text-pretty text-text-secondary typo-callout">
-            {`Posts published on ${timing.bestDay}, and posts published ${timing.bestHours}, get the strongest first day.`}
-            {timing.weakestDay &&
-              ` ${timing.weakestDay} is the weakest day to publish.`}
-          </p>
-        )}
-      </IntelSection>
+      <PublishNow
+        days={timing.days}
+        boostDollars={boostDollars}
+        onWrite={onWrite}
+      />
     </div>
   );
 };

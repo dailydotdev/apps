@@ -29,13 +29,11 @@ import { getStartupsStarterOffer } from '../../hooks/useStartupsPromo';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 
-// What every plan adds to a free page, in the words of daily.dev/startups,
-// each short enough for one line. Seats and the intel's topic count differ by
-// plan, so the checkout is where the plans are compared.
+// What the plan adds to a free page, each short enough for one line
 const planAdds = [
-  'Feed placement, by topic',
-  'SEO and AI visibility',
-  'Weekly intel on your topics',
+  "In developers' feeds, by topic",
+  'On Google and in AI answers',
+  'Weekly intel on what your readers read',
   'Ideas for your next post',
   'Draft check before you post',
   'Content strategy with your agent',
@@ -54,11 +52,13 @@ const Added = ({ children }: { children: string }): ReactElement => (
   </li>
 );
 
-/**
- * The upgrade, without naming a plan or a price: what a page gets on any of
- * them. They compare the plans in the checkout.
- */
-const PlanOffer = ({ sourceId }: { sourceId: string }): ReactElement => {
+const PlanOffer = ({
+  sourceId,
+  name,
+}: {
+  sourceId: string;
+  name: string;
+}): ReactElement => {
   const offer = getStartupsStarterOffer(useStartupsCashbackPromo());
   const logStartups = useLogStartups();
 
@@ -71,9 +71,9 @@ const PlanOffer = ({ sourceId }: { sourceId: string }): ReactElement => {
       }}
     >
       <div className="flex flex-col gap-0.5">
-        <h2 className="font-bold typo-callout">Upgrade your plan</h2>
+        <h2 className="font-bold typo-callout">Reach more developers</h2>
         <p className="text-text-tertiary typo-footnote">
-          {`Get ${planAdds.length + 1} more tools for reaching developers.`}
+          {`What the Startup plan adds for ${name}:`}
         </p>
       </div>
       <ul className="flex flex-col gap-2">
@@ -108,7 +108,7 @@ const PlanOffer = ({ sourceId }: { sourceId: string }): ReactElement => {
           })
         }
       >
-        Upgrade your page
+        See the Startup plan
       </Button>
     </section>
   );
@@ -138,5 +138,5 @@ export const SquadPlanWidget = (): ReactElement | null => {
     return null;
   }
 
-  return <PlanOffer sourceId={sourceId} />;
+  return <PlanOffer sourceId={sourceId} name={squad.name} />;
 };

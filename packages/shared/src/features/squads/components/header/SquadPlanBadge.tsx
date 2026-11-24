@@ -21,7 +21,6 @@ import {
   SquadManageSection,
 } from '../../lib/routes';
 import { useLogStartups } from '../../hooks/useLogStartups';
-import { StartupsPlanMark } from '../StartupsPlanMark';
 
 /**
  * Next to a company page's name, for its admins only: the plan the page is
@@ -51,17 +50,13 @@ export const SquadPlanBadge = (): ReactElement | null => {
     return (
       <a
         href={getSquadManageUrl(squad.handle, SquadManageSection.Plan)}
-        className={classNames(
-          className,
-          'gap-1 pl-1.5 pr-2 font-bold hover:underline',
-        )}
+        className={classNames(className, 'px-2 font-bold')}
         style={{
           color: startupsLavender,
           borderColor: startupsLavenderBorder,
           background: startupsLavenderTint,
         }}
       >
-        <StartupsPlanMark />
         {`${getSquadPlanTitle(plan)} plan`}
       </a>
     );

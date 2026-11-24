@@ -64,7 +64,7 @@ export const SquadIntelWidget = (): ReactElement | null => {
       <div className="flex flex-col gap-0.5">
         <h2 className="font-bold typo-callout">
           {opening
-            ? `Write about #${opening.tag}`
+            ? `#${opening.tag} is your opening`
             : 'What developers read last week'}
         </h2>
         {opening && (

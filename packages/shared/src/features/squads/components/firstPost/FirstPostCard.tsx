@@ -89,7 +89,7 @@ const ShareField = ({
         type="url"
         value={url}
         onChange={(event) => setUrl(event.target.value)}
-        placeholder="https://yoursite.com/post"
+        placeholder="https://"
         aria-label="Link to your content"
         className="h-full min-w-0 flex-1 bg-transparent text-text-primary typo-callout placeholder:text-text-quaternary focus:outline-none"
       />
@@ -124,7 +124,7 @@ export const FirstPostCard = ({
     <div className="flex flex-col gap-1">
       <h2 className="font-bold typo-title3">Write your first post</h2>
       <p className="text-text-secondary typo-callout">
-        Your posts are how developers find your page. Start one of two ways.
+        Developers find your page through your posts.
       </p>
     </div>
     <div className="relative grid grid-cols-1 gap-3 tablet:grid-cols-2">
@@ -134,14 +134,14 @@ export const FirstPostCard = ({
       <Path
         icon={<EditIcon />}
         title="Share your best content"
-        hint="Paste a link to a post, video, release notes or docs you already published."
+        hint="A blog post, video, release notes or docs page developers would learn from."
       >
         <ShareField onShare={onShare} />
       </Path>
       <Path
         icon={<MagicIcon />}
-        title="Find out what to write"
-        hint="We look at what developers in your field read, and suggest the topics that fit your audience."
+        title="Create something new"
+        hint="See what developers in your space read last week, and pick a topic."
       >
         <Button
           type="button"
@@ -149,7 +149,7 @@ export const FirstPostCard = ({
           className="w-full"
           onClick={onOpenIntel ?? onWrite}
         >
-          {onOpenIntel ? 'See what to write' : 'Write a post'}
+          {onOpenIntel ? 'Find a topic' : 'Write a post'}
         </Button>
       </Path>
     </div>
@@ -164,10 +164,11 @@ export const FirstPostCard = ({
             {`$${boostDollars} boost on your first post`}
           </h3>
           <p className="text-pretty text-text-secondary typo-footnote">
-            It goes out to thousands of developers on the day you post.
+            It goes out to thousands of developers in the US, Europe and other
+            top markets on the day you post.
             {!!missingForBoost.length && (
               <>
-                {' The boost starts once your page has '}
+                {' Your boost starts once your page has '}
                 {missingForBoost.map((step, index) => (
                   <React.Fragment key={step.id}>
                     {index > 0 &&

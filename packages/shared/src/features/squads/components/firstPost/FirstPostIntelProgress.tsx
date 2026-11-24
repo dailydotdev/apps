@@ -26,9 +26,9 @@ interface Step {
   looksAt?: string[];
 }
 
-const TICK_MS = 80;
-const LOOK_MS = 280;
-const REST_MS = 500;
+const TICK_MS = 60;
+const LOOK_MS = 200;
+const REST_MS = 350;
 
 const number = (value: number): string => value.toLocaleString('en-US');
 
@@ -105,11 +105,11 @@ export const FirstPostIntelProgress = ({
     const tags = intel.topics.map(({ tag }) => `#${tag}`);
 
     return [
-      { label: `Reading ${site}`, done: `Read ${site}`, ms: 900 },
+      { label: `Reading ${site}`, done: `Read ${site}`, ms: 600 },
       {
         label: 'Matching the topics developers follow',
         done: `Matched ${tags.length} topics`,
-        ms: 1300,
+        ms: 850,
         looksAt: tags,
       },
       {
@@ -118,7 +118,7 @@ export const FirstPostIntelProgress = ({
           intel.postsAnalyzed === null
             ? 'Went through the posts in your topics'
             : `Went through ${number(intel.postsAnalyzed)} posts`,
-        ms: 1700,
+        ms: 1100,
         count:
           intel.postsAnalyzed === null
             ? undefined
@@ -131,7 +131,7 @@ export const FirstPostIntelProgress = ({
           intel.readers === null
             ? 'Compared what developers read'
             : `Compared what ${compact(intel.readers)} developers read`,
-        ms: 1500,
+        ms: 1000,
         count:
           intel.readers === null
             ? undefined
@@ -140,22 +140,20 @@ export const FirstPostIntelProgress = ({
       {
         label: 'Checking what else your audience reads',
         done: `Found ${intel.alsoRead.length} more tags your audience reads`,
-        ms: 1100,
+        ms: 750,
         looksAt: intel.alsoRead.map(({ tag }) => `#${tag}`),
       },
       {
-        label: 'Ranking the top posts and the best time to publish',
-        done: intel.timing.bestDay
-          ? `Ranked the top posts, and ${intel.timing.bestDay} as the best day`
-          : 'Ranked the top posts',
-        ms: 900,
+        label: 'Ranking the top posts and when your audience reads',
+        done: 'Ranked the top posts and when your audience reads',
+        ms: 600,
       },
       {
         label: 'Finding your opening',
         done: openingTag
           ? `Found your opening: #${openingTag}`
           : 'Ranked your topics by reads',
-        ms: 900,
+        ms: 600,
       },
     ];
   }, [intel, name, openingTag]);

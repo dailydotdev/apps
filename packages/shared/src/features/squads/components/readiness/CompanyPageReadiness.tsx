@@ -196,7 +196,7 @@ const WidgetRow = ({
           className="shrink-0 rounded-6 px-1.5 py-0.5 font-bold typo-caption2"
           style={{ background: startupsLavenderTint, color: DONE_COLOR }}
         >
-          Unlocks boost
+          For your boost
         </span>
       )}
       {(item.href || isSkill) && (

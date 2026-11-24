@@ -562,7 +562,7 @@ export const CreateSomethingNew: Story = {
   ...story('readyNoPost'),
   play: async ({ canvasElement }) => {
     const button = await within(canvasElement).findByText(
-      'See what to write',
+      'Find a topic',
       {},
       { timeout: 60_000 },
     );

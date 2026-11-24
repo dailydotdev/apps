@@ -40,7 +40,7 @@ export const StarterUpgrade = ({
           {`Get ${formatBoostCredits(offer.monthlyCredits)} in boost credits every month`}
         </h3>
         <p className="text-pretty text-text-secondary typo-footnote">
-          {`Your free boost is over. On a plan, ${name} gets credits to boost every month, feed placement by topic, and SEO and AI visibility, so each post builds on the last.`}
+          {`With the Startup plan, ${name} reaches more developers: in developers' feeds, by topic, and on Google and in AI answers.`}
         </p>
       </div>
       <Button
@@ -51,7 +51,7 @@ export const StarterUpgrade = ({
         size={ButtonSize.Small}
         className="self-start"
       >
-        Upgrade your plan
+        Keep the reach going
       </Button>
     </div>
     <StartupsReachChart
