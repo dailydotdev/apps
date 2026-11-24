@@ -41,11 +41,10 @@ import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { defaultBootData, getBootMock } from '../../mock/boot';
 
-// "Leave a review" popover: what runs today, what iOS already replaced it
-// with, and the asks that replace the Chrome, Edge and Android campaigns.
-// Today's popover is the production modal with each campaign's stored
-// payload; the new surfaces are mock-ups built from production primitives,
-// none of them shipped yet.
+// "Leave a review" popover: what changes on each platform, before and after.
+// Before is the production modal with each campaign's stored payload; the
+// after surfaces are mock-ups built from production primitives, none of them
+// shipped yet.
 
 const noop = (): void => undefined;
 
@@ -162,21 +161,19 @@ const TodayModal = ({
   );
 };
 
-type Status = 'shipped' | 'running' | 'planned' | 'dropped' | 'open';
+type Status = 'shipped' | 'planned' | 'off' | 'open';
 
 const statusStyles: Record<Status, string> = {
   shipped: 'bg-accent-avocado-flat text-accent-avocado-default',
-  running: 'bg-accent-ketchup-flat text-accent-ketchup-default',
   planned: 'bg-accent-cabbage-flat text-accent-cabbage-default',
-  dropped: 'bg-surface-float text-text-tertiary',
+  off: 'bg-accent-ketchup-flat text-accent-ketchup-default',
   open: 'bg-accent-cheese-flat text-accent-cheese-default',
 };
 
 const statusLabels: Record<Status, string> = {
   shipped: 'Shipped',
-  running: 'Still running',
-  planned: 'Not built',
-  dropped: 'Dropped',
+  planned: 'New',
+  off: 'Turning off',
   open: 'Open',
 };
 
@@ -218,34 +215,65 @@ const Section = ({
   </section>
 );
 
-const Surface = ({
-  platform,
-  title,
+// What runs on the platform now and goes away.
+const Before = ({
   status,
+  children,
+  campaigns = [],
+  onOpen,
+}: {
+  status: Status;
+  children: ReactNode;
+  campaigns?: typeof todayCampaigns;
+  onOpen?: (marketingCta: MarketingCta) => void;
+}): ReactElement => (
+  <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 tablet:flex-row tablet:items-center">
+    <div className="flex min-w-0 flex-1 items-start gap-2">
+      <span className="shrink-0 pt-0.5 font-bold text-text-quaternary typo-caption1">
+        BEFORE
+      </span>
+      <Pill status={status} />
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+        className="min-w-0 flex-1"
+      >
+        {children}
+      </Typography>
+    </div>
+    {campaigns.length > 0 && (
+      <div className="flex shrink-0 flex-wrap gap-2">
+        {campaigns.map(({ label, marketingCta }) => (
+          <Button
+            key={marketingCta.campaignId}
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => onOpen?.(marketingCta)}
+          >
+            Open {label}
+          </Button>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
+// One thing that ships, with the production-like preview and what to know.
+const Surface = ({
+  title,
   note,
   children,
 }: {
-  platform: string;
   title: string;
-  status: Status;
   note: string;
   children: ReactNode;
 }): ReactElement => (
   <article className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-    <div className="flex items-start justify-between gap-2">
-      <div className="flex flex-col">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-          bold
-        >
-          {platform}
-        </Typography>
-        <Typography type={TypographyType.Body} bold>
-          {title}
-        </Typography>
-      </div>
-      <Pill status={status} />
+    <div className="flex items-center gap-2">
+      <Pill status="planned" />
+      <Typography type={TypographyType.Body} bold>
+        {title}
+      </Typography>
     </div>
     <div className="flex min-h-48 items-center justify-center rounded-12 bg-background-subtle p-4">
       {children}
@@ -452,17 +480,6 @@ const IOSRate = (): ReactElement => (
   </div>
 );
 
-const Stat = ({ value, label }: { value: string; label: string }) => (
-  <div className="flex flex-1 flex-col gap-1 rounded-16 bg-surface-float p-4">
-    <Typography type={TypographyType.Title2} bold>
-      {value}
-    </Typography>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      {label}
-    </Typography>
-  </div>
-);
-
 const Row = ({
   label,
   status,
@@ -502,157 +519,102 @@ const Overview = (): ReactElement => {
               color={TypographyColor.Brand}
               bold
             >
-              LEAVE A REVIEW POPOVER
+              LEAVE A REVIEW
             </Typography>
             <Typography
               type={TypographyType.LargeTitle}
               tag={TypographyTag.H1}
               bold
             >
-              From one popover to asks at happy moments
+              What we&apos;re changing
             </Typography>
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Tertiary}
             >
-              iOS already asks in Apple&apos;s own sheet. Chrome, Edge and
-              Android still run the July popover. This page shows what replaces
-              it on each surface.
+              The review popover goes away: 1.6% of people who saw it tapped,
+              and 1 in 10 saw it 27 or more times. Each platform asks at happy
+              moments instead, in the store&apos;s own page or sheet.
             </Typography>
           </header>
 
-          <Section
-            title="Today"
-            intro="Customer.io campaigns 65 (Chrome), 66 (Edge) and 70 (Android), unchanged since July. On the extension it returns on every new tab until it's closed."
-          >
-            <div className="flex flex-col gap-3 tablet:flex-row">
-              <Stat
-                value="1.6%"
-                label="of people who saw it in 90 days tapped"
-              />
-              <Stat value="1 in 10" label="saw it 27 or more times" />
-              <Stat value="3" label="campaigns still running" />
-            </div>
-            <div className="flex flex-col items-center gap-3 rounded-16 bg-background-default p-6">
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Open the production modal with each campaign&apos;s stored copy
-                and image:
-              </Typography>
-              <div className="flex flex-wrap justify-center gap-2">
-                {todayCampaigns.map(({ label, marketingCta }) => (
-                  <Button
-                    key={marketingCta.campaignId}
-                    variant={ButtonVariant.Secondary}
-                    size={ButtonSize.Small}
-                    onClick={() => setOpenCampaign(marketingCta)}
-                  >
-                    {label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            {openCampaign && (
-              <TodayModal
-                marketingCta={openCampaign}
-                onRequestClose={() => setOpenCampaign(null)}
-              />
-            )}
-          </Section>
-
-          <Section title="Where it stands">
-            <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
-              <Row label="iOS rating sheet" status="shipped">
-                Apple&apos;s native sheet at a 30+ day streak milestone, 120-day
-                cooldown, behind <code>app_store_review</code> (#7364, #7475).
-                The old custom prompt (campaign 69) stopped Nov 19; campaigns
-                74, 75 and 76 replaced it. Ante owns the setup and its daily
-                health check.
-              </Row>
-              <Row label="iOS rate row" status="shipped">
-                &ldquo;{rateAppTitle}&rdquo; on the iPhone You page and the iPad
-                profile menu.
-              </Row>
-              <Row label="iOS Rate button" status="planned">
-                Rate daily.dev on our ask sheet and the streak card requests
-                Apple&apos;s in-app rating sheet instead of opening the App
-                Store, and the automatic request 2s after the ask goes away. The
-                profile row keeps opening the App Store.
-              </Row>
-              <Row label="Chrome, Edge, Android" status="running">
-                Campaigns 65, 66 and 70. Turn off once the asks below ship on
-                each surface.
-              </Row>
-              <Row label="Android, extension, web" status="planned">
-                The Play rating sheet, the popup line, the toast, the day-14
-                bell and the rate row below.
-              </Row>
-              <Row label="Changelog line" status="dropped">
-                Overlaps campaign 76 (big feature launch).
-              </Row>
-            </ul>
-          </Section>
-
-          <Section
-            title="What replaces it"
-            intro="Each ask uses the store's own page or sheet, and only shows to people who pass the eligibility rules below."
-          >
+          <Section title="Chrome and Edge extension">
+            <Before
+              status="off"
+              campaigns={todayCampaigns.slice(0, 2)}
+              onOpen={setOpenCampaign}
+            >
+              Campaigns 65 and 66: this modal on every new tab until it&apos;s
+              closed.
+            </Before>
             <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
               <Surface
-                platform="iOS"
-                title="Rate opens Apple's sheet"
-                status="planned"
-                note="Our ask sheet (campaigns 74, 75, 76) and the streak card stay; only the button changes, so people stay in the app. Apple shows its sheet at most 3 times a year and never says whether it did, so a tap can show nothing."
-              >
-                <IOSRate />
-              </Surface>
-              <Surface
-                platform="Android"
-                title="Play rating sheet"
-                status="planned"
-                note="Same moments as iOS: streak milestone, achievement, upvote or bookmark. Needs the next Android release for Google's in-app review API."
-              >
-                <PlaySheet />
-              </Surface>
-              <Surface
-                platform="Extension"
                 title="Line in the streak popup"
-                status="planned"
                 note="One row under the existing popup content. Opens the browser's own store page: Chrome Web Store or Edge Add-ons."
               >
                 <StreakPopup />
               </Surface>
               <Surface
-                platform="Extension"
                 title="Line in the achievement popup"
-                status="planned"
                 note="The same row, so both celebrations read the same."
               >
                 <AchievementPopup />
               </Surface>
               <Surface
-                platform="Extension"
-                title="Toast after a good action"
-                status="planned"
-                note="After an upvote or bookmark, with the first word matching the action. Ships behind a flag with a holdout so it proves itself apart from the other asks. No claimed-quest trigger: the Chrome Web Store bans incentivized reviews."
+                title="Toast after an upvote or bookmark"
+                note="First word matches the action. Ships behind a flag with a holdout. No claimed-quest trigger: the Chrome Web Store bans incentivized reviews."
               >
                 <ReviewToast />
               </Surface>
               <Surface
-                platform="Extension"
                 title="Day-14 bell notification"
-                status="planned"
-                note="On the first day someone passes the minimum (14 days, 5 active days). Once in a lifetime, in the bell, not over the feed. Moved from day 7, which broke the minimum."
+                note="On the first day someone passes the minimum (14 days, 5 active days). Once in a lifetime, in the bell, not over the feed."
               >
                 <BellNotification />
               </Surface>
+            </div>
+          </Section>
+
+          <Section title="Android app">
+            <Before
+              status="off"
+              campaigns={todayCampaigns.slice(2)}
+              onOpen={setOpenCampaign}
+            >
+              Campaign 70: the same modal, linking to Google Play.
+            </Before>
+            <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
               <Surface
-                platform="Web and extension"
+                title="Play rating sheet"
+                note="At a streak milestone, achievement, upvote or bookmark. Needs the next Android release for Google's in-app review API."
+              >
+                <PlaySheet />
+              </Surface>
+            </div>
+          </Section>
+
+          <Section title="iOS app">
+            <Before status="shipped">
+              Our ask sheet (campaigns 74, 75, 76) and the 30+ day streak card
+              stay. Their Rate button opens the App Store, and Apple&apos;s
+              sheet is requested on its own 2s after the ask.
+            </Before>
+            <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+              <Surface
+                title="Rate opens Apple's sheet"
+                note="Rate requests Apple's in-app rating sheet, so people stay in the app, and the automatic request goes away. Apple shows it at most 3 times a year and never says whether it did, so a tap can show nothing. The profile row keeps opening the App Store."
+              >
+                <IOSRate />
+              </Surface>
+            </div>
+          </Section>
+
+          <Section title="Web and extension menu">
+            <Before status="off">Nothing: no way to rate on purpose.</Before>
+            <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+              <Surface
                 title="Rate row next to Support"
-                status="planned"
-                note="The iOS row's title, on every surface. Always visible, since it's only opened on purpose."
+                note="The iOS row's title. Always visible, since it's only opened on purpose."
               >
                 <RateRow />
               </Surface>
@@ -660,21 +622,18 @@ const Overview = (): ReactElement => {
           </Section>
 
           <Section
-            title="Who sees an ask"
-            intro="One new minimum, and the iOS cooldown reused so every surface shares one clock."
+            title="Rules for every ask"
+            intro="One new minimum, and the iOS cooldown reused so every platform shares one clock."
           >
             <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
               <Row label="Minimum" status="planned">
                 At least 14 days since signup and 5 active days. Nothing checks
-                account age today: segment 121 (iOS only, 10+ page views in 30
-                days) and each campaign&apos;s trigger decide eligibility. The
-                iOS streak ask already passes, since it needs a 30+ day streak.
+                account age today.
               </Row>
               <Row label="Cooldown" status="shipped">
-                At most once per 120 days across all surfaces. Asking anywhere
+                At most once per 120 days across all platforms. Asking anywhere
                 sets <code>review_ask_at</code>; segment 143 (&ldquo;asked in
-                last 120 days&rdquo;) excludes those people from campaigns 74,
-                75 and 76.
+                last 120 days&rdquo;) excludes those people from campaigns.
               </Row>
               <Row label="Bad moments" status="planned">
                 Never right after an error, a report, a downvote or a failed
@@ -686,51 +645,39 @@ const Overview = (): ReactElement => {
             </ul>
           </Section>
 
-          <Section
-            title="Open questions"
-            intro="Parts of the proposal this page doesn't settle yet."
-          >
+          <Section title="Open questions">
             <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
               <Row label="iOS moments" status="open">
-                The proposal asks after a streak, achievement, upvote or
-                bookmark. iOS ships only the 30+ day streak milestone. Add the
-                other three, or keep iOS to the one moment?
+                Add asks after an achievement, upvote or bookmark on iOS, or
+                keep it to the 30+ day streak?
               </Row>
               <Row label="Rate row title" status="open">
-                The proposal says &ldquo;Rate daily.dev&rdquo; next to Send
-                feedback. The page reuses the iOS title, <q>{rateAppTitle}</q>,
-                after Support. Which title and position?
+                &ldquo;Rate daily.dev&rdquo; next to Send feedback, or the iOS
+                title, <q>{rateAppTitle}</q>, after Support?
               </Row>
               <Row label="Rate row reach" status="open">
-                &ldquo;Everywhere&rdquo; also means the Android app, which the
-                page doesn&apos;t show. Safari and Firefox users have no store
+                Add it to the Android app? Safari and Firefox have no store
                 page: hide the row there, or link somewhere else?
               </Row>
               <Row label="Bad moments" status="open">
-                The examples above are placeholders. Which events block an ask,
-                and for how long?
+                The examples are placeholders. Which events block an ask, and
+                for how long?
               </Row>
               <Row label="Segment 143" status="open">
-                It only matches when <code>review_ask_at</code> moves from an
-                old value to a recent one, so a second ask inside 120 days
-                doesn&apos;t match on its own. Campaigns re-check the field
-                before sending, so nothing breaks, but the count may be low.
-                Ante to confirm.
+                A second ask inside 120 days doesn&apos;t match on its own, so
+                the count may be low. Campaigns re-check the field before
+                sending, so nothing breaks. Ante to confirm.
               </Row>
             </ul>
           </Section>
-
-          <Section title="Later">
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              Chrome is adding its own &ldquo;Rate it&rdquo; link to the
-              extensions menu, which needs nothing from us.
-            </Typography>
-          </Section>
         </div>
       </div>
+      {openCampaign && (
+        <TodayModal
+          marketingCta={openCampaign}
+          onRequestClose={() => setOpenCampaign(null)}
+        />
+      )}
     </Providers>
   );
 };
@@ -745,48 +692,8 @@ export default meta;
 
 type Story = StoryObj;
 
+// Named like the component so the sidebar shows one entry.
 export const Plan: Story = {
-  name: 'Overview',
+  name: 'Leave a review popover',
   render: () => <Overview />,
-};
-
-// The modal as people see it today, over an empty page.
-const Today = ({ index }: { index: number }): ReactElement => {
-  const [isOpen, setIsOpen] = useState(true);
-
-  return (
-    <Providers>
-      <div className="flex min-h-screen items-center justify-center bg-background-subtle">
-        {isOpen ? (
-          <TodayModal
-            marketingCta={todayCampaigns[index].marketingCta}
-            onRequestClose={() => setIsOpen(false)}
-          />
-        ) : (
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            onClick={() => setIsOpen(true)}
-          >
-            Open it again
-          </Button>
-        )}
-      </div>
-    </Providers>
-  );
-};
-
-export const TodayChrome: Story = {
-  name: 'Today: Chrome (65)',
-  render: () => <Today index={0} />,
-};
-
-export const TodayEdge: Story = {
-  name: 'Today: Edge (66)',
-  render: () => <Today index={1} />,
-};
-
-export const TodayAndroid: Story = {
-  name: 'Today: Android (70)',
-  render: () => <Today index={2} />,
 };
