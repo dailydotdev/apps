@@ -4,6 +4,7 @@ import { AdConsentExists } from '../features/monetization/adConsent';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
 import {
+  AdEntity,
   AdPlacement,
   fetchAdByPlacement,
   resolveAdFetchOptions,
@@ -291,6 +292,39 @@ describe('ads', () => {
           ).toBe(false);
         });
     });
+
+    it.each([
+      {
+        placement: AdPlacement.Feed,
+        entity: { entity: AdEntity.Source, id: 'squad-1' },
+        url: 'http://localhost:3000/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&entity=source&entity_id=squad-1',
+      },
+      {
+        placement: AdPlacement.PostSidebar,
+        entity: { entity: AdEntity.Post, id: 'post-1' },
+        url: 'http://localhost:3000/v1/a?active=false&allow_squad_boost=true&entity=post&entity_id=post-1',
+      },
+      {
+        placement: AdPlacement.PostComment,
+        entity: { entity: AdEntity.Post, id: 'post-1' },
+        url: 'http://localhost:3000/v1/a/post?entity=post&entity_id=post-1',
+      },
+      {
+        placement: AdPlacement.SquadDirectory,
+        entity: { entity: AdEntity.Source, id: 'squad-1' },
+        url: 'http://localhost:3000/v1/a/squads_directory?allow_squad_boost=true&entity=source&entity_id=squad-1',
+      },
+    ])(
+      'should send the page entity for $placement',
+      async ({ placement, entity, url }) => {
+        await fetchAdByPlacement(resolveAdFetchOptions({ placement, entity }));
+
+        expect(global.fetch).toHaveBeenCalledWith(url, {
+          credentials: 'include',
+          headers: { 'X-Page-View-Id': 'page-view' },
+        });
+      },
+    );
 
     it('should send gdpr=0 without consent strings outside GDPR scope', async () => {
       await fetchAdByPlacement({

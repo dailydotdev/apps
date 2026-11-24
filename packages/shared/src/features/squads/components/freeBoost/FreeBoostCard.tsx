@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { differenceInMinutes } from 'date-fns';
+import { differenceInMinutes, isAfter } from 'date-fns';
 import {
   Button,
   ButtonSize,
@@ -76,7 +76,7 @@ const number = (value: number): string => value.toLocaleString('en-US');
 const dollars = (cores: number): string => `$${Math.round(cores / 100)}`;
 
 const timeLeft = (endsAt: Date, now: Date): string => {
-  const minutes = Math.max(differenceInMinutes(endsAt, now), 0);
+  const minutes = differenceInMinutes(endsAt, now);
 
   if (minutes < 60) {
     return `${Math.max(minutes, 1)} min left`;
@@ -229,44 +229,49 @@ const Boosting = ({
   budget,
   endsAt,
   now = new Date(),
-}: BoostingProps): ReactElement => (
-  <>
-    {stats.impressions > 0 ? (
-      <>
-        <Lead value={stats.impressions} label="impressions so far" />
-        <Tiles stats={stats} />
-      </>
-    ) : (
-      <Heading
-        title={
-          endsAt
-            ? 'Your post is going out to developers now'
-            : 'Your boost starts in a few minutes'
-        }
-      >
-        {endsAt
-          ? 'The first numbers show up here within minutes.'
-          : "We're checking your post first. Then it goes out to developers in the US, Europe and other top markets."}
-      </Heading>
-    )}
-    <PostRow post={post} />
-    <div className="flex flex-col gap-2">
-      <ProgressBar
-        percentage={Math.min((spent / budget) * 100, 100)}
-        shouldShowBg
-        className={{ wrapper: 'h-2 rounded-8', bar: 'h-full rounded-8' }}
-      />
-      {(spent > 0 || endsAt) && (
-        <div className="flex justify-between gap-3 text-text-tertiary typo-footnote">
-          <span>
-            {spent > 0 && `${dollars(spent)} of $${BOOST_DOLLARS} spent`}
-          </span>
-          {endsAt && <span>{timeLeft(endsAt, now)}</span>}
-        </div>
+}: BoostingProps): ReactElement => {
+  // The boost keeps going past its end time until the budget is spent
+  const isWithinTime = !!endsAt && isAfter(endsAt, now);
+
+  return (
+    <>
+      {stats.impressions > 0 ? (
+        <>
+          <Lead value={stats.impressions} label="impressions so far" />
+          <Tiles stats={stats} />
+        </>
+      ) : (
+        <Heading
+          title={
+            endsAt
+              ? 'Your post is going out to developers now'
+              : 'Your boost starts in a few minutes'
+          }
+        >
+          {endsAt
+            ? 'The first numbers show up here within minutes.'
+            : "We're checking your post first. Then it goes out to developers in the US, Europe and other top markets."}
+        </Heading>
       )}
-    </div>
-  </>
-);
+      <PostRow post={post} />
+      <div className="flex flex-col gap-2">
+        <ProgressBar
+          percentage={Math.min((spent / budget) * 100, 100)}
+          shouldShowBg
+          className={{ wrapper: 'h-2 rounded-8', bar: 'h-full rounded-8' }}
+        />
+        {(spent > 0 || isWithinTime) && (
+          <div className="flex justify-between gap-3 text-text-tertiary typo-footnote">
+            <span>
+              {spent > 0 && `${dollars(spent)} of $${BOOST_DOLLARS} spent`}
+            </span>
+            {isWithinTime && <span>{timeLeft(endsAt, now)}</span>}
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
 
 const StepCheck = ({ isDone }: { isDone: boolean }): ReactElement => (
   <span

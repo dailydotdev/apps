@@ -779,7 +779,6 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
-  StreakDailyCelebration = 'streak daily celebration',
   Patchy = 'patchy',
   PatchyReactions = 'patchy reactions',
   PatchyOffer = 'patchy offer',

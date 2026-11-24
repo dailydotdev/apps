@@ -121,3 +121,15 @@ it('should not offer to stop a bundle boost, which its package manages', async (
 
   expect(screen.getAllByText('Stop')).toHaveLength(1);
 });
+
+it('should show a live boost past its end date as finishing its budget', async () => {
+  renderManager([
+    createCampaign({
+      state: CampaignState.Active,
+      createdAt: new Date(Date.now() - 8 * 86400000),
+      endedAt: new Date(Date.now() - 86400000),
+    }),
+  ]);
+
+  expect(await screen.findByText('Finishing its budget')).toBeInTheDocument();
+});

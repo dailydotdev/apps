@@ -30,11 +30,20 @@ const hasKey = (key: string): boolean => {
   }
 };
 
-const setKey = (key: string): void => {
+const setKey = (key: string, value = '1'): void => {
   try {
-    storageWrapper.setItem(key, '1');
+    storageWrapper.setItem(key, value);
   } catch {
     // Storage blocked: the server event still counts
+  }
+};
+
+const getTime = (key: string): Date | undefined => {
+  try {
+    const time = Number(storageWrapper.getItem(key));
+    return time ? new Date(time) : undefined;
+  } catch {
+    return undefined;
   }
 };
 
@@ -115,9 +124,10 @@ const isCompanyPageAdmin = (squad?: CompanyPage): squad is CompanyPage =>
 
 /**
  * Called when the admin sees their company page. The page counts as a
- * registration once it is ready and jev kept it, as on the server. The browser reports it only
- * when the page just got ready: it was made in the last 48 hours, or this
- * browser saw it unready before.
+ * registration once it is ready and jev kept it, as on the server. The browser
+ * reports it only when the page just got ready: it was made in the last 48
+ * hours, or this browser saw it unready or unreviewed in the last 48 hours, so
+ * the server event for it is still within Meta's dedup window.
  */
 export const trackCompanyPageReady = (
   trackEvent: TrackEvent,
@@ -131,14 +141,14 @@ export const trackCompanyPageReady = (
   const unreadyKey = getUnreadyPageKey(squad.id as string);
   if (!isCompanyPageConversion(squad)) {
     if (isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS)) {
-      setKey(unreadyKey);
+      setKey(unreadyKey, String(Date.now()));
     }
     return;
   }
 
   const justReady =
     isWithinHours(squad.createdAt, NEW_COMPANY_PAGE_HOURS) ||
-    hasKey(unreadyKey);
+    isWithinHours(getTime(unreadyKey), NEW_COMPANY_PAGE_HOURS);
   removeKey(unreadyKey);
   if (!justReady) {
     return;
@@ -152,8 +162,10 @@ export const trackCompanyPageReady = (
 };
 
 /**
- * A post to a ready company page in its first month: Meta StartTrial, once
- * per page. The server sends the same event for the page's first post.
+ * The first post on a ready company page in its first month: Meta StartTrial,
+ * once per page. Called with the page read after the post, so its count
+ * includes it. The server sends the same event for the page's first post, so a
+ * later post, a cofounder's or one from another device, sends nothing.
  */
 export const trackCompanyPageFirstPost = (
   trackEvent: TrackEvent,
@@ -164,7 +176,8 @@ export const trackCompanyPageFirstPost = (
     !!squad.id &&
     !!squad.flags?.company &&
     isCompanyPageConversion(squad) &&
-    isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS);
+    isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS) &&
+    (squad.flags.totalPosts ?? 0) <= 1;
 
   if (!isEligible || !markOnce(getFirstPostTrackedKey(squad.id as string))) {
     return;

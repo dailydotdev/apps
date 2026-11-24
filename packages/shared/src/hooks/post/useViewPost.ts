@@ -12,7 +12,6 @@ import {
   isFinalViewRejection,
 } from '../../lib/streakViewQueue';
 import { includesThisRead } from '../../lib/userStreak';
-import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
 import { useStreakEarnBackProgress } from '../streaks/useStreakEarnBackProgress';
 import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
 import { emitPatchyEvent } from '../../features/patchy/patchyEvents';
@@ -56,7 +55,6 @@ export const useViewPost = (): UseMutateAsyncFunction<
   const { user } = useAuthContext();
   // the companion keeps waiting for the server value
   const isOptimistic = !isCompanion;
-  const celebrateStreakDay = useStreakDailyCelebration();
   const checkStreakEarnBack = useStreakEarnBackProgress();
   const celebrateStreakGoal = useStreakGoalCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
@@ -143,15 +141,11 @@ export const useViewPost = (): UseMutateAsyncFunction<
       // just mark the query as stale
       await client.invalidateQueries({ queryKey: readKey });
 
-      // a restored streak is not a new day, so it gets neither the goal nor
-      // the day celebration. Only a count the API confirmed: a guess could
-      // celebrate a day that never counted and suppress the toast for the
-      // read that does, or hit or miss the goal
+      // a restored streak is not a new day, so it does not celebrate the
+      // goal. Only a count the API confirmed: a guess could hit or miss it
       if (!isStreakEarnedBack) {
         const current = countedStreak?.current;
-        if (!celebrateStreakGoal(current)) {
-          celebrateStreakDay(current);
-        }
+        celebrateStreakGoal(current);
         if (current) {
           emitPatchyEvent({ type: 'streak_day' });
         }

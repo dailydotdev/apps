@@ -13,8 +13,7 @@ const readOnGtaDayArt =
   'https://media.daily.dev/image/upload/s--_HbcEpFl--/f_auto,q_auto/achievements/Still_read_on_GTA_VI_day.webp';
 
 /*
- * The GTA VI launch beyond the streak (see stories/streak/gtaViParts.tsx):
- * a free award, two event achievements and an opt-in home theme. Everything
+ * The GTA VI launch beyond the streak: a free award, two event achievements and an opt-in home theme. Everything
  * here is data; the award catalog and the shelf's other achievements are
  * copied from production (the `products` and `achievements` queries,
  * 2026-11-10).
