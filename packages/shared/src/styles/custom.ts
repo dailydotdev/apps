@@ -85,16 +85,20 @@ export const acquisitionBrandColors = {
   glyph: '#FFFFFF',
 } as const;
 
-// Verified Company Squad card: two blurred orbs of brand light under
-// frosted glass, with a cabbage hairline.
+// Verified seal: the check stays dark in both themes, since white on gold is
+// too weak to read.
+export const verifiedSealCheck = colors.pepper[90];
+
+// Verified Company Squad card: two blurred orbs of gold light under
+// frosted glass, with a gold hairline.
 export const verifiedSquadCardBg =
   'color-mix(in srgb, var(--theme-background-default) 58%, transparent)';
 
 export const verifiedSquadCardShadow =
-  'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent)';
+  'inset 0 0 0 1px color-mix(in srgb, var(--theme-text-verified) 55%, transparent)';
 
 export const verifiedSquadCardGlow =
-  'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent), transparent 60%)';
+  'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-text-verified) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-bun-default) 55%, transparent), transparent 60%)';
 
 // The top of a cover that runs behind the phone's status bar and block:
 // dark enough for light status text and the floating squares to read.
@@ -104,7 +108,7 @@ export const shellCoverScrim = `linear-gradient(to bottom, color-mix(in srgb, ${
 // clear on the right so the illustration still shows.
 export const marketplaceHeroScrim = `linear-gradient(90deg, color-mix(in srgb, ${colors.pepper[90]}, transparent 15%) 0%, color-mix(in srgb, ${colors.pepper[90]}, transparent 45%) 55%, transparent 100%)`;
 
-// Featured Squad card: the Verified card's design in water blue, so purple
+// Featured Squad card: the Verified card's design in water blue, so gold
 // reads as verified only
 export const featuredSquadCardShadow =
   'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-water-default) 55%, transparent)';

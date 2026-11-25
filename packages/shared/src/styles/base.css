@@ -101,6 +101,8 @@ body {
   --theme-accent-cheese-subtler: theme('colors.raw.cheese.20');
   --theme-accent-cheese-subtle: theme('colors.raw.cheese.30');
   --theme-accent-cheese-default: theme('colors.raw.cheese.40');
+  /* Verified gold */
+  --theme-text-verified: color-mix(in srgb, theme('colors.raw.cheese.50') 78%, theme('colors.raw.bun.50'));
   /* Salt */
   --theme-accent-salt-baseline: theme('colors.raw.salt.0');
   --theme-accent-salt-subtlest: theme('colors.raw.salt.20');
@@ -254,6 +256,8 @@ body {
   --theme-accent-cheese-subtler: theme('colors.raw.cheese.80');
   --theme-accent-cheese-subtle: theme('colors.raw.cheese.70');
   --theme-accent-cheese-default: theme('colors.raw.cheese.60');
+  /* Verified gold */
+  --theme-text-verified: color-mix(in srgb, theme('colors.raw.cheese.90') 72%, theme('colors.raw.bun.70'));
   /* Salt */
   --theme-accent-salt-baseline: theme('colors.raw.pepper.90');
   --theme-accent-salt-subtlest: theme('colors.raw.pepper.80');
