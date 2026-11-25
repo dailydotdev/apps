@@ -15,7 +15,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ShieldCheckIcon,
-  TimerIcon,
+  GiftIcon,
   JobIcon,
   MailIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -249,8 +249,8 @@ const benefits = (
     note: 'Verified voices get more trust.',
   },
   {
-    icon: <TimerIcon size={IconSize.Small} />,
-    title: '30 seconds',
+    icon: <GiftIcon size={IconSize.Small} />,
+    title: '30 seconds and free',
     note: 'Just your work email, kept private.',
   },
 ];
