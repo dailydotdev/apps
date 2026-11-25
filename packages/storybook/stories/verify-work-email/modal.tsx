@@ -17,7 +17,7 @@ import {
   EyeIcon,
   JobIcon,
   MailIcon,
-  DiscussIcon,
+  TimerIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -244,15 +244,14 @@ const benefits = (
     note: 'On your posts, comments and profile.',
   },
   {
-    // The gate in webapp/components/tools/ToolDiscussion.tsx.
-    icon: <DiscussIcon size={IconSize.Small} />,
-    title: 'Join tool discussions',
-    note: 'Only devs with a verified work email can post.',
-  },
-  {
     icon: <EyeIcon size={IconSize.Small} />,
     title: 'Visible to recruiters',
     note: 'Verified jobs stand out when they look for people like you.',
+  },
+  {
+    icon: <TimerIcon size={IconSize.Small} />,
+    title: 'Free, and takes a minute',
+    note: 'We send a code to your work email.',
   },
 ];
 
@@ -310,12 +309,6 @@ export const VerifyBadgeModal = ({
               </li>
             ))}
           </ul>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            Free. Takes a minute: we send a code to your work email.
-          </Typography>
           <div className="flex flex-col gap-2">
             <Button
               variant={ButtonVariant.Primary}
