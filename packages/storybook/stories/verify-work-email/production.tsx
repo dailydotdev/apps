@@ -59,7 +59,8 @@ export const SettingsFrame = ({
   children: ReactNode;
 }): ReactElement => (
   <div className="flex bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]">
-    <aside className="flex w-[20rem] shrink-0 flex-col">
+    {/* Below laptop the settings page shows its own menu instead. */}
+    <aside className="hidden w-[20rem] shrink-0 flex-col laptop:flex">
       <div className="pl-5 pr-3 pt-6">
         <Button
           type="button"

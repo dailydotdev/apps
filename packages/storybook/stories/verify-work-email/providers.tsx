@@ -27,7 +27,7 @@ export const member = {
   socialLinks: [],
 };
 
-/** Maya's current Work job at Acme, not verified yet. */
+/** Maya's current Work job, typed in: Acme isn't a company we have. */
 export const job = {
   id: 'exp-acme',
   type: UserExperienceType.Work,
@@ -45,6 +45,18 @@ export const job = {
   description: null,
 } as unknown as UserExperienceWork;
 
+/** The same job at a company we already have, picked from the search. */
+export const knownCompanyJob = {
+  ...job,
+  customCompanyName: null,
+  company: {
+    id: 'google',
+    name: 'Google',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s--S6zPbHD8--/f_auto/v1725262174/companies/google',
+  },
+} as unknown as UserExperienceWork;
+
 const settings = {
   insaneMode: false,
   spaciness: 'roomy',
@@ -59,9 +71,12 @@ const settings = {
  * shared components' toasts show.
  */
 export const Providers = ({
+  currentJob = job,
   seed,
   children,
 }: {
+  /** The member's current Work job. */
+  currentJob?: UserExperienceWork;
   /** Query data the page reads, so it renders without the API. */
   seed?: (client: QueryClient) => void;
   children: ReactNode;
@@ -95,13 +110,13 @@ export const Providers = ({
         'settings',
       ),
       {
-        edges: [{ node: job }],
+        edges: [{ node: currentJob }],
         pageInfo: { hasNextPage: false, endCursor: null },
       },
     );
     seed?.(client);
     return client;
-  }, [seed]);
+  }, [currentJob, seed]);
 
   return (
     <QueryClientProvider client={queryClient}>

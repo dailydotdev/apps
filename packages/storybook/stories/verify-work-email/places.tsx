@@ -24,10 +24,12 @@ import {
   uploadCvModalSuccessMobile,
 } from '@dailydotdev/shared/src/lib/image';
 import { UserShortInfo } from '@dailydotdev/shared/src/components/profile/UserShortInfo';
+import { Image, ImageType } from '@dailydotdev/shared/src/components/image/Image';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
 import { AccountPageContainer } from '../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { SettingsFrame } from './production';
-import { job, member } from './providers';
-import { COMPANY, CompanyLogo } from './modal';
+import { member } from './providers';
 
 // The five places, each drawn by the production components that render it
 // today. The new ask sits under a line saying where it would go: it isn't
@@ -57,30 +59,64 @@ const NewAsk = ({
   </div>
 );
 
-/** The ask: one line on what you get, one button. Copy is a placeholder. */
+/**
+ * The member's current job, as Settings › Work Experience loads it. A job
+ * picked from the company search links a company we already have, with its
+ * logo; a typed-in name has none.
+ */
+const useCurrentCompany = (): { name: string; image?: string } => {
+  const { user } = useAuthContext();
+  const { experiences } = useUserExperiencesByType(
+    UserExperienceType.Work,
+    user?.id ?? '',
+  );
+  const current = experiences?.find(({ endedAt }) => !endedAt);
+
+  return {
+    name: current?.company?.name ?? current?.customCompanyName ?? '',
+    image: current?.company?.image,
+  };
+};
+
+/**
+ * The ask: the company's logo when we have it (the building placeholder
+ * otherwise, as on the experience list), one line, one button. Copy is a
+ * placeholder.
+ */
 const AskRow = ({
   onVerify,
   children,
-}: PlaceProps & { children: ReactNode }): ReactElement => (
-  <div className="flex flex-wrap items-center gap-3 rounded-12 bg-surface-float p-3">
-    <CompanyLogo className="size-6" />
-    <Typography
-      className="min-w-0 flex-1"
-      type={TypographyType.Footnote}
-      color={TypographyColor.Secondary}
-    >
-      {children}
-    </Typography>
-    <Button
-      variant={ButtonVariant.Primary}
-      size={ButtonSize.Small}
-      icon={<JobIcon />}
-      onClick={onVerify}
-    >
-      Verify
-    </Button>
-  </div>
-);
+}: PlaceProps & {
+  children: (company: { name: string; hasLogo: boolean }) => ReactNode;
+}): ReactElement => {
+  const { name, image } = useCurrentCompany();
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-12 bg-surface-float p-3">
+      <Image
+        className="size-6 rounded-max object-cover"
+        type={ImageType.Organization}
+        src={image}
+        alt={`${name} logo`}
+      />
+      <Typography
+        className="min-w-0 flex-1"
+        type={TypographyType.Footnote}
+        color={TypographyColor.Secondary}
+      >
+        {children({ name, hasLogo: !!image })}
+      </Typography>
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+        icon={<JobIcon />}
+        onClick={onVerify}
+      >
+        Verify
+      </Button>
+    </div>
+  );
+};
 
 /** The app's floating page card, for places outside settings. */
 const PageCard = ({ children }: { children: ReactNode }): ReactElement => (
@@ -110,7 +146,11 @@ export const AfterSavingJob = ({ onVerify }: PlaceProps): ReactElement => (
     >
       <NewAsk where="Shown once, on the list the save takes you to.">
         <AskRow onVerify={onVerify}>
-          Put the {COMPANY.name} logo next to your name.
+          {({ name, hasLogo }) =>
+            hasLogo
+              ? `Put the ${name} logo next to your name.`
+              : `Show you work at ${name}, next to your name.`
+          }
         </AskRow>
       </NewAsk>
       <ExperienceSettings
@@ -126,24 +166,31 @@ export const AfterSavingJob = ({ onVerify }: PlaceProps): ReactElement => (
  * list). "Verify company" is the production chip and opens the production
  * modal; the new row goes under the job.
  */
-export const UnverifiedJob = ({ onVerify }: PlaceProps): ReactElement => (
-  <PageCard>
-    <div className="p-4">
-      <UserExperienceList
-        experiences={[job]}
-        experienceType={UserExperienceType.Work}
-        title="Work Experiences"
-        user={member as never}
-        displayLimit={3}
-      />
-      <NewAsk where="A row under the unverified job, replacing the “Verify company” chip.">
-        <AskRow onVerify={onVerify}>
-          Not verified yet. Add a Verified tag to this job.
-        </AskRow>
-      </NewAsk>
-    </div>
-  </PageCard>
-);
+export const UnverifiedJob = ({ onVerify }: PlaceProps): ReactElement => {
+  const { experiences } = useUserExperiencesByType(
+    UserExperienceType.Work,
+    member.id,
+  );
+
+  return (
+    <PageCard>
+      <div className="p-4">
+        <UserExperienceList
+          experiences={experiences}
+          experienceType={UserExperienceType.Work}
+          title="Work Experiences"
+          user={member as never}
+          displayLimit={3}
+        />
+        <NewAsk where="A row under the unverified job, replacing the “Verify company” chip.">
+          <AskRow onVerify={onVerify}>
+            {() => 'Not verified yet. Add a Verified tag to this job.'}
+          </AskRow>
+        </NewAsk>
+      </div>
+    </PageCard>
+  );
+};
 
 /**
  * 3. Your own profile header. A verified company shows on the row under
@@ -177,6 +224,7 @@ export const AfterCvUpload = ({
   isModalOpen: isInitiallyOpen = false,
 }: PlaceProps & { isModalOpen?: boolean }): ReactElement => {
   const [isModalOpen, setIsModalOpen] = useState(isInitiallyOpen);
+  const { name } = useCurrentCompany();
 
   return (
     <PageCard>
@@ -204,7 +252,7 @@ export const AfterCvUpload = ({
             coverDrawer: uploadCvModalSuccessMobile,
           }}
           cta={{
-            copy: `Verify your job at ${COMPANY.name}`,
+            copy: `Verify your job at ${name}`,
             onClick: () => {
               setIsModalOpen(false);
               onVerify();

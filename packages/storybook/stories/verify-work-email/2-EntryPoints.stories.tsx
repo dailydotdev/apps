@@ -4,17 +4,24 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { VerifyBadgeModal } from './modal';
 import { Labeled, Page } from './kit';
 import { entryPoints } from './entryPoints';
-import { Providers } from './providers';
+import { job, knownCompanyJob, Providers } from './providers';
 import { verifyHandlers } from './mocks';
 
-const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
+const EntryPointsPage = ({
+  only,
+  isKnownCompany = true,
+}: {
+  only?: string;
+  /** Whether the member's job links a company we already have. */
+  isKnownCompany?: boolean;
+}): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const shown = only
     ? entryPoints.filter(({ id }) => id === only)
     : entryPoints;
 
   return (
-    <Providers>
+    <Providers currentJob={isKnownCompany ? knownCompanyJob : job}>
       <Page
         eyebrow="Verify work email · proposal"
         title="Five places to ask, one modal"
@@ -37,6 +44,14 @@ const meta: Meta<typeof EntryPointsPage> = {
   title: 'Verify Work Email/2. Entry points',
   component: EntryPointsPage,
   parameters: { layout: 'fullscreen', msw: { handlers: verifyHandlers } },
+  args: { isKnownCompany: true },
+  argTypes: {
+    isKnownCompany: {
+      name: 'Company already in our system',
+      control: 'boolean',
+    },
+    only: { table: { disable: true } },
+  },
 };
 
 export default meta;
