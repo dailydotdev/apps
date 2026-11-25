@@ -14,8 +14,8 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  EyeIcon,
-  GiftIcon,
+  ShieldCheckIcon,
+  TimerIcon,
   JobIcon,
   MailIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -240,18 +240,18 @@ const benefits = (
         <CompanyImage company={company} className="size-5" />
       </span>
     ),
-    title: 'Your company logo next to your name',
-    note: 'On your posts, comments and profile.',
+    title: 'Stand out',
+    note: 'Your company shows next to your name.',
   },
   {
-    icon: <EyeIcon size={IconSize.Small} />,
-    title: 'Visible to recruiters',
-    note: 'Verified jobs stand out when they look for people like you.',
+    icon: <ShieldCheckIcon size={IconSize.Small} />,
+    title: 'Get taken seriously',
+    note: 'Verified voices get more trust.',
   },
   {
-    icon: <GiftIcon size={IconSize.Small} />,
-    title: 'Free, and takes a minute',
-    note: 'We send a code to your work email.',
+    icon: <TimerIcon size={IconSize.Small} />,
+    title: '30 seconds',
+    note: 'Just your work email, kept private.',
   },
 ];
 
