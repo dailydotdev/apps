@@ -17,7 +17,7 @@ import {
   EyeIcon,
   JobIcon,
   MailIcon,
-  ShieldCheckIcon,
+  DiscussIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -244,9 +244,10 @@ const benefits = (
     note: 'On your posts, comments and profile.',
   },
   {
-    icon: <ShieldCheckIcon size={IconSize.Small} />,
-    title: 'A Verified tag on your job',
-    note: 'People know your experience is real.',
+    // The gate in webapp/components/tools/ToolDiscussion.tsx.
+    icon: <DiscussIcon size={IconSize.Small} />,
+    title: 'Join tool discussions',
+    note: 'Only devs with a verified work email can post.',
   },
   {
     icon: <EyeIcon size={IconSize.Small} />,
