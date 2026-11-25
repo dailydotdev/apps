@@ -8,7 +8,7 @@ import {
 import type { VerifyStep } from './modal';
 import { VerifyBadgeModal } from './modal';
 import { Providers } from './providers';
-import { knownCompanyHandlers, newCompanyHandlers } from './mocks';
+import { verifyHandlers } from './mocks';
 
 // The one modal all five entry points open: the benefits, then the
 // production VerifyExperienceModal as it is today. Type any email and any
@@ -42,7 +42,7 @@ const Demo = ({ initialStep }: Args): ReactElement => {
 const meta: Meta<Args> = {
   title: 'Verify Work Email/1. Modal',
   component: Demo,
-  parameters: { layout: 'fullscreen', msw: { handlers: knownCompanyHandlers } },
+  parameters: { layout: 'fullscreen', msw: { handlers: verifyHandlers } },
   args: { initialStep: 'benefits' },
   argTypes: {
     initialStep: { control: 'select', options: ['benefits', 'form'] },
@@ -56,13 +56,8 @@ type Story = StoryObj<Args>;
 export const Benefits: Story = {};
 
 /**
- * Production, unchanged: VerifyExperienceModal. A known company ends in a
- * "Verification successful" toast.
+ * Production, unchanged: VerifyExperienceModal. It ends in a "Verification
+ * successful" toast, or "Verification initiated" for a company we don't know
+ * yet.
  */
 export const VerifyForm: Story = { args: { initialStep: 'form' } };
-
-/** Production: a company we don't know yet ends in "Verification initiated". */
-export const NewCompany: Story = {
-  args: { initialStep: 'form' },
-  parameters: { msw: { handlers: newCompanyHandlers } },
-};

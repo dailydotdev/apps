@@ -5,7 +5,7 @@ import { VerifyBadgeModal } from './modal';
 import { Labeled, Page } from './kit';
 import { entryPoints } from './entryPoints';
 import { Providers } from './providers';
-import { knownCompanyHandlers } from './mocks';
+import { verifyHandlers } from './mocks';
 
 const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +36,7 @@ const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
 const meta: Meta<typeof EntryPointsPage> = {
   title: 'Verify Work Email/2. Entry points',
   component: EntryPointsPage,
-  parameters: { layout: 'fullscreen', msw: { handlers: knownCompanyHandlers } },
+  parameters: { layout: 'fullscreen', msw: { handlers: verifyHandlers } },
 };
 
 export default meta;
