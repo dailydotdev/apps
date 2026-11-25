@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Icon/Free/Filled</title>
+    <defs>
+        <mask id="free-filled-text">
+            <rect width="24" height="24" fill="#FFFFFF"></rect>
+            <path d="M8.05 9.8H6V14.2M6 12H7.54 M9.3 14.2V9.8H10.25A1.1 1.1 0 0 1 10.25 12H9.3M10.25 12L11.35 14.2 M14.65 9.8H12.6V14.2H14.65M12.6 12H14.14 M17.95 9.8H15.9V14.2H17.95M15.9 12H17.44" fill="none" stroke="#000000" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"></path>
+        </mask>
+    </defs>
+    <g id="Icon/Free/Filled" mask="url(#free-filled-text)">
+        <path d="M13.1 2.85 L14.04 3.58Q15.14 4.42 16.51 4.6 L17.69 4.75Q19.07 4.93 19.25 6.31 L19.4 7.49Q19.58 8.86 20.42 9.96 L21.15 10.9Q22 12 21.15 13.1 L20.42 14.04Q19.58 15.14 19.4 16.51 L19.25 17.69Q19.07 19.07 17.69 19.25 L16.51 19.4Q15.14 19.58 14.04 20.42 L13.1 21.15Q12 22 10.9 21.15 L9.96 20.42Q8.86 19.58 7.49 19.4 L6.31 19.25Q4.93 19.07 4.75 17.69 L4.6 16.51Q4.42 15.14 3.58 14.04 L2.85 13.1Q2 12 2.85 10.9 L3.58 9.96Q4.42 8.86 4.6 7.49 L4.75 6.31Q4.93 4.93 6.31 4.75 L7.49 4.6Q8.86 4.42 9.96 3.58 L10.9 2.85Q12 2 13.1 2.85 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1.5" stroke-linejoin="round"></path>
+    </g>
+</svg>

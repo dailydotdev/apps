@@ -17,7 +17,6 @@ import {
   EyeIcon,
   JobIcon,
   MailIcon,
-  TimerIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -34,6 +33,7 @@ import {
 import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
 import { FeedWidgetSurface } from '@dailydotdev/shared/src/features/feedWidgets/FeedWidgetFrame';
+import { FreeIcon } from './icons/Free';
 
 // react-modal hides the app root from screen readers while open, and the
 // shared Modal points it at Next's root, which Storybook doesn't have.
@@ -249,7 +249,7 @@ const benefits = (
     note: 'Verified jobs stand out when they look for people like you.',
   },
   {
-    icon: <TimerIcon size={IconSize.Small} />,
+    icon: <FreeIcon size={IconSize.Small} />,
     title: 'Free, and takes a minute',
     note: 'We send a code to your work email.',
   },
