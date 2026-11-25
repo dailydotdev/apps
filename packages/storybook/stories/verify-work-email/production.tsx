@@ -8,6 +8,17 @@ import type { MarketingCta } from '@dailydotdev/shared/src/components/marketing/
 import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import { MarketingCtaPopoverSmall } from '@dailydotdev/shared/src/components/marketing/cta/MarketingCtaPopoverSmall';
 import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query';
+import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { Nav } from '@dailydotdev/shared/src/components/sidebar/common';
+import { SettingsPanelSection } from '@dailydotdev/shared/src/components/sidebar/sections/SettingsPanelSection';
+import SettingsLayout from '../../../webapp/components/layouts/SettingsLayout';
 import ProfileIndex from '../../../webapp/components/layouts/SettingsLayout/Profile';
 
 // What members see today, from the production components. The popover gets
@@ -110,9 +121,45 @@ export const ProductionPopover = (): ReactElement => (
   </Providers>
 );
 
-/** `/settings/profile`, where "Get my badge" goes. */
+/**
+ * `/settings/profile`, where "Get my badge" goes, on a laptop: the sidebar's
+ * settings panel (Back to app over SettingsPanelSection, as SidebarDesktopV2
+ * shows it on settings pages) beside MainLayout's floating card, holding
+ * SettingsLayout and the page. The frame's classes are copied from those two.
+ */
 export const ProductionLanding = (): ReactElement => (
   <Providers>
-    <ProfileIndex />
+    <div className="flex bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]">
+      <aside className="flex w-[20rem] shrink-0 flex-col">
+        <div className="pl-5 pr-3 pt-6">
+          <Button
+            type="button"
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Small}
+            icon={<MoveToIcon size={IconSize.Size16} className="-scale-x-100" />}
+            className="-ml-1"
+          >
+            Back to app
+          </Button>
+        </div>
+        <Nav className="mt-1 !pt-0">
+          <SettingsPanelSection
+            isItemsButton={false}
+            sidebarExpanded
+            shouldShowLabel
+            // Compared host-free, as isSidebarItemActive does with the links.
+            activePage={`${settingsUrl}/profile`.replace(/^https?:\/\/[^/]+/, '')}
+            isV2Panel
+          />
+        </Nav>
+      </aside>
+      <div className="my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col">
+        <div className="relative flex flex-1 flex-col overflow-clip rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
+          <SettingsLayout>
+            <ProfileIndex />
+          </SettingsLayout>
+        </div>
+      </div>
+    </div>
   </Providers>
 );

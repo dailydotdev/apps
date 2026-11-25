@@ -67,9 +67,9 @@ export const ReadMe: StoryObj = {
           <Labeled
             status="Before"
             title="Where “Get my badge” lands"
-            where="/settings/profile, the production Profile details form. Verifying lives on /settings/profile/experience/work."
+            where="/settings/profile on a laptop: the settings sidebar, SettingsLayout and the Profile form, all production components. Verifying lives on /settings/profile/experience/work."
           >
-            <div className="w-full max-w-[40rem] overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+            <div className="w-full overflow-hidden rounded-16 border border-border-subtlest-tertiary">
               <ProductionLanding />
             </div>
           </Labeled>
