@@ -18,7 +18,7 @@ const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
       <Page
         eyebrow="Verify work email · proposal"
         title="Five places to ask, one modal"
-        intro="We ask only after someone tells us where they work. Each place is drawn by the production components that render it today; the new ask is in a dashed New box. Click any ask to open the modal."
+        intro="We ask only after someone tells us where they work. Each place is drawn by the production components that render it today, with the new ask where it would go. Click any ask to open the modal."
       >
         <div className="flex flex-col gap-12">
           {shown.map(({ id, title, where, status, Surface }) => (

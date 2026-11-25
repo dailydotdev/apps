@@ -30,13 +30,13 @@ import { job, member } from './providers';
 import { COMPANY, CompanyLogo } from './modal';
 
 // The five places, each drawn by the production components that render it
-// today. The new ask sits in a dashed "New" box where it would go; it isn't
-// inside the components, so where a component can't take it, the box says
+// today. The new ask sits under a line saying where it would go: it isn't
+// inside the components, so where a component can't take it, the line says
 // where it belongs.
 
 type PlaceProps = { onVerify: () => void };
 
-/** Marks what's new: the ask, and a line on where it goes. */
+/** The new ask, under a line on where it goes. */
 const NewAsk = ({
   where,
   children,
@@ -44,10 +44,7 @@ const NewAsk = ({
   where?: string;
   children: ReactNode;
 }): ReactElement => (
-  <div className="relative mt-3 flex flex-col gap-2 rounded-16 border-2 border-dashed border-accent-cabbage-default p-3 pt-4">
-    <span className="absolute -top-3 left-3 rounded-8 bg-accent-cabbage-default px-2 py-0.5 font-bold text-white typo-caption1">
-      New
-    </span>
+  <div className="mt-3 flex flex-col gap-2">
     {where && (
       <Typography
         type={TypographyType.Caption1}
