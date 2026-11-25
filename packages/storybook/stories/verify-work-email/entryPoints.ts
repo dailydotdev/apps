@@ -44,7 +44,7 @@ export const entryPoints: Array<{
     id: 'after-cv-upload',
     title: '4. Next step after a CV upload',
     where:
-      'AutofillProfileBanner on your profile, and the “CV uploaded” ActionSuccessModal after an upload.',
+      'The “CV uploaded” ActionSuccessModal, with the ask as its cta button.',
     status: 'New',
     Surface: AfterCvUpload,
   },

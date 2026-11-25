@@ -109,8 +109,8 @@ export const ReadMe: StoryObj = {
               </span>
               <span className="font-bold typo-callout">The modal</span>
               <span className="text-text-secondary typo-footnote">
-                New: a benefits screen first (logo next to your name, Verified
-                tag, visible to recruiters). Then the production
+                New: a benefits screen first (stand out, get taken seriously,
+                30 seconds and free). Then the production
                 VerifyExperienceModal, unchanged: one form for the email and
                 the code, and a toast for the result.
               </span>

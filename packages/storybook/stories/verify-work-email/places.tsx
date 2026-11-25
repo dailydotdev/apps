@@ -16,7 +16,6 @@ import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile
 import { ExperienceSettings } from '@dailydotdev/shared/src/components/profile/ExperienceSettings';
 import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
-import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ActionSuccessModal } from '@dailydotdev/shared/src/components/modals/utils/ActionSuccessModal';
 import { uploadCvProfileSuccessContent } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import {
@@ -215,35 +214,35 @@ export const ProfileHeaderChip = ({ onVerify }: PlaceProps): ReactElement => (
 );
 
 /**
- * 4. The CV upload on your profile (AutofillProfileBanner). A successful
- * upload opens the production "CV uploaded" modal; the ask is that modal's
- * own `cta`, a prop it already has.
+ * 4. After a CV upload, the production "CV uploaded" modal
+ * (ActionSuccessModal); the ask is its own `cta`, a prop it already has.
+ * The modal mounts in this box instead of over the page, so the other places
+ * stay in view.
  */
-export const AfterCvUpload = ({
-  onVerify,
-  isModalOpen: isInitiallyOpen = false,
-}: PlaceProps & { isModalOpen?: boolean }): ReactElement => {
-  const [isModalOpen, setIsModalOpen] = useState(isInitiallyOpen);
+export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
+  const [host, setHost] = useState<HTMLDivElement | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const { name } = useCurrentCompany();
 
   return (
-    <PageCard>
-      <div className="flex flex-col gap-3 p-4">
-        <AutofillProfileBanner onUpload={async () => setIsModalOpen(true)} />
-        <NewAsk where="After an upload, a Verify button in the “CV uploaded” modal, through its cta prop.">
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            className="self-start"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Show the modal after an upload
-          </Button>
-        </NewAsk>
-      </div>
-      {isModalOpen && (
+    <div
+      ref={setHost}
+      className="relative flex min-h-[38rem] items-center justify-center overflow-hidden rounded-24 border border-border-subtlest-quaternary bg-background-default"
+    >
+      {!isModalOpen && (
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          onClick={() => setIsModalOpen(true)}
+        >
+          Show the modal again
+        </Button>
+      )}
+      {host && isModalOpen && (
         <ActionSuccessModal
           isOpen
+          parentSelector={() => host}
+          overlayClassName="!absolute"
           onRequestClose={() => setIsModalOpen(false)}
           withCloseOnTablet
           content={{
@@ -260,7 +259,7 @@ export const AfterCvUpload = ({
           }}
         />
       )}
-    </PageCard>
+    </div>
   );
 };
 
