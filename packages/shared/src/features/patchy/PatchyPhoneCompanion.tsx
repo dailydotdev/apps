@@ -128,13 +128,13 @@ interface SpotRect {
 }
 
 // The one Patchy that floats over the page. While the header is up he stands
-// exactly over his spot in it; when it scrolls away he stays right there and
-// the header slides out from under him, and coming back it slides in under
-// him. So he never jumps between the header and the corner. Without a spot
-// in the header (pages other than home and a post) he only comes out to
-// react, below the header or in the top-right of its row once it's away. He leaves the
-// layout when he's not shown: iOS 26 Safari paints its status area solid
-// while a fixed box with a background stands at the top.
+// exactly over his spot in it (a post's, or below the header elsewhere to
+// react; on home the pill shows him itself). Once the header scrolls away he
+// leaves with it and only drops back in to react, at that same spot (or the
+// top-right of its row without one), so he never sits over the page's text
+// while reading down. A tap while he's there brings the header back. He
+// leaves the layout when he's not shown: iOS 26 Safari paints its status
+// area solid while a fixed box with a background stands at the top.
 export const PatchyFloatingFace = (): ReactElement | null => {
   const companion = usePatchyPhoneCompanion();
   const { logEvent } = useLogContext();
@@ -375,12 +375,23 @@ export const PatchyPhoneCompanion = ({
       return null;
     }
     const isPill = anchor?.kind === 'pill';
-    const isBusy = brain.patchy.isReacting || brain.patchy.isReading;
+    const { isReacting, isReading } = brain.patchy;
+    // While the header is away he only drops in to react: standing there
+    // for the whole scroll he covered the page's text under him (and kept a
+    // fixed box at the top, which bands iOS 26 Safari's status area).
+    // Coming back, the pill slides in with the header; a post's spot slides
+    // in under him, so there he's back as soon as it starts.
+    let isFloating = !isPill && (isReacting || isReading);
+    if (isPill) {
+      isFloating = isHeaderAway && isReacting;
+    } else if (isScrolledAway) {
+      isFloating = isReacting;
+    }
     return {
       ...brain,
       anchor,
       setAnchor,
-      isFloating: isPill ? isHeaderAway : isBusy || isHeaderAway,
+      isFloating,
       // Only a post keeps a spot for him: he reads along there for the whole
       // visit, so the header's other actions never shift for a reaction.
       hasActionsSpot: hasHeader && !isPill && brain.patchy.isReading,
