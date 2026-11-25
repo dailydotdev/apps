@@ -25,7 +25,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { VerifiedBadge } from '@dailydotdev/shared/src/features/profile/components/experience/VerifiedBadge';
 import VerifyExperienceModal from '@dailydotdev/shared/src/components/modals/VerifyExperienceModal';
 
 // react-modal hides the app root from screen readers while open, and the
@@ -98,17 +97,12 @@ const NamePreview = ({ isVerified }: { isVerified: boolean }): ReactElement => (
           {COMPANY.name}
         </Typography>
       </div>
-      <div className="flex items-center gap-1">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {COMPANY.role}
-        </Typography>
-        <span className={classNames(!isVerified && 'opacity-40')}>
-          <VerifiedBadge />
-        </span>
-      </div>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {COMPANY.role}
+      </Typography>
     </div>
   </div>
 );
