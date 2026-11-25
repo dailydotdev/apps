@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
-import type { QueryClient } from '@tanstack/react-query';
 import {
   Button,
   ButtonSize,
@@ -13,9 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import type { UserExperienceWork } from '@dailydotdev/shared/src/graphql/user/profile';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
-import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { ExperienceSettings } from '@dailydotdev/shared/src/components/profile/ExperienceSettings';
 import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
@@ -29,7 +26,7 @@ import {
 import { UserShortInfo } from '@dailydotdev/shared/src/components/profile/UserShortInfo';
 import { AccountPageContainer } from '../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { SettingsFrame } from './production';
-import { member } from './providers';
+import { job, member } from './providers';
 import { COMPANY, CompanyLogo } from './modal';
 
 // The five places, each drawn by the production components that render it
@@ -38,40 +35,6 @@ import { COMPANY, CompanyLogo } from './modal';
 // where it belongs.
 
 type PlaceProps = { onVerify: () => void };
-
-/** A current Work job at Acme that isn't verified yet. */
-const job = {
-  id: 'exp-acme',
-  type: UserExperienceType.Work,
-  title: COMPANY.role,
-  createdAt: '2023-03-01T00:00:00Z',
-  startedAt: '2023-03-01T00:00:00Z',
-  endedAt: null,
-  verified: false,
-  customCompanyName: COMPANY.name,
-  company: null,
-  skills: [],
-  location: null,
-  locationType: null,
-  employmentType: null,
-  description: null,
-} as unknown as UserExperienceWork;
-
-/** Query data the five places read. */
-export const seedPlaces = (client: QueryClient): void => {
-  client.setQueryData(
-    generateQueryKey(
-      RequestKey.UserExperience,
-      member as never,
-      UserExperienceType.Work,
-      'settings',
-    ),
-    {
-      edges: [{ node: job }],
-      pageInfo: { hasNextPage: false, endCursor: null },
-    },
-  );
-};
 
 /** Marks what's new: the ask, and a line on where it goes. */
 const NewAsk = ({

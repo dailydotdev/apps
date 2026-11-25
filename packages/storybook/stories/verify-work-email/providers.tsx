@@ -7,6 +7,8 @@ import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query';
+import type { UserExperienceWork } from '@dailydotdev/shared/src/graphql/user/profile';
+import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
 
 const noop = (): void => undefined;
 
@@ -24,6 +26,24 @@ export const member = {
   providers: ['github'],
   socialLinks: [],
 };
+
+/** Maya's current Work job at Acme, not verified yet. */
+export const job = {
+  id: 'exp-acme',
+  type: UserExperienceType.Work,
+  title: 'Senior Engineer',
+  createdAt: '2023-03-01T00:00:00Z',
+  startedAt: '2023-03-01T00:00:00Z',
+  endedAt: null,
+  verified: false,
+  customCompanyName: 'Acme',
+  company: null,
+  skills: [],
+  location: null,
+  locationType: null,
+  employmentType: null,
+  description: null,
+} as unknown as UserExperienceWork;
 
 const settings = {
   insaneMode: false,
@@ -67,6 +87,18 @@ export const Providers = ({
       actions: [],
       serverLoaded: true,
     });
+    client.setQueryData(
+      generateQueryKey(
+        RequestKey.UserExperience,
+        member as never,
+        UserExperienceType.Work,
+        'settings',
+      ),
+      {
+        edges: [{ node: job }],
+        pageInfo: { hasNextPage: false, endCursor: null },
+      },
+    );
     seed?.(client);
     return client;
   }, [seed]);

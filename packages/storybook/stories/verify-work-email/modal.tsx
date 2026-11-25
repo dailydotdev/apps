@@ -26,6 +26,13 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import VerifyExperienceModal from '@dailydotdev/shared/src/components/modals/VerifyExperienceModal';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
+import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
+import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
 
 // react-modal hides the app root from screen readers while open, and the
 // shared Modal points it at Next's root, which Storybook doesn't have.
@@ -35,8 +42,7 @@ if (typeof document !== 'undefined' && !document.getElementById('__next')) {
   document.body.appendChild(root);
 }
 
-export const MEMBER = { name: 'Maya', username: 'maya' };
-export const COMPANY = { name: 'Acme', role: 'Senior Engineer' };
+export const COMPANY = { name: 'Acme' };
 
 /** A stand-in company logo, so the stories need no network. */
 export const CompanyLogo = ({
@@ -50,24 +56,6 @@ export const CompanyLogo = ({
     aria-hidden
     className={classNames(
       'flex shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption2',
-      className,
-    )}
-  >
-    {name[0]}
-  </span>
-);
-
-export const Avatar = ({
-  name = MEMBER.name,
-  className = 'size-10',
-}: {
-  name?: string;
-  className?: string;
-}): ReactElement => (
-  <span
-    aria-hidden
-    className={classNames(
-      'flex shrink-0 items-center justify-center rounded-12 bg-accent-bun-default font-bold text-white typo-callout',
       className,
     )}
   >
@@ -176,40 +164,56 @@ const CompanyImage = ({
   />
 );
 
-/** The member's name as others will see it once verified. */
+/**
+ * The signed-in member as others will see them once verified: their name,
+ * picture and current job title, from the same data production has.
+ */
 const NamePreview = ({
   company,
   isShown,
 }: {
   company: Company;
   isShown: boolean;
-}): ReactElement => (
-  <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3">
-    <Avatar />
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <div className="flex items-center gap-1">
-        <Typography type={TypographyType.Callout} bold>
-          {MEMBER.name}
-        </Typography>
-        <span className={classNames('flex items-center gap-1', fade(isShown))}>
-          <CompanyImage company={company} className="size-4" />
+}): ReactElement => {
+  const { user } = useAuthContext();
+  const { experiences } = useUserExperiencesByType(
+    UserExperienceType.Work,
+    user?.id ?? '',
+  );
+  const currentJob = experiences?.find(({ endedAt }) => !endedAt);
+
+  return (
+    <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3">
+      {user && <ProfilePicture user={user} size={ProfileImageSize.Large} />}
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <div className="flex items-center gap-1">
+          <Typography type={TypographyType.Callout} bold>
+            {user?.name}
+          </Typography>
+          <span
+            className={classNames('flex items-center gap-1', fade(isShown))}
+          >
+            <CompanyImage company={company} className="size-4" />
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+            >
+              {company.name}
+            </Typography>
+          </span>
+        </div>
+        {currentJob?.title && (
           <Typography
             type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
+            color={TypographyColor.Tertiary}
           >
-            {company.name}
+            {currentJob.title}
           </Typography>
-        </span>
+        )}
       </div>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        {COMPANY.role}
-      </Typography>
     </div>
-  </div>
-);
+  );
+};
 
 const benefits = (
   company: Company,

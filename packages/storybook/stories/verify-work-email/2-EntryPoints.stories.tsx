@@ -5,7 +5,6 @@ import { VerifyBadgeModal } from './modal';
 import { Labeled, Page } from './kit';
 import { entryPoints } from './entryPoints';
 import { Providers } from './providers';
-import { seedPlaces } from './places';
 import { verifyHandlers } from './mocks';
 
 const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
@@ -15,7 +14,7 @@ const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
     : entryPoints;
 
   return (
-    <Providers seed={seedPlaces}>
+    <Providers>
       <Page
         eyebrow="Verify work email · proposal"
         title="Five places to ask, one modal"
