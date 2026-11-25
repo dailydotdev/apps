@@ -4,8 +4,8 @@ import {
   AfterSavingJob,
   OthersBadge,
   ProfileHeaderChip,
-  UnverifiedJobRow,
-} from './surfaces';
+  UnverifiedJob,
+} from './places';
 import type { Status } from './kit';
 
 type Surface = (props: { onVerify: () => void }) => ReactElement;
@@ -20,7 +20,8 @@ export const entryPoints: Array<{
   {
     id: 'after-saving-job',
     title: '1. Right after saving a current job',
-    where: 'Settings › Experience, on save',
+    where:
+      'Saving a job takes you to Settings › Work Experience (no toast today). ExperienceSettings in the production settings page.',
     status: 'New',
     Surface: AfterSavingJob,
   },
@@ -28,21 +29,22 @@ export const entryPoints: Array<{
     id: 'unverified-job-row',
     title: '2. A row under the unverified job',
     where:
-      'Your profile › Experience. The "Verify company" chip is there today and opens VerifyExperienceModal.',
+      'Your profile › Work Experiences (UserExperienceList). The "Verify company" chip is production and opens VerifyExperienceModal.',
     status: 'Restyle',
-    Surface: UnverifiedJobRow,
+    Surface: UnverifiedJob,
   },
   {
     id: 'profile-header-chip',
     title: '3. "Add badge" chip in your profile header',
-    where: 'Your own profile, where a verified company would show',
+    where: 'ProfileHeader on your own profile.',
     status: 'New',
     Surface: ProfileHeaderChip,
   },
   {
     id: 'after-cv-upload',
     title: '4. Next step after a CV upload',
-    where: 'Profile, once the CV has filled in your jobs',
+    where:
+      'AutofillProfileBanner on your profile, and the “CV uploaded” ActionSuccessModal after an upload.',
     status: 'New',
     Surface: AfterCvUpload,
   },
@@ -50,7 +52,7 @@ export const entryPoints: Array<{
     id: 'others-badge',
     title: '5. A button on someone else’s badge',
     where:
-      'Any verified member’s company badge. Today a tooltip that says "via account settings".',
+      'VerifiedCompanyUserBadge in UserShortInfo. Its tooltip tells unverified viewers to use account settings.',
     status: 'New',
     Surface: OthersBadge,
   },

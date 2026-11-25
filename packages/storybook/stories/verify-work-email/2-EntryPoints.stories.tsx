@@ -5,6 +5,7 @@ import { VerifyBadgeModal } from './modal';
 import { Labeled, Page } from './kit';
 import { entryPoints } from './entryPoints';
 import { Providers } from './providers';
+import { seedPlaces } from './places';
 import { verifyHandlers } from './mocks';
 
 const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
@@ -14,13 +15,13 @@ const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
     : entryPoints;
 
   return (
-    <Providers>
+    <Providers seed={seedPlaces}>
       <Page
         eyebrow="Verify work email · proposal"
         title="Five places to ask, one modal"
-        intro="We ask only after someone tells us where they work. Click any ask to open the modal."
+        intro="We ask only after someone tells us where they work. Each place is drawn by the production components that render it today; the new ask is in a dashed New box. Click any ask to open the modal."
       >
-        <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-3">
+        <div className="flex flex-col gap-12">
           {shown.map(({ id, title, where, status, Surface }) => (
             <Labeled key={id} status={status} title={title} where={where}>
               <Surface onVerify={() => setIsOpen(true)} />
