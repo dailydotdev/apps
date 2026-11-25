@@ -713,9 +713,25 @@ function AuthOptionsInner({
     };
 
     if (isNativeAuthSupported(provider)) {
-      const res = await iosNativeAuth(provider);
+      let isTimedOut = false;
+      const res = await iosNativeAuth(provider, {
+        onTimeout: () => {
+          isTimedOut = true;
+        },
+      });
       if (!res) {
         setIsSocialAuthLoading(false);
+        if (isTimedOut) {
+          logEvent({
+            event_name: authErrorEventName,
+            extra: JSON.stringify({
+              provider,
+              error: 'No reply from the iOS app',
+              origin: Origin.IOSNativeAuthTimeout,
+            }),
+          });
+          onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
+        }
         return;
       }
       const result = await betterAuthSignInWithIdToken({

@@ -169,13 +169,35 @@ export type NativeAuthResponse = {
   name?: string;
 };
 
+// Long enough for a password and a second factor on the native sheet.
+export const IOS_NATIVE_AUTH_TIMEOUT_MS = 2 * 60 * 1000;
+
+const nativeAuthTimedOut = Symbol('native-auth-timeout');
+
+/**
+ * Asks the iOS app to sign in natively and waits for its `native-auth` reply.
+ * Resolves `undefined` when the app reports a cancel or failure (an empty
+ * detail) and when no reply arrives within `timeoutMs`; older app builds send
+ * nothing at all when Google or Apple sign-in fails.
+ */
 export const iosNativeAuth = async (
   provider: string,
+  {
+    timeoutMs = IOS_NATIVE_AUTH_TIMEOUT_MS,
+    onTimeout,
+  }: { timeoutMs?: number; onTimeout?: () => void } = {},
 ): Promise<NativeAuthResponse | undefined> => {
   const promise = promisifyEventListener<
-    NativeAuthResponse | undefined,
-    NativeAuthResponse | undefined
-  >('native-auth', (event) => event.detail);
+    NativeAuthResponse | null | undefined | typeof nativeAuthTimedOut,
+    NativeAuthResponse | null | undefined
+  >('native-auth', (event) => event.detail, {
+    timeout: { ms: timeoutMs, value: nativeAuthTimedOut },
+  });
   postWebKitMessage(WebKitMessageHandlers.NativeAuth, provider);
-  return promise;
+  const res = await promise;
+  if (res === nativeAuthTimedOut) {
+    onTimeout?.();
+    return undefined;
+  }
+  return res?.token ? res : undefined;
 };
