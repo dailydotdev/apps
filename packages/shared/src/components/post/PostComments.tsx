@@ -19,6 +19,7 @@ import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
 import { CommentsTeaserSkeleton } from '../../features/commentsTeaser/CommentsTeaserSkeleton';
 import { COMMENTS_TEASER_LIMIT } from '../../features/commentsTeaser/commentsTeaser';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
@@ -88,6 +89,7 @@ export function PostComments({
   onTeaserSignup,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
+  const { user } = useAuthContext();
   const container = useRef<HTMLDivElement | null>(null);
   const isModalThread = threadCommentOrigins.has(origin);
   const {
@@ -177,7 +179,15 @@ export function PostComments({
         // pagination beyond the first page is not on screen and not counted),
         // and the boundary can only sit after a top-level block. One prefix
         // pass instead of two reductions per row.
-        const allEdges = comments!.postComments.edges;
+        const loadedEdges = comments!.postComments.edges;
+        // The reader's own comments lead the thread, the rest keep the
+        // chosen sort.
+        const allEdges = user
+          ? [
+              ...loadedEdges.filter(({ node }) => node.author?.id === user.id),
+              ...loadedEdges.filter(({ node }) => node.author?.id !== user.id),
+            ]
+          : loadedEdges;
         const linkedIndex = teaser
           ? allEdges.findIndex(
               ({ node }) =>
