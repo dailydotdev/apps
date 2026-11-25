@@ -455,3 +455,8 @@ export const featureQuestBonusHighlight = new Feature(
   'quest_bonus_highlight',
   'control',
 );
+
+// Experiment: the feed survey card in My Feed. Evaluated only for a signed-in
+// user on My Feed, so those are the users it enrolls. The API decides when a
+// user in the experiment is due the card.
+export const featureFeedSurvey = new Feature('feed_survey', false);

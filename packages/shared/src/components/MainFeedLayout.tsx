@@ -43,6 +43,7 @@ import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
   feedV2SupportedTypes,
+  feedV2SurveyType,
   FEED_V2_EXPLAIN_QUERY,
   FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
@@ -80,6 +81,7 @@ import {
   discussedFeedVersion,
   feature,
   featureFeedChips,
+  featureFeedSurvey,
   featureFeedHero,
   FeedChipsVariant,
   followingFeedVersion,
@@ -451,6 +453,10 @@ export default function MainFeedLayout({
     feature: feature.feedVersion,
     shouldEvaluate: feedName === SharedFeedPage.MyFeed,
   });
+  const { value: isFeedSurveyEnabled } = useConditionalFeature({
+    feature: featureFeedSurvey,
+    shouldEvaluate: !!user && feedName === SharedFeedPage.MyFeed,
+  });
   const { value: followingFeedV } = useConditionalFeature({
     feature: followingFeedVersion,
     shouldEvaluate: feedName === OtherFeedPage.Following,
@@ -642,7 +648,9 @@ export default function MainFeedLayout({
         ...dynamicFeedConfig?.variables,
         ...(shouldRequestFeedV2Highlights
           ? {
-              supportedTypes: feedV2SupportedTypes,
+              supportedTypes: isFeedSurveyEnabled
+                ? [...feedV2SupportedTypes, feedV2SurveyType]
+                : feedV2SupportedTypes,
               highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
             }
           : {}),
@@ -666,6 +674,7 @@ export default function MainFeedLayout({
     customFeedV,
     isTokenValid,
     feedVersion,
+    isFeedSurveyEnabled,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(

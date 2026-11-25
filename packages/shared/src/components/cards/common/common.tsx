@@ -87,6 +87,7 @@ export const generateTitleClamp = ({
 export enum FeedItemType {
   Post = 'post',
   Highlight = 'highlight',
+  Survey = 'survey',
   Ad = 'ad',
   PlusEntry = 'plusEntry',
   Placeholder = 'placeholder',

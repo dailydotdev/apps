@@ -585,6 +585,7 @@ export enum LogEvent {
   ClearCv = 'clear cv',
   // end CV Upload
   VotePoll = 'vote poll',
+  AnswerFeedSurvey = 'answer feed survey',
   ImpressionComment = 'impression comment',
   // Opportunity
   ImpressionOpportunityNudge = 'impression opportunity nudge',
@@ -842,6 +843,7 @@ export enum TargetType {
   SimilarSquads = 'similar squads',
   Plugin = 'plugin',
   WhatsOff = 'whats off',
+  FeedSurvey = 'feed survey',
 }
 
 export enum TargetId {
