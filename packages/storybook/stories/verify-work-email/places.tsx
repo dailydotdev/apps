@@ -277,24 +277,38 @@ const dana = {
 };
 
 /**
- * 5. Someone else's company badge, in UserShortInfo. Hover the logo for its
- * production tooltip, which tells an unverified viewer to go to account
- * settings; the button would go in that tooltip.
+ * 5. Someone else's company badge, in UserShortInfo. Today it has no click
+ * action; hovering shows its production tooltip, which tells an unverified
+ * viewer to go to account settings. The proposal: clicking it opens the
+ * modal. The badge is a tooltip trigger (Radix's data-state) holding the
+ * company logo; the reputation badge beside it is one too, but holds no
+ * image, so the story catches clicks on the trigger with the logo.
  */
 export const OthersBadge = ({ onVerify }: PlaceProps): ReactElement => (
   <PageCard>
     <div className="p-4">
-      <UserShortInfo user={dana as never} tag="div" disableTooltip />
-      <NewAsk where="In the badge’s tooltip (hover Dana’s company logo), replacing “Get your company badge via account settings.”">
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.XSmall}
-          icon={<JobIcon />}
-          className="self-start"
-          onClick={onVerify}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+      <div
+        className="[&_[data-state]:has(img)]:cursor-pointer"
+        onClickCapture={(event) => {
+          const trigger = (event.target as HTMLElement).closest(
+            '[data-state]',
+          );
+          if (trigger?.querySelector('img')) {
+            onVerify();
+          }
+        }}
+      >
+        <UserShortInfo user={dana as never} tag="div" disableTooltip />
+      </div>
+      <NewAsk where="Click Dana’s company logo: it opens the modal. Today the badge has no click action, only the hover tooltip.">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
         >
-          Get your badge
-        </Button>
+          The same goes for the badge everywhere it shows: comments, posts,
+          profile headers and user cards.
+        </Typography>
       </NewAsk>
     </div>
   </PageCard>

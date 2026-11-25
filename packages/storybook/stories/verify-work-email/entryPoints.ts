@@ -50,9 +50,9 @@ export const entryPoints: Array<{
   },
   {
     id: 'others-badge',
-    title: '5. A button on someone else’s badge',
+    title: '5. Clicking someone else’s company badge',
     where:
-      'VerifiedCompanyUserBadge in UserShortInfo. Its tooltip tells unverified viewers to use account settings.',
+      'VerifiedCompanyUserBadge in UserShortInfo. Today it has no click action, and its tooltip tells unverified viewers to use account settings.',
     status: 'New',
     Surface: OthersBadge,
   },
