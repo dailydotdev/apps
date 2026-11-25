@@ -7,6 +7,7 @@ export * from './App';
 export * from './Apple';
 export * from './Arrow';
 export * from './At';
+export * from './Behance';
 export * from './Bell';
 export * from './Bitbucket';
 export * from './Block';

@@ -2,6 +2,7 @@ import type { ComponentType, ReactElement } from 'react';
 import React from 'react';
 import type { IconProps, IconSize } from '../components/Icon';
 import {
+  BehanceIcon,
   BitbucketIcon,
   BlueskyIcon,
   CodebergIcon,
@@ -239,6 +240,13 @@ export const USER_ONLY_PLATFORMS = {
     domains: ['discord.com', 'discord.gg', 'discordapp.com'],
     icon: DiscordIcon,
     // Discord profiles are keyed by user ID, not a username
+  },
+  behance: {
+    id: 'behance',
+    label: 'Behance',
+    domains: ['behance.net'],
+    icon: BehanceIcon,
+    urlBuilder: (u: string) => `https://www.behance.net/${u}`,
   },
   portfolio: {
     id: 'portfolio',
