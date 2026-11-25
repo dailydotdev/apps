@@ -33,6 +33,7 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
+import { FeedWidgetSurface } from '@dailydotdev/shared/src/features/feedWidgets/FeedWidgetFrame';
 
 // react-modal hides the app root from screen readers while open, and the
 // shared Modal points it at Next's root, which Storybook doesn't have.
@@ -164,6 +165,13 @@ const CompanyImage = ({
   />
 );
 
+// The feed widgets' corner glow (feedWidgets/widgets/material.tsx), in the
+// avocado green the production popover tags verification with.
+const verifiedGlow = {
+  backgroundImage:
+    'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)',
+};
+
 /**
  * The signed-in member as others will see them once verified: their name,
  * picture and current job title, from the same data production has.
@@ -183,35 +191,51 @@ const NamePreview = ({
   const currentJob = experiences?.find(({ endedAt }) => !endedAt);
 
   return (
-    <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3">
-      {user && <ProfilePicture user={user} size={ProfileImageSize.Large} />}
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <div className="flex items-center gap-1">
-          <Typography type={TypographyType.Callout} bold>
-            {user?.name}
-          </Typography>
-          <span
-            className={classNames('flex items-center gap-1', fade(isShown))}
-          >
-            <CompanyImage company={company} className="size-4" />
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
-              {company.name}
-            </Typography>
+    <FeedWidgetSurface>
+      <div className="relative isolate flex flex-col gap-3">
+        <span
+          aria-hidden
+          // Up to the card's top edge, so the glow starts at the corner.
+          className="pointer-events-none absolute -inset-x-4 -bottom-3 -top-3 -z-1"
+          style={verifiedGlow}
+        />
+        <header className="flex h-6 min-w-0 items-center gap-1.5 px-4">
+          <ShieldCheckIcon
+            size={IconSize.Size16}
+            className="text-accent-avocado-default"
+          />
+          <span className="truncate font-bold text-text-primary typo-caption1">
+            How others will see you
           </span>
+        </header>
+        <div className="flex items-center gap-3 px-4">
+          {user && <ProfilePicture user={user} size={ProfileImageSize.Large} />}
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <div className="flex items-center gap-1">
+              <span className="truncate font-bold text-text-primary typo-callout">
+                {user?.name}
+              </span>
+              <span
+                className={classNames(
+                  'flex items-center gap-1',
+                  fade(isShown),
+                )}
+              >
+                <CompanyImage company={company} className="size-4" />
+                <span className="truncate text-text-secondary typo-footnote">
+                  {company.name}
+                </span>
+              </span>
+            </div>
+            {currentJob?.title && (
+              <span className="truncate text-text-tertiary typo-caption1">
+                {currentJob.title}
+              </span>
+            )}
+          </div>
         </div>
-        {currentJob?.title && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {currentJob.title}
-          </Typography>
-        )}
       </div>
-    </div>
+    </FeedWidgetSurface>
   );
 };
 
