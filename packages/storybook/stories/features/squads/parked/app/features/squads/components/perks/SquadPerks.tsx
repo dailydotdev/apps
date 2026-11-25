@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SquadPerk } from '../../../../graphql/squadJobsPerks';
+import type { SquadPerk } from '../../../../graphql/squadPerks';
 import {
   isSquadItemGone,
   SquadPerkCodeKind,
   squadPerkQueryOptions,
-} from '../../../../graphql/squadJobsPerks';
+} from '../../../../graphql/squadPerks';
 import {
   Button,
   ButtonIconPosition,
@@ -44,7 +44,7 @@ import {
   useSquadPerkMutations,
   useSquadPerks,
 } from '../../hooks/useSquadPerks';
-import { getLinkHost, getSquadPerkEndsLabel } from '../../lib/jobsPerks';
+import { getLinkHost, getSquadPerkEndsLabel } from '../../lib/perks';
 import { isJoinedViewer } from '@dailydotdev/shared/src/features/squads/lib/viewer';
 import {
   getSquadPerkUrl,
@@ -59,7 +59,7 @@ import {
   SquadDetailFacts,
   SquadDetailSection,
   SquadDetailUnavailable,
-} from '../jobs/SquadDetail';
+} from './SquadDetail';
 
 // Member perks: shop-style cards anyone can see, locked for visitors, and
 // a page per perk where members get their code.

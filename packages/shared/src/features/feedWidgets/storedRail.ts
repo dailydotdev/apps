@@ -1,9 +1,5 @@
 import type { FeedWidget, FeedWidgetRailState } from './types';
-import {
-  FEED_WIDGET_RAIL_VERSION,
-  FeedWidgetKind,
-  FeedWidgetSize,
-} from './types';
+import { FEED_WIDGET_RAIL_VERSION } from './types';
 
 // Kept free of the registry, the widgets and the config schemas: the feed
 // page reads the stored rail on every load to know what its grid must not
@@ -111,18 +107,18 @@ export const customFeedWidgets = (
     : rail.widgets;
 };
 
+/** The reader hid widgets from their feed. */
+export const isFeedWidgetsHidden = (
+  rail: FeedWidgetRailState | null,
+): boolean => rail?.hidden === true;
+
 /**
- * The built-in default rail: the top story and our slot, with the add tile
- * after them inviting the rest. The live default comes from the
- * `feed_widgets_default` flag; this is what a broken flag value falls back to.
+ * The built-in default: no widgets, so the feed reads as it always did until
+ * the reader places one. The live default comes from the
+ * `feed_widgets_in_feed_default` flag, whose widgets each name a `slot`; this
+ * is what a broken flag value falls back to.
  */
-export const defaultFeedWidgets: FeedWidget[] = [
-  {
-    id: 'top-story',
-    kind: FeedWidgetKind.TopStory,
-    size: FeedWidgetSize.Large,
-  },
-];
+export const defaultFeedWidgets: FeedWidget[] = [];
 
 export type FeedWidgetDefaultRail = { id: string; widgets: FeedWidget[] };
 

@@ -23,13 +23,16 @@ jest.mock('../comments/MainComment', () => ({
     comment,
     commentHash,
     commentRef,
+    repliesLocked,
   }: {
     comment: { id: string };
     commentHash: string;
     commentRef: React.MutableRefObject<HTMLElement>;
+    repliesLocked?: boolean;
   }) => (
     <article
       data-testid="comment"
+      data-locked={String(!!repliesLocked)}
       ref={commentHash === `#c-${comment.id}` ? commentRef : undefined}
     >
       {comment.id}
@@ -203,5 +206,125 @@ describe('PostComments hash scrolling', () => {
 
     expect(scrollIntoView).toHaveBeenCalledTimes(2);
     expect(scrollIntoView.mock.instances[1]).toBe(screen.getByText('c0'));
+  });
+});
+
+describe('PostComments teaser (logged out)', () => {
+  const renderTeaser = (count: number, onTeaserSignup = jest.fn()) => {
+    setComments(count);
+    return render(
+      <PostComments
+        post={post}
+        origin={Origin.ArticlePage}
+        teaser
+        onTeaserSignup={onTeaserSignup}
+      />,
+    );
+  };
+
+  it('shows only the first three comments, replies locked', () => {
+    renderTeaser(5);
+
+    const shown = screen.getAllByTestId('comment');
+    expect(shown.map((node) => node.textContent)).toEqual(['c0', 'c1', 'c2']);
+    shown.forEach((node) =>
+      expect(node).toHaveAttribute('data-locked', 'true'),
+    );
+  });
+
+  it('shows skeletons instead of the empty state, and asks on a tap', () => {
+    const onTeaserSignup = jest.fn();
+    const { container } = renderTeaser(0, onTeaserSignup);
+
+    expect(screen.queryByText('No comments yet')).not.toBeInTheDocument();
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+    const skeleton = container.querySelector('[data-comments-teaser] > button');
+    fireEvent.click(skeleton as HTMLButtonElement);
+    expect(onTeaserSignup).toHaveBeenCalledTimes(1);
+  });
+
+  it('counts only the visible comments for interleaved ads', () => {
+    const reply = { node: { id: 'r' } };
+    const edges = Array.from({ length: 3 }, (_, index) => ({
+      node: { id: `c${index}`, children: { edges: [reply, reply] } },
+    }));
+    mockUsePostComments.mockReturnValue({
+      queryKey: ['post-comments', post.id],
+      comments: { postComments: { edges } },
+      isLoading: false,
+      commentsCount: 3,
+    } as unknown as ReturnType<typeof usePostComments>);
+    render(
+      <PostComments
+        post={post}
+        origin={Origin.ArticlePage}
+        teaser
+        interleaveEvery={2}
+        renderInterleaved={() => <div data-testid="interleaved" />}
+      />,
+    );
+
+    expect(screen.getAllByTestId('interleaved')).toHaveLength(1);
+  });
+
+  describe('a linked comment', () => {
+    afterEach(() => window.history.replaceState({}, '', '/'));
+
+    const renderLinked = (hash: string) => {
+      window.history.replaceState({}, '', `/posts/p1${hash}`);
+      const edges = Array.from({ length: 6 }, (_, index) => ({
+        node: {
+          id: `c${index}`,
+          children: { edges: [{ node: { id: `r${index}` } }] },
+        },
+      }));
+      mockUsePostComments.mockReturnValue({
+        queryKey: ['post-comments', post.id],
+        comments: { postComments: { edges } },
+        isLoading: false,
+        commentsCount: 6,
+      } as unknown as ReturnType<typeof usePostComments>);
+      render(<PostComments post={post} origin={Origin.ArticlePage} teaser />);
+    };
+
+    it('shows a linked comment past the first three', () => {
+      renderLinked('#c-c4');
+      const shown = screen.getAllByTestId('comment');
+
+      expect(shown.map((node) => node.textContent)).toEqual([
+        'c0',
+        'c1',
+        'c2',
+        'c3',
+        'c4',
+      ]);
+      expect(shown[4]).toHaveAttribute('data-locked', 'false');
+      expect(shown[3]).toHaveAttribute('data-locked', 'true');
+    });
+
+    it('unlocks the thread of a linked reply', () => {
+      renderLinked('#c-r5');
+      const shown = screen.getAllByTestId('comment');
+
+      expect(shown).toHaveLength(6);
+      expect(shown[5]).toHaveAttribute('data-locked', 'false');
+      expect(shown[0]).toHaveAttribute('data-locked', 'true');
+    });
+
+    it('keeps three when the linked comment is among them', () => {
+      renderLinked('#c-c1');
+      const shown = screen.getAllByTestId('comment');
+
+      expect(shown).toHaveLength(3);
+      expect(shown[1]).toHaveAttribute('data-locked', 'false');
+    });
+  });
+
+  it('leaves replies unlocked without the teaser', () => {
+    renderThread(2);
+
+    screen
+      .getAllByTestId('comment')
+      .forEach((node) => expect(node).toHaveAttribute('data-locked', 'false'));
   });
 });

@@ -152,7 +152,7 @@ export const FeedHeroCarousel = ({
         key={outgoing.id}
         aria-hidden
         data-testid="carouselOutgoing"
-        className="feed-hero-slide-out pointer-events-none col-start-1 row-start-1 flex flex-col @container/wide"
+        className="feed-hero-slide-out pointer-events-none col-start-1 row-start-1 flex flex-col @container/wide [&>*]:flex-1"
         onAnimationEnd={(event) => {
           if (event.target !== event.currentTarget) {
             return;
@@ -189,7 +189,7 @@ export const FeedHeroCarousel = ({
         {outgoingSlide}
         <div
           key={post.id}
-          className="feed-hero-slide-in col-start-1 row-start-1 flex flex-col @container/wide"
+          className="feed-hero-slide-in col-start-1 row-start-1 flex flex-col @container/wide [&>*]:flex-1"
         >
           <Card post={post} {...wideProps} {...cardProps} />
         </div>

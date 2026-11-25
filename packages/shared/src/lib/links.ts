@@ -1,24 +1,39 @@
-import { z } from 'zod';
 import { apiUrl } from './config';
 import { webappUrl } from './constants';
 import { checkIsExtension, isExtension } from './func';
 
 export const urlStartRegexMatch = /^https?:\/\//i;
 
-export const urlParseSchema = z.preprocess(
-  (val) => {
-    if (typeof val === 'string') {
-      return val.match(urlStartRegexMatch) ? val : `https://${val}`;
+// Same pattern as zod's `z.regexes.domain`
+const domainRegex =
+  /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+
+// Same result as zod's `z.url({ protocol: /^https?$/, hostname:
+// z.regexes.domain, normalize: true })` after prepending https:// to bare hosts
+export const parseHttpUrl = (value: unknown): string | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const withProtocol = urlStartRegexMatch.test(value)
+    ? value
+    : `https://${value}`;
+
+  try {
+    const url = new URL(withProtocol.trim());
+
+    if (
+      !domainRegex.test(url.hostname) ||
+      (url.protocol !== 'http:' && url.protocol !== 'https:')
+    ) {
+      return null;
     }
 
-    return val;
-  },
-  z.url({
-    protocol: /^https?$/,
-    hostname: z.regexes.domain,
-    normalize: true,
-  }),
-);
+    return url.href;
+  } catch (_) {
+    return null;
+  }
+};
 
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
@@ -64,6 +79,9 @@ export const getDomainFromUrl = (link: string): string => {
 // Anything smaller comes back upscaled from the icon service, so it's the floor.
 const MIN_SITE_ICON_SIZE = 96;
 
+const buildIconUrl = (url: string, size: number): string =>
+  `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${Math.round(size)}`;
+
 // A site's own icon — a company or technology's real logo — proxied and cached
 // by the API from the given domain or URL.
 export const getSiteIconUrl = ({
@@ -72,11 +90,13 @@ export const getSiteIconUrl = ({
 }: {
   url: string;
   size?: number;
-}): string =>
-  `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${Math.max(
-    Math.round(size),
-    MIN_SITE_ICON_SIZE,
-  )}`;
+}): string => buildIconUrl(url, Math.max(size, MIN_SITE_ICON_SIZE));
+
+// Shortcut favicons. `fallback=none` makes the API answer an unknown site with
+// an empty 404 instead of Google's grey globe, so the caller's `onError` letter
+// fallback shows.
+export const getShortcutIconUrl = (url: string, size: number): string =>
+  `${buildIconUrl(url, size)}&fallback=none`;
 
 export const removeQueryParam = (url: string, param: string): string => {
   const link = new URL(url);
@@ -200,6 +220,23 @@ export const getRedirectNextPath = (params: URLSearchParams): string => {
   }
 
   return checkIsExtension() ? `${webappUrl}${nextPath}` : nextPath;
+};
+
+// Extension routes don't exist on the webapp, so `next` is dropped there.
+export const getBuyCoresUrl = ({
+  origin,
+  next,
+}: {
+  origin: string;
+  next?: string;
+}): string => {
+  const params = new URLSearchParams({ origin });
+
+  if (next && !checkIsExtension()) {
+    params.set('next', next);
+  }
+
+  return getPathnameWithQuery(`${webappUrl}cores`, params);
 };
 
 /* A function, not a constant: `webappUrl` comes from the environment, and a

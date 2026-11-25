@@ -11,14 +11,14 @@ pnpm monorepo for the daily.dev app suite:
 - `packages/shared`: components, hooks, GraphQL, design system. Code used by both surfaces lives here.
 - `packages/storybook`, `packages/playwright`, `packages/eslint-rules`.
 - Lint and format with oxlint and oxfmt, configured once at the root (`.oxlintrc.json`, `.oxfmtrc.json`). Plugins oxlint lacks natively (testing-library, jest-dom, tailwindcss, sort-exports) load as `jsPlugins`; `import/order` loads as `import-js/order`, and `naming-convention` and `consistent-return` come from `oxlint-plugins/eslint-compat.mjs`, so their directives use the `eslint-compat/` prefix. Suppress with `eslint-disable-next-line` directives, never `oxlint-disable`.
-- Storybook is designer territory: Vercel deploys it only when `packages/storybook`, `packages/shared` or the root `vercel.json` changes (`ignoreCommand`), and it has no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
+- Storybook is designer territory: Vercel deploys it from `main` when `packages/storybook` or `packages/shared` changes, and as a PR preview only when the branch touches `packages/storybook` (`scripts/vercel-ignore-build.sh`, which also skips webapp builds for changes the webapp never reads), and it has no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
 
 ## Verification
 
 - Jest run outside the package scripts needs `NODE_ENV=test`, otherwise React/RTL run as a production build.
 - Don't run `build` while a dev server runs; it breaks hot reload.
 - Run `node ./scripts/typecheck-strict-changed.js` on changed `.ts`/`.tsx` files; package-wide strict tsc has unrelated backlog.
-- CI has no webapp `next build`, so after shared changes run the full webapp tsc before pushing or Vercel catches what CI missed.
+- The Vercel build skips type checking; the CI `typecheck_webapp` job is the only full webapp tsc, so after shared changes run `pnpm --filter webapp typecheck` before pushing.
 - After changing a shared component, run `pnpm --filter webapp test` too. Cross-package tests assert DOM structure and break silently otherwise.
 
 ## Conventions

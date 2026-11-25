@@ -20,6 +20,7 @@ import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
 import { LfgNotificationSettings } from './LfgNotificationSettings';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const getEmailGroup = (group: NotificationGroup): NotificationGroup =>
   group === 'following' ? 'followingEmail' : group;
@@ -34,6 +35,9 @@ const EmailNotificationsTab = (): ReactElement => {
     emailsDisabled,
   } = useNotificationSettings();
   const { isJobsEnabled } = useJobsFeature();
+  const { squads } = useAuthContext();
+  // The weekly intel only reaches paid seats of a daily.dev for Startups plan
+  const hasSeat = !!squads?.some((squad) => squad.currentMember?.seat);
   const showOpportunitiesToggle =
     isJobsEnabled || getGroupStatus('opportunities', 'email');
 
@@ -170,6 +174,20 @@ const EmailNotificationsTab = (): ReactElement => {
               toggleSetting(NotificationType.CreatorAchievement, 'email')
             }
           />
+          {hasSeat && (
+            <NotificationSwitch
+              id={NotificationType.StartupsIntelReady}
+              label="Weekly intel"
+              description="Get an email when your squad's weekly intel is ready. You can turn it off per squad in the in-app settings."
+              checked={
+                ns?.[NotificationType.StartupsIntelReady]?.email ===
+                NotificationPreferenceStatus.Subscribed
+              }
+              onToggle={() =>
+                toggleSetting(NotificationType.StartupsIntelReady, 'email')
+              }
+            />
+          )}
           {showOpportunitiesToggle && (
             <NotificationSwitch
               id="opportunities"

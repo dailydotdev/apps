@@ -129,6 +129,20 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
 
+const AppStoreReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "appStoreReviewModal" */ './AppStoreReviewModal'
+    ),
+);
+
+const PlusRenewalReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "plusRenewalReviewModal" */ './PlusRenewalReviewModal'
+    ),
+);
+
 const BookmarkReminderModal = dynamic(
   () =>
     import(
@@ -147,6 +161,34 @@ const StreakFreezePurchaseModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "streakFreezePurchaseModal" */ './streaks/StreakFreezePurchaseModal'
+    ),
+);
+
+const QuestRefreshModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "questRefreshModal" */ './quest/QuestRefreshModal'
+    ),
+);
+
+const FirstCoresModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "firstCoresModal" */ '../cores/FirstCoresModal'
+    ),
+);
+
+const StreakFreeFreezesUpsellModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakFreeFreezesUpsellModal" */ './streaks/StreakFreeFreezesUpsellModal'
+    ),
+);
+
+const StreakGoalModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakGoalModal" */ './streaks/StreakGoalModal'
     ),
 );
 
@@ -320,13 +362,6 @@ const ListAwardsModal = dynamic(() =>
   ).then((mod) => mod.ListAwardsModal),
 );
 
-const AdsDashboardModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "adsDashboardModal" */ '../../features/boost/AdsDashboardModal'
-    ),
-);
-
 const BoostSquadModal = dynamic(
   () =>
     import(
@@ -339,18 +374,6 @@ const BoostPostModal = dynamic(
     import(
       /* webpackChunkName: "boostPostModal" */ '../../features/boost/BoostPostModal'
     ),
-);
-
-const BoostedCampaignViewModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "boostedCampaignViewModal" */ '../../features/boost/BoostedViewModal'
-  ).then((mod) => mod.BoostedViewModal),
-);
-
-const FetchBoostedPostViewModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "fetchBoostedViewModal" */ '../../features/boost/BoostedViewModal'
-  ).then((mod) => mod.FetchBoostedViewModal),
 );
 
 const OrganizationInviteMemberModal = dynamic(() =>
@@ -534,10 +557,6 @@ const PostImpressionsModal = dynamic(
     ),
 );
 
-const AgentIntroModal = dynamic(
-  () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
-);
-
 const LfgReachOutModal = dynamic(
   () =>
     import(
@@ -583,6 +602,10 @@ export const modals = {
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
+  [LazyModal.QuestRefresh]: QuestRefreshModal,
+  [LazyModal.FirstCores]: FirstCoresModal,
+  [LazyModal.StreakFreeFreezesUpsell]: StreakFreeFreezesUpsellModal,
+  [LazyModal.StreakGoal]: StreakGoalModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.SlackShare]: SlackShareModal,
   [LazyModal.SharePicks]: SharePicksModal,
@@ -612,11 +635,8 @@ export const modals = {
   [LazyModal.ShortcutsManage]: ShortcutsManageModal,
   [LazyModal.ImportPicker]: ImportPickerModal,
   [LazyModal.ListAwards]: ListAwardsModal,
-  [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,
   [LazyModal.BoostSquad]: BoostSquadModal,
-  [LazyModal.BoostedCampaignView]: BoostedCampaignViewModal,
-  [LazyModal.FetchBoostedPostView]: FetchBoostedPostViewModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
   [LazyModal.ActionSuccess]: ActionSuccessModal,
@@ -645,10 +665,11 @@ export const modals = {
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
-  [LazyModal.AgentIntro]: AgentIntroModal,
   [LazyModal.LfgReachOut]: LfgReachOutModal,
   [LazyModal.LfgHelper]: LfgHelperModal,
   [LazyModal.FeedExplanation]: FeedExplanationModal,
+  [LazyModal.AppStoreReview]: AppStoreReviewModal,
+  [LazyModal.AppStoreReviewPlus]: PlusRenewalReviewModal,
 };
 
 type GetComponentProps<T> = T extends

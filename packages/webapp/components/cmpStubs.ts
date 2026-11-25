@@ -1,9 +1,8 @@
 /**
- * The IAB consent-API stubs, inlined. Content Ignite's publisher tag refuses
- * to count a stub it finds in an external file: the stub exists to be the
- * first thing on the page, so the CMP and every ad tag that asks
- * `__tcfapi`/`__gpp` for consent find a queue rather than nothing, and a
- * separately fetched file can lose that race. iubenda serves the same two
+ * The IAB consent-API stubs, inlined. The stub exists to be the first thing
+ * on the page, so the CMP and every ad tag that asks `__tcfapi`/`__gpp` for
+ * consent find a queue rather than nothing, and a separately fetched file
+ * can lose that race; ad tags refuse to count a stub in an external file. iubenda serves the same two
  * stubs from its CDN and documents them as safe to embed inline, so these
  * are its files verbatim, not a rewrite: the TCF one carries the
  * `_iub.cmp.VERSION.stubV2` marker the core library looks for.

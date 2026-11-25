@@ -3,6 +3,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import type { ParsedUrlQuery } from 'querystring';
 import type { GetServerSidePropsResult } from 'next';
+import type { NextSeoProps } from 'next-seo';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
@@ -10,9 +11,19 @@ import { SquadPrivateWall } from '@dailydotdev/shared/src/features/squads/compon
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import type { SquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
 import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
+import { isCompanyPage } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  getSquadViewer,
+  isStaffViewer,
+} from '@dailydotdev/shared/src/features/squads/lib/viewer';
+import { usePauseBootPopups } from '@dailydotdev/shared/src/lib/bootPopupsPause';
 import type { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { getSquadManageUrl } from '@dailydotdev/shared/src/features/squads/lib/routes';
+import { getSquadStaticFields } from '@dailydotdev/shared/src/graphql/squads';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
+import { noindexSeoProps } from '../../next-seo';
+import { CompanyPageHotjarEvents } from './CompanyPageHotjar';
 import { getLayout as getFooterNavBarLayout } from '../layouts/FooterNavBarLayout';
 
 const Custom404 = dynamic(
@@ -21,6 +32,7 @@ const Custom404 = dynamic(
 
 export interface SquadRouteProps {
   handle: string;
+  seo?: NextSeoProps;
 }
 
 interface SquadRouteComponentProps extends SquadRouteProps {
@@ -38,8 +50,18 @@ export const SquadRoute = ({
   feature,
   children,
 }: SquadRouteComponentProps): ReactElement => {
+  const { isLoggedIn } = useAuthContext();
   const { squad, isFetched, isForbidden } = useSquad({ handle });
   const current = squad ?? initialSquad;
+  // Admins and moderators setting up a company page get no achievement or
+  // other boot pop-ups over it; they open on the next page instead. Held
+  // until the viewer's own copy of the squad says who they are.
+  const isSettled = !!squad || isFetched || isForbidden;
+  const isSettingUpCompany =
+    !!squad &&
+    isCompanyPage(squad) &&
+    isStaffViewer(getSquadViewer(squad, isLoggedIn));
+  usePauseBootPopups(!isSettled || isSettingUpCompany);
 
   if (isForbidden) {
     return <SquadPrivateWall />;
@@ -56,6 +78,7 @@ export const SquadRoute = ({
   return (
     <SquadPageContextProvider squad={current} isViewerReady={!!squad}>
       {children}
+      {isSettingUpCompany && <CompanyPageHotjarEvents squad={squad} />}
     </SquadPageContextProvider>
   );
 };
@@ -76,6 +99,16 @@ export const getSquadRouteProps = ({
   }
 
   return { props: { handle } };
+};
+
+export const getSquadManageSeo = async (
+  handle: string,
+): Promise<NextSeoProps> => {
+  const squad = await getSquadStaticFields(handle).catch(() => null);
+  const title =
+    squad && isCompanyPage(squad) ? 'Manage company page' : 'Manage Squad';
+
+  return { title, ...noindexSeoProps };
 };
 
 export const getSquadRouteLayout: typeof getMainLayout = (

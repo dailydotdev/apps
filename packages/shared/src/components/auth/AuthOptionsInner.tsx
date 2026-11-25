@@ -11,8 +11,9 @@ import {
   iosNativeAuth,
   isNativeAuthSupported,
   AuthEventNames,
-  AuthTriggers,
   AuthEvent,
+  autoProfileTriggers,
+  isStartupsAuthTrigger,
 } from '../../lib/auth';
 import {
   getBetterAuthErrorMessage,
@@ -21,11 +22,13 @@ import {
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
   getBetterAuthSocialRedirectData,
+  SignupIntent,
 } from '../../lib/betterAuth';
 import {
   getSocialAuthCallbackError,
   GITHUB_EMAIL_NOT_VERIFIED_ERROR,
   hasSocialAuthBootUser,
+  IN_APP_BROWSER_AUTH_MESSAGE,
   refetchSocialAuthBoot,
   SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS,
   SOCIAL_AUTH_POPUP_CLOSED_ERROR,
@@ -37,6 +40,8 @@ import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import {
   checkIsExtension,
+  getChromeIntentUrl,
+  isAndroidMetaInAppBrowser,
   isIOSNative,
   shouldUseSocialAuthPopup,
 } from '../../lib/func';
@@ -67,6 +72,7 @@ import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { getUserActions } from '../../graphql/actions';
+import { optOutGamification } from '../../graphql/settings';
 import { redirectToApp } from '../../features/onboarding/lib/utils';
 import {
   DATE_SINCE_ACTIONS_REQUIRED,
@@ -148,6 +154,7 @@ function AuthOptionsInner({
   hideLoginLink,
   isOnboardingFunnel,
   onScreenBackChange,
+  onLogInChange,
   compact,
   signupStyle,
   inlineProviders,
@@ -157,6 +164,12 @@ function AuthOptionsInner({
   socialProviderScopes,
   registrationExtraFields,
   hideRegistrationHeadline,
+  logInTitle,
+  signUpTitle,
+  logInDescription,
+  signUpDescription,
+  signupProviders,
+  socialSignupOnly,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -171,8 +184,30 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
+  const isStartups = isStartupsAuthTrigger(trigger);
+  const signupIntent = isStartups ? SignupIntent.Company : undefined;
+  const [socialError, setSocialError] = useState<string>();
+  const socialProviderRef = useRef<string>();
+  const onSocialError = (message: string) => {
+    if (!isStartups) {
+      displayToast(message);
+      return;
+    }
+
+    if (message !== SOCIAL_AUTH_RETRY_MESSAGE) {
+      setSocialError(message);
+      return;
+    }
+
+    const label = providers.find(
+      ({ value }) => value === socialProviderRef.current,
+    )?.label;
+    setSocialError(
+      `${label ?? 'Your provider'} didn't finish signing you in. Try again, or use another option.`,
+    );
+  };
   const [activeDisplay, setActiveDisplay] = useState(() =>
-    storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
+    storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay && !isStartups
       ? AuthDisplay.SignBack
       : defaultDisplay,
   );
@@ -312,13 +347,23 @@ function AuthOptionsInner({
         }
       },
       keepSession: isOnboardingOrFunnel,
+      signupIntent,
     });
 
   const onProfileSuccess = async (
-    options: { redirect?: string; setSignBack?: boolean } = {},
+    options: {
+      redirect?: string;
+      setSignBack?: boolean;
+      isPasswordReset?: boolean;
+    } = {},
   ) => {
     setIsRegistration(true);
-    const { redirect, setSignBack = true } = options;
+    const { redirect, setSignBack = true, isPasswordReset } = options;
+
+    if (isStartups && !isPasswordReset) {
+      await optOutGamification().catch(() => undefined);
+    }
+
     const { data } = await refetchBoot();
 
     const isLoggedUser = 'infoConfirmed' in data.user;
@@ -352,11 +397,19 @@ function AuthOptionsInner({
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
+  const isAutoCompletingProfileRef = useRef(false);
   const autoCompleteProfile = async (
     userEmail: string,
     name?: string,
-    marketing = false,
+    // The Startups signup skips the social profile form and its opt-out, so
+    // it keeps the default: opted in
+    marketing = isStartupsAuthTrigger(trigger),
   ) => {
+    if (isAutoCompletingProfileRef.current) {
+      return;
+    }
+    isAutoCompletingProfileRef.current = true;
+
     try {
       const displayName = name || generateNameFromEmail(userEmail, 'User');
 
@@ -368,6 +421,7 @@ function AuthOptionsInner({
         acceptedMarketing: marketing,
       });
     } catch (error) {
+      isAutoCompletingProfileRef.current = false;
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
@@ -412,8 +466,8 @@ function AuthOptionsInner({
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
-    } else if (trigger === AuthTriggers.RecruiterSelfServe) {
-      await autoCompleteProfile(user.email, user.name, false);
+    } else if (autoProfileTriggers.includes(trigger)) {
+      await autoCompleteProfile(user.email, user.name);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -434,6 +488,7 @@ function AuthOptionsInner({
     onSuccessfulLogin: onLoginCheck,
     trigger,
     provider: chosenProvider,
+    signupIntent,
   });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
@@ -474,10 +529,10 @@ function AuthOptionsInner({
       return;
     }
 
-    if (trigger === AuthTriggers.RecruiterSelfServe) {
+    if (autoProfileTriggers.includes(trigger)) {
       setIsSocialAuthLoading(false);
       const loggedUser = bootUser as LoggedUser;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
+      await autoCompleteProfile(loggedUser.email, loggedUser.name);
       return;
     }
 
@@ -568,7 +623,7 @@ function AuthOptionsInner({
         }),
       });
       if (!authFlowSucceededRef.current) {
-        displayToast(socialErrorMessage);
+        onSocialError(socialErrorMessage);
       }
       return;
     }
@@ -608,7 +663,7 @@ function AuthOptionsInner({
         }),
       });
       if (!authFlowSucceededRef.current) {
-        displayToast(socialErrorMessage);
+        onSocialError(socialErrorMessage);
       }
       return;
     }
@@ -622,6 +677,8 @@ function AuthOptionsInner({
     if (isSocialAuthLoading) {
       return;
     }
+    socialProviderRef.current = provider;
+    setSocialError(undefined);
     const authErrorEventName = login
       ? AuthEventNames.LoginError
       : AuthEventNames.RegistrationError;
@@ -634,6 +691,15 @@ function AuthOptionsInner({
       target_id: provider,
       extra: JSON.stringify({ trigger }),
     });
+    if (isAndroidMetaInAppBrowser()) {
+      window.location.href = getChromeIntentUrl(window.location.href);
+      setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+          onSocialError(IN_APP_BROWSER_AUTH_MESSAGE);
+        }
+      }, 2000);
+      return;
+    }
     socialErrorEventName.current = authErrorEventName;
     authFlowSucceededRef.current = false;
     socialAuthAttemptRef.current += 1;
@@ -641,7 +707,10 @@ function AuthOptionsInner({
     setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
-    const additionalData = { timezone: getUserDefaultTimezone() };
+    const additionalData = {
+      timezone: getUserDefaultTimezone(),
+      signupIntent,
+    };
 
     if (isNativeAuthSupported(provider)) {
       const res = await iosNativeAuth(provider);
@@ -665,7 +734,7 @@ function AuthOptionsInner({
           }),
         });
         setIsSocialAuthLoading(false);
-        displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+        onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
         return;
       }
       await setChosenProvider(provider);
@@ -696,7 +765,7 @@ function AuthOptionsInner({
       windowPopup.current?.close();
       windowPopup.current = null;
       setIsSocialAuthLoading(false);
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
       onAuthStateUpdate?.({ isLoading: false });
       return;
     }
@@ -751,6 +820,7 @@ function AuthOptionsInner({
     const result = await betterAuthOneTapCallback({
       idToken,
       timezone: getUserDefaultTimezone(),
+      signupIntent,
     });
 
     if (result.error) {
@@ -763,7 +833,7 @@ function AuthOptionsInner({
         }),
       });
       setIsSocialAuthLoading(false);
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
       return;
     }
 
@@ -923,7 +993,8 @@ function AuthOptionsInner({
   return (
     <div
       className={classNames(
-        'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
+        'z-1 flex w-full flex-col rounded-16',
+        isStartups ? 'max-w-full' : 'max-w-[26.25rem] overflow-y-auto',
         !simplified && 'bg-background-default',
         defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
@@ -958,6 +1029,15 @@ function AuthOptionsInner({
             hasTopBarBack={!!onScreenBackChange}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
+            logInTitle={logInTitle}
+            signUpTitle={signUpTitle}
+            logInDescription={logInDescription}
+            signUpDescription={signUpDescription}
+            signupProviders={signupProviders}
+            socialSignupOnly={socialSignupOnly}
+            isStartups={isStartups}
+            onLogInChange={onLogInChange}
+            socialError={socialError}
             simplified={simplified}
             trigger={trigger}
             onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
@@ -981,6 +1061,7 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.Registration}>
           <RegistrationForm
             formRef={formRef}
+            isStartups={isStartups}
             simplified={simplified}
             showHeadline={!hideRegistrationHeadline}
             isOnboardingFunnel={isOnboardingFunnel}
@@ -1112,6 +1193,7 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
+            isStartups={isStartups}
             hasTopBarBack={!!onScreenBackChange}
             onBack={onBackToLogin}
             simplified={simplified}
@@ -1125,24 +1207,29 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.ChangePassword}>
           <ChangePasswordForm
-            onSubmit={() => onProfileSuccess({ redirect: '/' })}
+            onSubmit={() =>
+              onProfileSuccess({ redirect: '/', isPasswordReset: true })
+            }
             simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
-          {simplified && (
+          {simplified && !isStartups && (
             <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
           )}
-          <AuthHeader
-            simplified={simplified}
-            onboardingHeadline={isOnboardingFunnel}
-            title="Verify your email"
-            onBack={simplified ? undefined : onBackFromVerify}
-          />
+          {!isStartups && (
+            <AuthHeader
+              simplified={simplified}
+              onboardingHeadline={isOnboardingFunnel}
+              title="Verify your email"
+              onBack={simplified ? undefined : onBackFromVerify}
+            />
+          )}
           {!simplified && (
             <MailIcon size={IconSize.XXLarge} className="mx-auto mt-8" />
           )}
           <EmailCodeVerification
+            isStartups={isStartups}
             className={simplified ? undefined : '!pt-4'}
             isOnboardingFunnel={isOnboardingFunnel}
             onChangeEmail={onBackFromVerify}

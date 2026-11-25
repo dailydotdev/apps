@@ -61,7 +61,7 @@ export function BoostWalletPicker({
         className={{
           container: 'mt-1 w-full !gap-0',
           content: 'w-full',
-          label: 'flex-1',
+          label: 'min-w-0 flex-1',
         }}
         options={[
           {
@@ -87,7 +87,7 @@ export function BoostWalletPicker({
           color={TypographyColor.Tertiary}
         >
           The squad wallet doesn&apos;t have enough Cores for this boost. Lower
-          the budget or pay with your own Cores.
+          the budget, add Cores to it, or pay with your own Cores.
         </Typography>
       )}
     </div>

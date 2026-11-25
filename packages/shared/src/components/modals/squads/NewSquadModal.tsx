@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalSize } from '../common/types';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { useSquadNavigation } from '../../../hooks';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { Image } from '../../image/Image';
@@ -19,6 +19,32 @@ import { ModalClose } from '../common/ModalClose';
 import { LogEvent, Origin } from '../../../lib/log';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { useLogContext } from '../../../contexts/LogContext';
+import { getCompanyPageCreateUrl } from '../../../features/squads/lib/routes';
+
+const CompanyPageCard = (): ReactElement => (
+  <div className="flex w-full flex-col gap-3 rounded-16 border border-accent-cabbage-default bg-overlay-float-cabbage p-4 text-left">
+    <div className="flex flex-col gap-1">
+      <Typography type={TypographyType.Body} bold>
+        Have a company or product?
+      </Typography>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+      >
+        Create its page on daily.dev. Your first post gets a $100 boost on us.
+      </Typography>
+    </div>
+    <Button
+      tag="a"
+      href={getCompanyPageCreateUrl()}
+      variant={ButtonVariant.Primary}
+      color={ButtonColor.Cabbage}
+      className="w-full"
+    >
+      Create a company page
+    </Button>
+  </div>
+);
 
 export default function NewSquadModal(props: ModalProps): ReactElement {
   const { onRequestClose } = props;
@@ -49,7 +75,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           variant={ButtonVariant.Primary}
         />
         <Image
-          className="h-56 w-56 object-contain"
+          className="h-32 w-32 object-contain"
           src={cloudinaryCharmEmptySquads}
           alt="daily.dev charm waving in an empty squad"
           loading="lazy"
@@ -97,6 +123,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
         >
           Create manually
         </Button>
+        <CompanyPageCard />
       </Modal.Body>
     </Modal>
   );

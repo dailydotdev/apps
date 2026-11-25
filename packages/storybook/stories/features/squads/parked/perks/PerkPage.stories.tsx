@@ -75,7 +75,7 @@ export const NotFound: Story = {
   decorators: [
     withSeed({
       viewer: Viewer.Member,
-      failing: [{ id: 'perk-gone', kind: 'perk', isGone: true }],
+      failing: [{ id: 'perk-gone', isGone: true }],
     }),
   ],
   render: () => <SquadPerkPage perkId="perk-gone" />,
@@ -86,7 +86,7 @@ export const FailedToLoad: Story = {
   decorators: [
     withSeed({
       viewer: Viewer.Member,
-      failing: [{ id: 'perk-blip', kind: 'perk', isGone: false }],
+      failing: [{ id: 'perk-blip', isGone: false }],
     }),
   ],
   render: () => <SquadPerkPage perkId="perk-blip" />,

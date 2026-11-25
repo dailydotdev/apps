@@ -39,6 +39,23 @@ export function shouldRedirectAuth(): boolean {
 }
 
 export const AUTH_REDIRECT_KEY = 'auth_redirect';
+export const AUTH_RETURN_PATH_KEY = 'auth_return_path';
+
+/**
+ * Where /callback sends a sign in that can't hand back to its opener (a
+ * redirect-mode sign in, or an in-app browser). Clears it with no path.
+ */
+export const setAuthReturnPath = (path?: string): void => {
+  try {
+    if (path) {
+      window.sessionStorage.setItem(AUTH_RETURN_PATH_KEY, path);
+    } else {
+      window.sessionStorage.removeItem(AUTH_RETURN_PATH_KEY);
+    }
+  } catch {
+    // The page works without it; only redirect-mode sign in loses its way back.
+  }
+};
 
 export const getCookiesAndHeadersFromRequest = (
   req: GetServerSidePropsContext['req'],

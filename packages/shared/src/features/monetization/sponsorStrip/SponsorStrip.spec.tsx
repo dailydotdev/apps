@@ -110,9 +110,7 @@ const renderStrip = () => {
  */
 const settle = async () => {
   await act(async () => {
-    await Promise.resolve();
-    jest.advanceTimersByTime(1);
-    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(1);
   });
 };
 

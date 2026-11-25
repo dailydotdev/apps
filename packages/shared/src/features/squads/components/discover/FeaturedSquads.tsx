@@ -41,9 +41,9 @@ import {
   featuredSquadsQuery,
   getSquadBanner,
   getSquadMembersLabel,
-  isVerifiedSquad,
   withPromotedSlot,
 } from './common';
+import { showsVerifiedBadge } from '../../lib/features';
 
 // The Featured area: a mosaic of blocks on tablet and up, a banner rail on
 // phones. Featured squads are the only cards with a banner, the promoted
@@ -74,7 +74,7 @@ const SquadName = ({
       >
         {squad.name}
       </Typography>
-      {isVerifiedSquad(squad) && (
+      {showsVerifiedBadge(squad) && (
         <VerifiedSquadBadge className="size-5 shrink-0" />
       )}
     </span>
@@ -146,8 +146,9 @@ const FeaturedSquadTile = ({
 
   return (
     <PromotedSquad ad={ad}>
-      {({ ref, onClickAd, trackers }) => (
+      {({ ref, onClickAd, trackers, domProps }) => (
         <article
+          {...domProps}
           ref={ref}
           className={classNames(
             'relative isolate flex shrink-0 flex-col justify-end overflow-hidden rounded-24 bg-background-subtle',
@@ -372,8 +373,9 @@ const FeaturedBanners = ({ slots }: { slots: SquadSlot[] }): ReactElement => {
           // The second banner first peeks in at the edge, which is not yet
           // an impression.
           <PromotedSquad key={squad.id} ad={ad} impressionThreshold={0.5}>
-            {({ ref, onClickAd, trackers }) => (
+            {({ ref, onClickAd, trackers, domProps }) => (
               <article
+                {...domProps}
                 ref={ref}
                 className="relative flex w-[85%] shrink-0 snap-start flex-col gap-3"
               >

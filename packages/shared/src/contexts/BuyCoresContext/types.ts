@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import type { OpenCheckoutFn } from '../payment/context';
 import type { Origin } from '../../lib/log';
+import type { SquadWallet } from '../../graphql/squadWallet';
 
 export const BuyCoresContext = createContext<BuyCoresContextData>(
   undefined as unknown as BuyCoresContextData,
@@ -56,6 +57,8 @@ export type BuyCoresContextData = {
   }) => void;
   providerTransactionId?: string;
   origin?: Origin;
+  /** The squad wallet the Cores are bought into, the user's own when unset */
+  squadWallet?: SquadWallet;
 };
 
 export type BuyCoresContextProviderProps = {
@@ -64,4 +67,5 @@ export type BuyCoresContextProviderProps = {
   amountNeeded?: number;
   minCoresToBuy?: number;
   onCompletion?: () => void;
+  squadWallet?: SquadWallet;
 };

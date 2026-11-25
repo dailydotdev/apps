@@ -33,7 +33,10 @@ import { usePostPrefetch } from '@dailydotdev/shared/src/hooks/usePostPrefetch';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import {
+  useFeedbackModal,
+  useLazyModal,
+} from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
@@ -58,6 +61,8 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
+import { useEnsureUserTimezone } from '@dailydotdev/shared/src/hooks/useEnsureUserTimezone';
+import { useStreakViewQueue } from '@dailydotdev/shared/src/hooks/streaks/useStreakViewQueue';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
@@ -160,6 +165,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
+  const { modal: feedbackModal, closeModal: closeFeedbackModal } =
+    useFeedbackModal();
   useConsoleLogo();
   useIOSError();
   useNativeBridge();
@@ -168,6 +175,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useCheckCoresRole();
   useCheckLocation();
+  useEnsureUserTimezone();
+  useStreakViewQueue();
   useSlackShareReturn();
 
   useEffect(() => {
@@ -248,6 +257,24 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       router.events.off('routeChangeStart', onRouteChange);
     };
   }, [modal, closeModal, router.events]);
+
+  useEffect(() => {
+    if (!feedbackModal) {
+      return undefined;
+    }
+
+    const onRouteChange = () => {
+      if (!feedbackModal.persistOnRouteChange) {
+        closeFeedbackModal();
+      }
+    };
+
+    router.events.on('routeChangeStart', onRouteChange);
+
+    return () => {
+      router.events.off('routeChangeStart', onRouteChange);
+    };
+  }, [feedbackModal, closeFeedbackModal, router.events]);
 
   const getLayout =
     (Component as ComponentGetLayout).getLayout || ((page) => page);

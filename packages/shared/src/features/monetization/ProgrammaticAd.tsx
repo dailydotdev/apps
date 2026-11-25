@@ -21,7 +21,7 @@ type FormatSpec = {
 
 /**
  * What each format stands for. Descriptive only: the sizes a unit may
- * actually render at live in Content Ignite's configuration for its anchor,
+ * actually render at live in the ad partner's configuration for its anchor,
  * so this is what the development placeholder and the design review show.
  */
 export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
@@ -50,12 +50,12 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   },
 };
 
-/** The attribute Content Ignite's placement selectors key on. */
+/** The attribute an ad partner's placement selectors key on. */
 export const AD_SLOT_ATTRIBUTE = 'data-ad-slot';
 
 /**
  * The anchor's id, stable across deploys: it is what the unit configs in
- * Content Ignite's platform target, so renaming one silently unplaces a unit.
+ * the ad partner's platform target, so renaming one silently unplaces a unit.
  */
 export const getAdSlotId = (
   surface: ProgrammaticAdSurface,
@@ -72,7 +72,7 @@ export interface ProgrammaticAdProps {
 }
 
 /**
- * One programmatic slot: an empty anchor the Content Ignite tag fills. The
+ * One programmatic slot: an empty anchor an ad partner's tag fills. The
  * tag places units by CSS selector from its own configuration, so the anchor
  * carries a stable id and nothing else. It takes no room until a unit lands
  * in it, so a slot the tag leaves empty never leaves a gap in the page, most

@@ -183,3 +183,16 @@ export const truncateAtWordBoundary = (
  * Used for validating user input like emoji shortcuts or mentions.
  */
 export const specialCharsRegex = /[^A-Za-z0-9_.]/;
+
+// Pictographs, flags, skin tones and subdivision tags, plus the joiners and
+// presentation selectors that only make sense next to them.
+const emojiPattern =
+  '(?:[\\p{Extended_Pictographic}\\p{Regional_Indicator}\\p{Emoji_Modifier}\\u{E0020}-\\u{E007F}]|[\\uFE0F\\u20E3]|\\u200D(?=[\\p{Extended_Pictographic}\\p{Emoji_Modifier}]))';
+const standaloneEmojiRegex = new RegExp(
+  `(^|\\s)(?:${emojiPattern}+\\s+)+`,
+  'gu',
+);
+const emojiRegex = new RegExp(emojiPattern, 'gu');
+
+export const stripEmojis = (value: string): string =>
+  value.replace(standaloneEmojiRegex, '$1').replace(emojiRegex, '');

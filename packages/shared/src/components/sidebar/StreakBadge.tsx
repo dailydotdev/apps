@@ -63,9 +63,105 @@ const flameByState: Record<StreakRingState, string> = {
   freeze: 'text-accent-blueCheese-default',
 };
 
+// Goal progress arc (streak_improvements). It traces the ring itself: the badge box is
+// a 24-unit viewBox and the ring is inset 1.5 with a 1.5 border, so the stroke
+// centre sits at radius 12 - 1.5 - 0.75 = 9.75 with the same 1.5 width.
+const GOAL_ARC_CENTER = 12;
+const GOAL_ARC_RADIUS = 9.75;
+const GOAL_ARC_STROKE = 1.5;
+export const GOAL_ARC_CIRCUMFERENCE = 2 * Math.PI * GOAL_ARC_RADIUS;
+
+// The arc only shows in calm states. Danger states keep their dashed
+// amber/red ring as the one message, and the earn pop owns the ring while it
+// plays (the arc returns, one step longer, once it settles into read-today).
+const GOAL_ARC_STATES = new Set<StreakRingState>([
+  'none',
+  'pending',
+  'safe',
+  'freeze',
+]);
+
+interface StreakGoalArcProps {
+  state: StreakRingState;
+  progress?: number;
+  selected?: boolean;
+  // The ring it traces, in a viewBox of `size` units: defaults to the badge's.
+  size?: number;
+  radius?: number;
+  strokeWidth?: number;
+  className?: string;
+}
+
+// The streak goal's progress drawn over a rail ring; shared by the badge and
+// Patchy's face so both show it the same way.
+export const StreakGoalArc = ({
+  state,
+  progress,
+  selected = false,
+  size = GOAL_ARC_CENTER * 2,
+  radius = GOAL_ARC_RADIUS,
+  strokeWidth = GOAL_ARC_STROKE,
+  className,
+}: StreakGoalArcProps): ReactElement | null => {
+  if (
+    progress === undefined ||
+    progress <= 0 ||
+    progress >= 1 ||
+    !GOAL_ARC_STATES.has(state)
+  ) {
+    return null;
+  }
+  const getColor = (): string => {
+    // The ring is pink when read today (tile filled pink too) or when the tab
+    // is selected, so the arc takes the primary text colour (white in dark
+    // mode, near-black in light) to stay visible. A white arc vanished against
+    // the light page and read as a bite out of the tile. On read-today hover
+    // the ring itself turns text-primary, so the arc flips back to pink.
+    if (state === 'safe') {
+      return 'text-text-primary group-hover/streaktab:text-accent-bacon-default';
+    }
+    if (selected) {
+      return 'text-text-primary';
+    }
+    return 'text-accent-bacon-default';
+  };
+  const center = size / 2;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <svg
+      aria-hidden
+      data-testid="streak-goal-arc"
+      viewBox={`0 0 ${size} ${size}`}
+      fill="none"
+      className={classNames(
+        'absolute transition-colors motion-reduce:transition-none',
+        className ?? 'inset-0 size-full',
+        getColor(),
+      )}
+    >
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference * (1 - progress)}
+        // SVG circles start at 3 o'clock; turn back a quarter so the arc
+        // grows clockwise from the top.
+        transform={`rotate(-90 ${center} ${center})`}
+      />
+    </svg>
+  );
+};
+
 interface StreakBadgeProps {
   state: StreakRingState;
   hasReadToday: boolean;
+  // 0..1 towards the streak goal; drawn as an arc on the ring while the goal
+  // is set but not yet hit.
+  goalProgress?: number;
   // When this is the selected rail tab, the calm-state border goes pink.
   selected?: boolean;
   className?: string;
@@ -79,6 +175,7 @@ export const StreakBadge = ({
   state,
   hasReadToday,
   selected = false,
+  goalProgress,
   className,
 }: StreakBadgeProps): ReactElement => {
   // "Not read yet": the calm states with no fill of their own.
@@ -139,6 +236,11 @@ export const StreakBadge = ({
           'absolute inset-[1.5px] rounded-full border-[1.5px] transition-colors',
           frameClass,
         )}
+      />
+      <StreakGoalArc
+        state={state}
+        progress={goalProgress}
+        selected={selected}
       />
       <HotIcon
         secondary={hasReadToday || state === 'freeze'}

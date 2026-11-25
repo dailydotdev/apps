@@ -6,12 +6,12 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import MainFeedLayout from './MainFeedLayout';
 import { SharedFeedPage } from './utilities';
+import type { SettingsFlags } from '../graphql/settings';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import {
   feature as flags,
-  featureFeedExplain,
   featureFeedHero,
   featureFeedWidgets,
 } from '../lib/featureManagement';
@@ -39,14 +39,6 @@ jest.mock('./Feed', () => ({
   },
 }));
 
-jest.mock('../features/feedWidgets/FeedWidgetRail', () => ({
-  FeedWidgetRail: () => null,
-}));
-
-jest.mock('../features/feedWidgets/HomeFeedTabs', () => ({
-  HomeFeedTabs: () => <nav data-testid="home-feed-tabs" />,
-}));
-
 jest.mock('./feeds/hero/FeedHero', () => ({
   FeedHero: () => null,
 }));
@@ -58,12 +50,10 @@ jest.mock('../features/shortcuts/components/WebappShortcutsRow', () => ({
 const mockFlags = ({
   widgets = false,
   hero = false,
-  explain = false,
   version = flags.feedVersion.defaultValue,
 }: {
   widgets?: boolean;
   hero?: boolean;
-  explain?: boolean;
   version?: number;
 }) =>
   jest.mocked(useConditionalFeature).mockImplementation(({ feature }) => {
@@ -72,9 +62,6 @@ const mockFlags = ({
     }
     if (feature.id === featureFeedHero.id) {
       return { value: hero, isLoading: false };
-    }
-    if (feature.id === featureFeedExplain.id) {
-      return { value: explain, isLoading: false };
     }
     if (feature.id === flags.feedVersion.id) {
       return { value: version, isLoading: false } as ReturnType<
@@ -86,9 +73,13 @@ const mockFlags = ({
     >;
   });
 
-const renderLayout = () =>
+const renderLayout = (settingsFlags?: SettingsFlags) =>
   render(
-    <TestBootProvider client={new QueryClient()} auth={{ user: defaultUser }}>
+    <TestBootProvider
+      client={new QueryClient()}
+      auth={{ user: defaultUser }}
+      settings={settingsFlags ? { flags: settingsFlags } : undefined}
+    >
       <SearchProvider>
         <MainFeedLayout feedName={SharedFeedPage.MyFeed} isSearchOn={false} />
       </SearchProvider>
@@ -111,18 +102,6 @@ beforeEach(() => {
   );
 });
 
-it('keeps the reading reminder under the widget rail', async () => {
-  mockDesktop();
-  mockFlags({ widgets: true });
-
-  renderLayout();
-
-  await screen.findByTestId('feed');
-  expect(lastFeedProps()).toEqual(
-    expect.objectContaining({ disableTopHero: false, keepTopHero: true }),
-  );
-});
-
 it('lets the feed hero take the reading reminder’s place', async () => {
   mockFlags({ hero: true });
 
@@ -130,24 +109,44 @@ it('lets the feed hero take the reading reminder’s place', async () => {
 
   await screen.findByTestId('feed');
   expect(lastFeedProps()).toEqual(
-    expect.objectContaining({ disableTopHero: true, keepTopHero: false }),
+    expect.objectContaining({ disableTopHero: true }),
   );
 });
 
-it('moves the feed’s tabs and actions under the widget rail', async () => {
+it('keeps the feed as it was, and hands the grid its widgets', async () => {
   mockDesktop();
   mockFlags({ widgets: true });
 
   renderLayout();
 
   await screen.findByTestId('feed');
-  const { actionButtons, topContent } = lastFeedProps();
-  expect(actionButtons).toBeFalsy();
-  render(<>{topContent}</>);
-  expect(screen.getByTestId('home-feed-tabs')).toBeInTheDocument();
+  const { actionButtons, topContent, feedWidgets, skipFirstAd } =
+    lastFeedProps();
+  expect(actionButtons).toBeTruthy();
+  expect(topContent).toBeUndefined();
+  expect(skipFirstAd).toBe(false);
+  expect(feedWidgets).toEqual(
+    expect.objectContaining({ widgets: [], renderSlot: undefined }),
+  );
 });
 
-it('keeps a phone on the plain feed with the rail’s flag on', async () => {
+it('drops the feed’s Happening Now card once the widget is placed', async () => {
+  mockDesktop();
+  mockFlags({ widgets: true });
+  const widget = { id: 'now', kind: 'happeningNow', size: 'tall', slot: 2 };
+
+  renderLayout({
+    feedWidgets: { version: 1, widgets: [widget] },
+  } as unknown as SettingsFlags);
+
+  await screen.findByTestId('feed');
+  expect(lastFeedProps()).toEqual(
+    expect.objectContaining({ disableHighlightCards: true }),
+  );
+  expect(lastFeedProps().feedWidgets?.widgets).toEqual([widget]);
+});
+
+it('keeps a phone on the plain feed with the widgets’ flag on', async () => {
   // No width breakpoint matches: a phone.
   mockMatchMedia(() => false);
   mockFlags({ widgets: true });
@@ -155,23 +154,19 @@ it('keeps a phone on the plain feed with the rail’s flag on', async () => {
   renderLayout();
 
   await screen.findByTestId('feed');
-  expect(lastFeedProps()).toEqual(
-    expect.objectContaining({ keepTopHero: false, skipFirstAd: false }),
-  );
-  expect(lastFeedProps().topContent).toBeUndefined();
-  expect(screen.queryByTestId('home-feed-tabs')).not.toBeInTheDocument();
+  expect(lastFeedProps().feedWidgets).toBeUndefined();
 });
 
-it('keeps the feed’s actions and top slot without the rail', async () => {
+it('takes no widgets without the flag', async () => {
   mockFlags({});
 
   renderLayout();
 
   await screen.findByTestId('feed');
-  const { actionButtons, topContent } = lastFeedProps();
+  const { actionButtons, topContent, feedWidgets } = lastFeedProps();
   expect(actionButtons).toBeTruthy();
   expect(topContent).toBeUndefined();
-  expect(screen.queryByTestId('home-feed-tabs')).not.toBeInTheDocument();
+  expect(feedWidgets).toBeUndefined();
 });
 
 describe('Debug mode', () => {
@@ -199,21 +194,10 @@ describe('Debug mode', () => {
     );
   };
 
-  it('keeps the regular For You query with the flag off', async () => {
-    mockFlags({ explain: false, version: 116 });
-
-    renderDebugging();
-
-    await screen.findByTestId('feed');
-    expect(lastFeedProps().query).toBe(FEED_V2_QUERY);
-    expect(lastFeedProps().variables).not.toHaveProperty('explain');
-    expect(lastFeedProps().canExplainPosts).toBe(false);
-  });
-
   it.each([116, 15])(
     'asks for an explanation per card in Debug on feed version %i',
     async (version) => {
-      mockFlags({ explain: true, version });
+      mockFlags({ version });
 
       renderDebugging();
 
@@ -228,7 +212,7 @@ describe('Debug mode', () => {
   );
 
   it('leaves explanations to the post menu with Debug off', async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
 
     renderDebugging(false);
 
@@ -241,7 +225,7 @@ describe('Debug mode', () => {
   });
 
   it('keeps the cards on screen while Debug or Tune loads the same feed', async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
 
     renderDebugging();
 
@@ -265,7 +249,7 @@ describe('Debug mode', () => {
   });
 
   it('offers Tune and Feed settings on a floating bar in Debug mode', async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
 
     renderDebugging();
 
@@ -276,7 +260,7 @@ describe('Debug mode', () => {
   });
 
   it("ranks the feed with Tune's last preview, with the panel beside it", async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
     const demoteRust = {
       kind: 'topic',
       keyword: 'rust',

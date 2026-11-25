@@ -1,10 +1,19 @@
-import type { ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ButtonSize } from '../buttons/common';
 import { Dropdown } from '../fields/Dropdown';
-import { getTimeZoneIcon, getTimeZoneOptions } from '../../lib/timezones';
+import { getHourTimezone, getTimeZoneOptions } from '../../lib/timezones';
 import useProfileForm from '../../hooks/useProfileForm';
+import type { IconProps } from '../Icon';
+import { DaytimeIcon } from '../icons/TimeZone/DaytimeIcon';
+import { NighttimeIcon } from '../icons/TimeZone/NighttimeIcon';
+
+const getTimeZoneIcon = (timezone: string): FC<IconProps> => {
+  const hour = getHourTimezone(timezone);
+
+  return hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
+};
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);

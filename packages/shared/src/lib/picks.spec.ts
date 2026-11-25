@@ -1,4 +1,10 @@
-import { getIsoWeekNumber, getPickPostHref } from './picks';
+import {
+  getCurrentWeekStart,
+  getIsoWeekNumber,
+  getPickPostHref,
+  isNewPicksViewer,
+  isPicksNudgeDay,
+} from './picks';
 
 describe('getIsoWeekNumber', () => {
   it.each([
@@ -15,16 +21,63 @@ describe('getIsoWeekNumber', () => {
   });
 });
 
+describe('getCurrentWeekStart', () => {
+  it('should return the Monday of the week in UTC', () => {
+    expect(getCurrentWeekStart(new Date('2026-11-05T23:30:00Z'))).toBe(
+      '2026-11-02',
+    );
+    expect(getCurrentWeekStart(new Date('2026-11-08T23:59:59Z'))).toBe(
+      '2026-11-02',
+    );
+    expect(getCurrentWeekStart(new Date('2026-11-09T00:00:00Z'))).toBe(
+      '2026-11-09',
+    );
+  });
+});
+
+describe('isPicksNudgeDay', () => {
+  it('should be Thursday to Sunday on the UTC week the picks use', () => {
+    expect(isPicksNudgeDay(new Date('2026-11-02T12:00:00Z'))).toBe(false); // Monday
+    expect(isPicksNudgeDay(new Date('2026-11-04T12:00:00Z'))).toBe(false); // Wednesday
+    expect(isPicksNudgeDay(new Date('2026-11-05T00:30:00Z'))).toBe(true); // Thursday
+    expect(isPicksNudgeDay(new Date('2026-11-06T12:00:00Z'))).toBe(true); // Friday
+    expect(isPicksNudgeDay(new Date('2026-11-08T23:30:00Z'))).toBe(true); // Sunday
+  });
+
+  it('should close with the week, not with the local Sunday', () => {
+    // Sunday evening in New York is already Monday for the picks week, so
+    // the nudge closes and the dismissal key rolls over together
+    const sundayEveningEst = new Date('2026-11-09T02:00:00Z');
+    expect(isPicksNudgeDay(sundayEveningEst)).toBe(false);
+    expect(getCurrentWeekStart(sundayEveningEst)).toBe('2026-11-09');
+  });
+});
+
 describe('getPickPostHref', () => {
   it('should append the author id', () => {
     expect(getPickPostHref('https://app.daily.dev/posts/abc', 'u1')).toBe(
-      'https://app.daily.dev/posts/abc?userid=u1',
+      'https://app.daily.dev/posts/abc?userid=u1&cid=share_picks',
     );
   });
 
   it('should keep existing query params', () => {
     expect(getPickPostHref('https://app.daily.dev/posts/abc?a=1', 'u1')).toBe(
-      'https://app.daily.dev/posts/abc?a=1&userid=u1',
+      'https://app.daily.dev/posts/abc?a=1&userid=u1&cid=share_picks',
     );
+  });
+});
+
+describe('isNewPicksViewer', () => {
+  const now = new Date('2026-11-05T12:00:00.000Z');
+
+  it('should be true within the first week', () => {
+    expect(isNewPicksViewer('2026-11-04T12:00:00.000Z', now)).toBe(true);
+    expect(isNewPicksViewer('2026-10-29T12:00:00.001Z', now)).toBe(true);
+  });
+
+  it('should be false after a week or without a date', () => {
+    expect(isNewPicksViewer('2026-10-29T12:00:00.000Z', now)).toBe(false);
+    expect(isNewPicksViewer(undefined, now)).toBe(false);
+    expect(isNewPicksViewer('not a date', now)).toBe(false);
   });
 });

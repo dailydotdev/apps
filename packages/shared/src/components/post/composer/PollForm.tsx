@@ -17,6 +17,10 @@ import {
   TITLE_MAX_LENGTH,
   type PollFormState,
 } from './types';
+import {
+  EMOJI_FREE_TITLE_HINT,
+  useEmojiFreeInput,
+} from '../../../hooks/input/useEmojiFreeInput';
 
 interface PollFormProps {
   value: PollFormState;
@@ -38,6 +42,8 @@ const findDurationLabel = (value: number | undefined): string =>
 export const PollForm = ({ value, onChange }: PollFormProps): ReactElement => {
   const [durationOpen, setDurationOpen] = useState(false);
   const questionRef = useRef<HTMLTextAreaElement>(null);
+  const { hasStrippedEmojis, onEmojiFreeInput, resetEmojiHint } =
+    useEmojiFreeInput();
 
   useEffect(() => {
     questionRef.current?.focus();
@@ -81,15 +87,22 @@ export const PollForm = ({ value, onChange }: PollFormProps): ReactElement => {
         maxLength={TITLE_MAX_LENGTH}
         rows={1}
         value={value.question}
-        onChange={(e) =>
+        onChange={(e) => {
+          onEmojiFreeInput(e);
           onChange({
             ...value,
             question: e.currentTarget.value.replace(/\n/g, ''),
-          })
-        }
+          });
+        }}
+        onBlur={resetEmojiHint}
         aria-label="Poll question"
         className="w-full resize-none overflow-hidden break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
       />
+      {hasStrippedEmojis && (
+        <p role="status" className="-mt-2 text-text-secondary typo-caption1">
+          {EMOJI_FREE_TITLE_HINT}
+        </p>
+      )}
       <div className="flex flex-col gap-2">
         {value.options.map((option, index) => {
           const canRemove = value.options.length > POLL_OPTIONS_MIN;

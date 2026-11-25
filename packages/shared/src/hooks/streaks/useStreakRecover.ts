@@ -3,8 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
-import type { UserStreakRecoverData } from '../../graphql/users';
+import type { StreakRecoverQuery } from '../../graphql/users';
 import {
+  isStreakEarnedBack,
   USER_STREAK_RECOVER_QUERY,
   USER_STREAK_RECOVER_MUTATION,
 } from '../../graphql/users';
@@ -32,6 +33,7 @@ import { LazyModal } from '../../components/modals/common/types';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { featureStreakFreeze } from '../../lib/featureManagement';
 import { useHasAccessToCores } from '../useCoresFeature';
+import { STREAK_EARN_BACK_WINDOW_MS } from './useStreakEarnBackProgress';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -45,17 +47,19 @@ export interface UseStreakRecoverReturn {
   };
   onClose?: () => void;
   onRecover?: () => void;
+  // Earn-back: closes the offer and sends the user to their feed to read
+  onStartReading?: () => void;
   recover: {
     canRecover: boolean;
     cost: number;
     isLoading: boolean;
     oldStreakLength: number;
     isRecoverPending: boolean;
+    postsRead: number;
+    postsRequired: number;
+    earnBack: boolean;
+    isEarnedBack: boolean;
   };
-}
-
-interface StreakQueryData {
-  streakRecover: UserStreakRecoverData;
 }
 
 export const useStreakRecover = ({
@@ -92,6 +96,7 @@ export const useStreakRecover = ({
     onSuccess: (data) => {
       logEvent({
         event_name: LogEvent.StreakRecover,
+        extra: JSON.stringify({ method: 'cores' }),
       });
 
       client.invalidateQueries({
@@ -138,7 +143,7 @@ export const useStreakRecover = ({
     });
   }, [updateAlerts]);
 
-  const { data, isLoading } = useQuery<StreakQueryData>({
+  const { data, isLoading } = useQuery<StreakRecoverQuery>({
     queryKey: generateQueryKey(RequestKey.UserStreakRecover),
     queryFn: async () => {
       const res = await gqlClient.request(USER_STREAK_RECOVER_QUERY);
@@ -155,6 +160,9 @@ export const useStreakRecover = ({
       return res;
     },
     enabled: !!user && isStreaksEnabled && !hideForever,
+    // Kept for the earn-back window after the modal closes, so
+    // useStreakEarnBackProgress still sees the offer
+    gcTime: STREAK_EARN_BACK_WINDOW_MS,
   });
 
   const onClose = useCallback(async () => {
@@ -188,7 +196,7 @@ export const useStreakRecover = ({
         searchParams.set('origin', Origin.StreakRecover);
 
         if (!isExtension) {
-          searchParams.set('next', router.pathname);
+          searchParams.set('next', router.asPath);
         }
 
         router?.push(getPathnameWithQuery(`${webappUrl}cores`, searchParams));
@@ -229,15 +237,27 @@ export const useStreakRecover = ({
     user,
   ]);
 
+  const onStartReading = useCallback(async () => {
+    await onClose();
+
+    if (!isExtension && router.pathname !== '/') {
+      router.push(webappUrl);
+    }
+  }, [onClose, router]);
+
   useEffect(() => {
     if (!data?.streakRecover?.canRecover || isLoading) {
       return;
     }
 
+    const { earnBack, postsRead } = data.streakRecover;
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.StreakRecover,
       target_id: 'restore streak',
+      ...(earnBack && {
+        extra: JSON.stringify({ earn_back: true, posts_read: postsRead ?? 0 }),
+      }),
     });
   }, [data?.streakRecover, isLoading, logEvent]);
 
@@ -248,6 +268,7 @@ export const useStreakRecover = ({
     },
     onClose,
     onRecover,
+    onStartReading,
     recover: {
       ...data?.streakRecover,
       canRecover: data?.streakRecover?.canRecover ?? false,
@@ -255,6 +276,10 @@ export const useStreakRecover = ({
       oldStreakLength: data?.streakRecover?.oldStreakLength ?? 0,
       isLoading,
       isRecoverPending: recoverMutation.isPending,
+      postsRead: data?.streakRecover?.postsRead ?? 0,
+      postsRequired: data?.streakRecover?.postsRequired ?? 0,
+      earnBack: data?.streakRecover?.earnBack ?? false,
+      isEarnedBack: isStreakEarnedBack(data?.streakRecover),
     },
   };
 };

@@ -1,5 +1,5 @@
 import type { KeyboardEvent, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Modal } from '../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../components/modals/common/types';
@@ -8,40 +8,16 @@ import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import CloseButton from '../../components/CloseButton';
 import Link from '../../components/utilities/Link';
 import { IconSize } from '../../components/Icon';
-import { ArrowIcon } from '../../components/icons/Arrow';
 import { LockIcon } from '../../components/icons/Lock';
-import { TipIcon } from '../../components/icons/Tip';
 import { VIcon } from '../../components/icons/V';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
-import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
-import { useLiveChatEnabled } from '../liveChat/hooks/useLiveChatEnabled';
-import type { FeedWidget } from './types';
-import {
-  FeedWidgetKind,
-  FeedWidgetSize,
-  feedWidgetSizeLabel,
-  feedWidgetSizeSpan,
-} from './types';
-import type {
-  FeedWidgetAvailability,
-  FeedWidgetDefinition,
-  FeedWidgetTone,
-} from './registry';
+import type { FeedWidget, FeedWidgetSize } from './types';
+import { FeedWidgetKind, feedWidgetSizeSpan } from './types';
+import type { FeedWidgetDefinition, FeedWidgetTone } from './registry';
 import { FeedWidgetCategory, FeedWidgetIcon } from './registry';
-import { availableFeedWidgets, feedWidgetSizesForScreen } from './components';
-import { FeedWidgetPreview, TipsPreview } from './FeedWidgetPreview';
-import { SizePages, SizePicker } from './FeedWidgetSizePicker';
-import type { FeedWidgetTip as FeedWidgetTipItem } from './tips';
-
-const TIPS = 'tips';
-
-type Selection = FeedWidgetKind | typeof TIPS;
-
-const tipsName = 'daily.dev tips';
-const tipsDescription =
-  'One tip over the ad, to get more out of daily.dev, with what to do and a button that does it.';
+import { availableFeedWidgets, feedWidgetSizes } from './components';
+import { useFeedWidgetAvailability } from './availability';
+import { FeedWidgetPreview } from './FeedWidgetPreview';
+import { SizePicker } from './FeedWidgetSizePicker';
 
 const categories = Object.values(FeedWidgetCategory);
 
@@ -77,14 +53,6 @@ type GalleryItem = {
   /** On the rail, and only one may be. */
   isAdded: boolean;
   disabledReason?: string;
-};
-
-export type FeedWidgetGalleryTips = {
-  /** The tip the rail shows this page view. */
-  tip: FeedWidgetTipItem;
-  isShown: boolean;
-  /** Set while the reader has removed the tips and can bring them back. */
-  onRestore?: () => void;
 };
 
 const orderSizes = (sizes: FeedWidgetSize[]): FeedWidgetSize[] =>
@@ -136,26 +104,19 @@ const KindTile = ({
 );
 
 const SelectionTile = ({
-  selection,
   isLarge,
   definition,
 }: {
-  selection: Selection;
   isLarge?: boolean;
-  definition?: FeedWidgetDefinition;
-}): ReactElement => {
-  const size = isLarge ? IconSize.Small : IconSize.Size16;
-
-  return (
-    <KindTile tone={definition?.tone ?? 'cabbage'} isLarge={isLarge}>
-      {selection === TIPS ? (
-        <TipIcon size={size} />
-      ) : (
-        <FeedWidgetIcon kind={selection} size={size} />
-      )}
-    </KindTile>
-  );
-};
+  definition: FeedWidgetDefinition;
+}): ReactElement => (
+  <KindTile tone={definition.tone} isLarge={isLarge}>
+    <FeedWidgetIcon
+      kind={definition.kind}
+      size={isLarge ? IconSize.Small : IconSize.Size16}
+    />
+  </KindTile>
+);
 
 const RowStatus = ({
   isOnRail,
@@ -180,7 +141,7 @@ const RowStatus = ({
         size={IconSize.Size16}
         className="shrink-0 text-text-tertiary"
         role="img"
-        aria-label="On your rail"
+        aria-label="In your feed"
       />
     );
   }
@@ -196,32 +157,25 @@ type AddState = {
 /** The one action for the selection, and the line that explains it. */
 const addStateFor = ({
   item,
-  size,
   isFull,
-  isPhone,
   onAdd,
 }: {
   item?: GalleryItem;
-  size: FeedWidgetSize;
   isFull: boolean;
-  isPhone: boolean;
   onAdd: () => void;
 }): AddState | null => {
   if (!item) {
     return null;
   }
-  const buttonSize = isPhone ? ButtonSize.Large : ButtonSize.Medium;
-  const buttonClassName = isPhone ? 'w-full' : undefined;
   const { definition, isOnRail, isAdded, disabledReason } = item;
 
   if (isAdded) {
     return {
-      message: 'Already on your rail.',
+      message: 'Already in your feed.',
       action: (
         <Button
           variant={ButtonVariant.Float}
-          size={buttonSize}
-          className={buttonClassName}
+          size={ButtonSize.Medium}
           icon={<VIcon />}
           disabled
         >
@@ -242,8 +196,7 @@ const addStateFor = ({
             tag="a"
             href={fix.href}
             variant={ButtonVariant.Secondary}
-            size={buttonSize}
-            className={buttonClassName}
+            size={ButtonSize.Medium}
           >
             {fix.label}
           </Button>
@@ -252,13 +205,11 @@ const addStateFor = ({
     };
   }
 
-  let message = `Adds a ${feedWidgetSizeLabel[
-    size
-  ].toLowerCase()} widget at the end of your rail.`;
+  let message = 'Takes the place of the card you picked.';
   if (isFull) {
-    message = 'Your rail is full. Remove a widget to make room for this one.';
+    message = 'Your feed has all the widgets it can hold. Remove one first.';
   } else if (isOnRail) {
-    message = 'On your rail. Each one you add is set up on its own.';
+    message = 'In your feed. Each one you add is set up on its own.';
   }
 
   return {
@@ -267,8 +218,7 @@ const addStateFor = ({
     action: (
       <Button
         variant={ButtonVariant.Primary}
-        size={buttonSize}
-        className={buttonClassName}
+        size={ButtonSize.Medium}
         disabled={isFull}
         onClick={onAdd}
       >
@@ -278,60 +228,14 @@ const addStateFor = ({
   };
 };
 
-const tipsStateFor = ({
-  tips,
-  isPhone,
-}: {
-  tips: FeedWidgetGalleryTips;
-  isPhone: boolean;
-}): AddState => {
-  const buttonSize = isPhone ? ButtonSize.Large : ButtonSize.Medium;
-  const buttonClassName = isPhone ? 'w-full' : undefined;
-
-  if (tips.isShown) {
-    return {
-      message: 'On, over the ad slot. Remove it from the rail in edit mode.',
-      action: (
-        <Button
-          variant={ButtonVariant.Float}
-          size={buttonSize}
-          className={buttonClassName}
-          icon={<VIcon />}
-          disabled
-        >
-          On
-        </Button>
-      ),
-    };
-  }
-
-  return {
-    message: 'Shows over the ad slot again. Not a widget, so it takes no room.',
-    action: tips.onRestore && (
-      <Button
-        variant={ButtonVariant.Primary}
-        size={buttonSize}
-        className={buttonClassName}
-        onClick={tips.onRestore}
-      >
-        Show tips again
-      </Button>
-    ),
-  };
-};
-
-const DesktopRow = ({
-  selection,
+const GalleryRow = ({
   definition,
-  name,
   isSelected,
   isOnRail,
   isLocked,
   onSelect,
 }: {
-  selection: Selection;
-  definition?: FeedWidgetDefinition;
-  name: string;
+  definition: FeedWidgetDefinition;
   isSelected: boolean;
   isOnRail?: boolean;
   isLocked?: boolean;
@@ -346,59 +250,16 @@ const DesktopRow = ({
       isSelected ? 'bg-surface-float' : 'hover:bg-surface-hover',
     )}
   >
-    <SelectionTile selection={selection} definition={definition} />
+    <SelectionTile definition={definition} />
     <span
       className={classNames(
         'min-w-0 flex-1 truncate typo-callout',
         isSelected ? 'font-bold text-text-primary' : 'text-text-secondary',
       )}
     >
-      {name}
+      {definition.name}
     </span>
     <RowStatus isOnRail={isOnRail} isLocked={isLocked} />
-  </button>
-);
-
-const PhoneRow = ({
-  selection,
-  definition,
-  name,
-  description,
-  isOnRail,
-  isLocked,
-  onSelect,
-}: {
-  selection: Selection;
-  definition?: FeedWidgetDefinition;
-  name: string;
-  description: string;
-  isOnRail?: boolean;
-  isLocked?: boolean;
-  onSelect: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    data-selection={selection}
-    onClick={onSelect}
-    className="flex h-14 w-full shrink-0 items-center gap-3 rounded-12 px-2 text-left active:bg-surface-float"
-  >
-    <SelectionTile selection={selection} definition={definition} isLarge />
-    <span className="flex min-w-0 flex-1 flex-col">
-      <span className="truncate font-bold text-text-primary typo-callout">
-        {name}
-      </span>
-      <span className="truncate text-text-tertiary typo-caption1">
-        {description}
-      </span>
-    </span>
-    {isOnRail || isLocked ? (
-      <RowStatus isOnRail={isOnRail} isLocked={isLocked} />
-    ) : (
-      <ArrowIcon
-        size={IconSize.Size16}
-        className="shrink-0 rotate-90 text-text-quaternary"
-      />
-    )}
   </button>
 );
 
@@ -410,40 +271,33 @@ const SectionLabel = ({ children }: { children: ReactNode }): ReactElement => (
 
 /**
  * The widgets a reader can add, each shown live at the size they pick and
- * added in that size. On a phone, a sheet of rows that opens a widget's sizes
- * to swipe through.
+ * added in that size.
  */
 export const FeedWidgetGallery = ({
   widgets,
   isFull,
+  initialKind,
   initialSize,
+  allowedSizes,
+  sizeLabel,
   onAdd,
-  tips,
   onRequestClose,
 }: {
   widgets: FeedWidget[];
   /** At the most widgets a rail holds, so nothing more can be added. */
   isFull: boolean;
+  /** The widget it opens on, instead of the first suggestion. */
+  initialKind?: FeedWidgetKind;
   /** The size each widget starts at when it supports it. */
   initialSize?: FeedWidgetSize;
+  /** The sizes this surface has room for, every kind's own by default. */
+  allowedSizes?: FeedWidgetSize[];
+  /** What this surface calls each size. */
+  sizeLabel?: (size: FeedWidgetSize) => string;
   onAdd: (kind: FeedWidgetKind, size: FeedWidgetSize) => void;
-  /** Set where the tips can show over our slot. */
-  tips?: FeedWidgetGalleryTips;
   onRequestClose: () => void;
 }): ReactElement => {
-  const { user, squads } = useAuthContext();
-  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
-  const { isEnabled: hasMessages } = useMessagesEnabled();
-  const { isEnabled: hasLiveChat } = useLiveChatEnabled();
-  const isPhone = useViewSize(ViewSize.MobileL);
-  const isPhoneScreen = useIsPhoneNow();
-  const availability: FeedWidgetAvailability = {
-    isLoggedIn: !!user,
-    hasSquads: !!squads?.length,
-    isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
-    hasMessages,
-    hasLiveChat,
-  };
+  const availability = useFeedWidgetAvailability();
   const onRail = new Set(widgets.map(({ kind }) => kind));
   const items: GalleryItem[] = availableFeedWidgets(availability).map(
     (definition) => {
@@ -469,35 +323,21 @@ export const FeedWidgetGallery = ({
     )
     .slice(0, SUGGESTED_COUNT);
 
-  const [selected, setSelected] = useState<Selection>(
-    () => (suggested[0] ?? items[0])?.definition.kind ?? TIPS,
+  const [selected, setSelected] = useState<FeedWidgetKind | undefined>(
+    () =>
+      ((initialKind && itemFor(initialKind)) ?? suggested[0] ?? items[0])
+        ?.definition.kind,
   );
-  // On a phone the list comes first; a widget opens from it.
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [sizes, setSizes] = useState<
     Partial<Record<FeedWidgetKind, FeedWidgetSize>>
   >({});
-  const backButton = useRef<HTMLButtonElement>(null);
-  const phoneList = useRef<HTMLDivElement>(null);
-  const wasDetailOpen = useRef(false);
-
-  // Focus follows the swap: to Back on the way in, to the row on the way out.
-  useEffect(() => {
-    if (isDetailOpen) {
-      backButton.current?.focus();
-    } else if (wasDetailOpen.current) {
-      phoneList.current
-        ?.querySelector<HTMLElement>(`[data-selection="${selected}"]`)
-        ?.focus();
-    }
-    wasDetailOpen.current = isDetailOpen;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDetailOpen]);
 
   const sizesFor = (kind: FeedWidgetKind) =>
-    orderSizes(feedWidgetSizesForScreen(kind, isPhoneScreen));
+    orderSizes(feedWidgetSizes(kind)).filter(
+      (size) => !allowedSizes || allowedSizes.includes(size),
+    );
   const sizeFor = (kind: FeedWidgetKind): FeedWidgetSize => {
-    const kindSizes = feedWidgetSizesForScreen(kind, isPhoneScreen);
+    const kindSizes = allowedSizes ? sizesFor(kind) : feedWidgetSizes(kind);
     const picked = sizes[kind];
     if (picked && kindSizes.includes(picked)) {
       return picked;
@@ -507,190 +347,64 @@ export const FeedWidgetGallery = ({
       : kindSizes[0];
   };
 
-  const selectedKind = selected === TIPS ? undefined : selected;
+  const selectedKind = selected;
   const selectedItem = selectedKind ? itemFor(selectedKind) : undefined;
   const selectedSize = selectedKind ? sizeFor(selectedKind) : undefined;
   const addState = addStateFor({
     item: selectedItem,
-    size: selectedSize ?? FeedWidgetSize.Small,
     isFull,
-    isPhone,
     onAdd: () => selectedKind && onAdd(selectedKind, sizeFor(selectedKind)),
   });
-  const footer =
-    selected === TIPS && tips ? tipsStateFor({ tips, isPhone }) : addState;
+  const footer = addState;
 
   const sections = categories
     .map((category) => ({
       category,
       items: items.filter(
         (item) =>
-          item.definition.category === category &&
-          (isPhone || !suggested.includes(item)),
+          item.definition.category === category && !suggested.includes(item),
       ),
-      hasTips: category === FeedWidgetCategory.DailyDev && !!tips,
     }))
-    .filter((section) => section.items.length || section.hasTips);
+    .filter((section) => section.items.length);
 
-  const select = (selection: Selection) => {
-    setSelected(selection);
-    setIsDetailOpen(true);
-  };
+  const select = (kind: FeedWidgetKind) => setSelected(kind);
 
   const onSizeChange = (kind: FeedWidgetKind, size: FeedWidgetSize) =>
     setSizes((current) => ({ ...current, [kind]: size }));
 
   const renderRow = (item: GalleryItem) => {
     const { definition } = item;
-    const props = {
-      selection: definition.kind,
-      definition,
-      name: definition.name,
-      isOnRail: item.isOnRail,
-      isLocked: !!item.disabledReason,
-      onSelect: () => select(definition.kind),
-    };
 
-    return isPhone ? (
-      <PhoneRow
+    return (
+      <GalleryRow
         key={definition.kind}
-        {...props}
-        description={definition.description}
-      />
-    ) : (
-      <DesktopRow
-        key={definition.kind}
-        {...props}
+        definition={definition}
         isSelected={selected === definition.kind}
+        isOnRail={item.isOnRail}
+        isLocked={!!item.disabledReason}
+        onSelect={() => select(definition.kind)}
       />
     );
   };
 
-  const renderTipsRow = () =>
-    isPhone ? (
-      <PhoneRow
-        selection={TIPS}
-        name={tipsName}
-        description={tipsDescription}
-        isOnRail={tips?.isShown}
-        onSelect={() => select(TIPS)}
-      />
-    ) : (
-      <DesktopRow
-        selection={TIPS}
-        name={tipsName}
-        isSelected={selected === TIPS}
-        isOnRail={tips?.isShown}
-        onSelect={() => select(TIPS)}
-      />
-    );
-
   const list = (
     <>
-      {!isPhone && suggested.length > 0 && (
+      {suggested.length > 0 && (
         <section className="flex flex-col">
           <SectionLabel>Suggested for you</SectionLabel>
           {suggested.map(renderRow)}
         </section>
       )}
-      {sections.map(({ category, items: sectionItems, hasTips }) => (
+      {sections.map(({ category, items: sectionItems }) => (
         <section key={category} className="flex flex-col">
           <SectionLabel>{category}</SectionLabel>
           {sectionItems.map(renderRow)}
-          {hasTips && renderTipsRow()}
         </section>
       ))}
     </>
   );
 
   const definition = selectedItem?.definition;
-  const name = definition?.name ?? tipsName;
-  const description = definition?.description ?? tipsDescription;
-
-  if (isPhone) {
-    const isDetail = isDetailOpen && (!!selectedItem || selected === TIPS);
-
-    return (
-      <Modal
-        isOpen
-        kind={ModalKind.FlexibleCenter}
-        size={ModalSize.Small}
-        onRequestClose={onRequestClose}
-        isDrawerOnMobile
-        drawerProps={{
-          'aria-label': 'Add a widget',
-          title: isDetail ? (
-            <Button
-              ref={backButton}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<ArrowIcon className="-rotate-90" />}
-              aria-label="Back to widgets"
-              onClick={() => setIsDetailOpen(false)}
-            />
-          ) : (
-            'Add a widget'
-          ),
-          className: { drawer: 'p-0' },
-        }}
-      >
-        {isDetail ? (
-          <div className="flex min-h-0 flex-1 flex-col">
-            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-              <div className="flex flex-col items-center gap-1 px-6 pt-2 text-center">
-                <SelectionTile
-                  selection={selected}
-                  definition={definition}
-                  isLarge
-                />
-                <span className="mt-1 font-bold text-text-primary typo-title3">
-                  {name}
-                </span>
-                <span className="text-text-secondary typo-footnote">
-                  {description}
-                </span>
-              </div>
-              <div className="flex min-h-0 shrink flex-col pt-4">
-                {selectedKind && selectedSize ? (
-                  <SizePages
-                    kind={selectedKind}
-                    sizes={sizesFor(selectedKind)}
-                    size={selectedSize}
-                    onChange={(size) => onSizeChange(selectedKind, size)}
-                  />
-                ) : (
-                  tips && (
-                    <div className="flex justify-center px-6">
-                      <TipsPreview tip={tips.tip} />
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-            {footer && (
-              <div className="flex flex-col gap-3 px-4 pb-2 pt-3">
-                <span
-                  className={classNames(
-                    'text-center typo-footnote',
-                    footer.isAttention
-                      ? 'text-text-secondary'
-                      : 'text-text-tertiary',
-                  )}
-                >
-                  {footer.message}
-                </span>
-                {footer.action}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div ref={phoneList} className="flex flex-col gap-4 px-2 pb-4">
-            {list}
-          </div>
-        )}
-      </Modal>
-    );
-  }
 
   return (
     <Modal
@@ -717,26 +431,24 @@ export const FeedWidgetGallery = ({
             className="!absolute right-3 top-3 z-1"
             onClick={onRequestClose}
           />
-          <div className="flex items-start gap-3 px-6 pb-4 pt-6">
-            <SelectionTile
-              selection={selected}
-              definition={definition}
-              isLarge
-            />
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5 pr-10">
-              <span className="flex flex-wrap items-center gap-x-2">
-                <span className="font-bold text-text-primary typo-title3">
-                  {name}
+          {definition && (
+            <div className="flex items-start gap-3 px-6 pb-4 pt-6">
+              <SelectionTile definition={definition} isLarge />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5 pr-10">
+                <span className="flex flex-wrap items-center gap-x-2">
+                  <span className="font-bold text-text-primary typo-title3">
+                    {definition.name}
+                  </span>
+                  <span className="rounded-6 bg-surface-float px-1.5 text-text-tertiary typo-caption1">
+                    {definition.category}
+                  </span>
                 </span>
-                <span className="rounded-6 bg-surface-float px-1.5 text-text-tertiary typo-caption1">
-                  {definition?.category ?? FeedWidgetCategory.DailyDev}
+                <span className="text-text-secondary typo-callout">
+                  {definition.description}
                 </span>
               </span>
-              <span className="text-text-secondary typo-callout">
-                {description}
-              </span>
-            </span>
-          </div>
+            </div>
+          )}
           {selectedKind &&
             selectedSize &&
             sizesFor(selectedKind).length > 1 && (
@@ -744,20 +456,19 @@ export const FeedWidgetGallery = ({
                 <SizePicker
                   sizes={sizesFor(selectedKind)}
                   size={selectedSize}
+                  label={sizeLabel}
                   onChange={(size) => onSizeChange(selectedKind, size)}
                 />
               </div>
             )}
           <div className="mx-6 flex min-h-0 flex-1 flex-col items-center justify-center rounded-20 bg-background-subtle p-6">
-            {selectedKind && selectedSize ? (
+            {selectedKind && selectedSize && (
               <FeedWidgetPreview
                 key={selectedKind}
                 kind={selectedKind}
                 size={selectedSize}
                 className="w-full flex-1"
               />
-            ) : (
-              tips && <TipsPreview tip={tips.tip} />
             )}
           </div>
           {footer && (

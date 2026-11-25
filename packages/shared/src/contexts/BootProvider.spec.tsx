@@ -53,6 +53,8 @@ import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { SortCommentsBy } from '../graphql/comments';
 import { ONE_MINUTE } from '../lib/time';
 import { SIGNED_OUT_COOKIE } from '../lib/signedOut';
+import { useEngagementAdsContext } from './EngagementAdsContext';
+import { ENGAGEMENT_CREATIVES_QUERY } from '../graphql/engagementAds';
 
 jest.mock('../lib/boot', () => {
   const actual = jest.requireActual('../lib/boot');
@@ -185,6 +187,49 @@ it('should persist the remote exp without the encrypted features', async () => {
       JSON.parse(localStorage.getItem(BOOT_LOCAL_KEY) as string)?.exp,
     ).toEqual({ fv: 'v2', e: [], a: [], features }),
   );
+});
+
+it('should fetch the engagement creatives once boot lands without them', async () => {
+  mockGraphQL({
+    request: { query: ENGAGEMENT_CREATIVES_QUERY },
+    result: {
+      data: {
+        engagementCreatives: [
+          {
+            gen_id: 'creative-1',
+            promoted_name: 'Brand',
+            promoted_body: 'Body',
+            promoted_cta: 'Try',
+            promoted_url: 'https://example.com',
+            promoted_logo_img: { dark: 'logo', light: 'logo' },
+            promoted_icon_img: { dark: 'icon', light: 'icon' },
+            promoted_gradient_start: { dark: '#000', light: '#fff' },
+            promoted_gradient_end: { dark: '#111', light: '#eee' },
+            tools: [],
+            keywords: [],
+            tags: ['ai'],
+          },
+        ],
+      },
+    },
+  });
+  const CreativesMock = () => {
+    const { creatives } = useEngagementAdsContext();
+
+    return <>{creatives.map((creative) => creative.name).join(',')}</>;
+  };
+
+  const requestSpy = jest.spyOn(gqlClient, 'request');
+  renderComponent(<CreativesMock />);
+
+  expect(await screen.findByText('Brand')).toBeInTheDocument();
+  // a first visit gets its user from boot, which must not refetch them
+  expect(
+    requestSpy.mock.calls.filter(
+      ([document]) => document === ENGAGEMENT_CREATIVES_QUERY,
+    ),
+  ).toHaveLength(1);
+  requestSpy.mockRestore();
 });
 
 const mockSettingsMutation = (params: Partial<RemoteSettings>) =>

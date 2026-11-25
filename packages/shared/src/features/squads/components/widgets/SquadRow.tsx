@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Squad } from '../../../../graphql/sources';
 import Link from '../../../../components/utilities/Link';
@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { combinedClicks } from '../../../../lib/click';
-import { hasSquadFeature } from '../../lib/features';
+import { showsVerifiedBadge } from '../../lib/features';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
 
 interface SquadRowProps {
@@ -19,6 +19,8 @@ interface SquadRowProps {
   action: ReactNode;
   onClick: () => void;
   children?: ReactNode;
+  onClickCapture?: MouseEventHandler<HTMLDivElement>;
+  onAuxClickCapture?: MouseEventHandler<HTMLDivElement>;
 }
 
 // The whole row links to the squad, with the action above the link.
@@ -28,11 +30,17 @@ export const SquadRow = ({
   action,
   onClick,
   children,
+  onClickCapture,
+  onAuxClickCapture,
 }: SquadRowProps): ReactElement => {
   const { name, image, permalink } = squad;
 
   return (
-    <div className="relative -mx-2 flex items-center gap-3 rounded-12 px-2 py-2 hover:bg-surface-hover">
+    <div
+      onClickCapture={onClickCapture}
+      onAuxClickCapture={onAuxClickCapture}
+      className="relative -mx-2 flex items-center gap-3 rounded-12 px-2 py-2 hover:bg-surface-hover"
+    >
       <Link href={permalink}>
         <a
           href={permalink}
@@ -55,7 +63,7 @@ export const SquadRow = ({
           className="flex min-w-0 items-center gap-1"
         >
           <span className="min-w-0 shrink truncate">{name}</span>
-          {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+          {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
         </Typography>
         <Typography
           type={TypographyType.Footnote}

@@ -7,6 +7,16 @@ import type { FetchAdByPlacementOptions } from '../../lib/ads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { useAdPageViewId } from './useAdPageViewId';
+import { useAdEntityRef } from './useAdEntityRef';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import {
+  AdRefreshEngineVersion,
+  featureAdRefreshEngine,
+} from '../../lib/featureManagement';
+import { getAdRefreshPlatform } from './refresh/adRefresh';
+import { useAdSlotFetch } from './useAdSlotFetch';
+import type { AdSlotFetchTransition } from './adSlotLifecycle';
+import { useAdLifecycle } from './useAdLifecycle';
 
 interface UseAdQueryOptions {
   queryKey: QueryKey;
@@ -17,6 +27,7 @@ interface UseAdQueryOptions {
   placement: FetchAdByPlacementOptions['placement'];
   active?: boolean;
   retry?: UseQueryOptions<Ad | null>['retry'];
+  onTransition?: (transition: AdSlotFetchTransition) => void;
   /**
    * Serve a fresh ad on every page view, e.g. each time a post is opened,
    * including reopening one already seen. Only for ads that belong to the
@@ -24,6 +35,13 @@ interface UseAdQueryOptions {
    * off, or they refetch whenever a post modal opens over the feed.
    */
   refreshOnPageView?: boolean;
+  /**
+   * For a slot that refreshes its creative the way the feed's ads do. On the
+   * v2 refresh engine (`ad_refresh_engine_config`), the first request then
+   * says so, as the feed's own ad requests do, and Skadi answers with the
+   * creative's refresh policy. Without it the slot has nothing to refresh by.
+   */
+  isRefreshable?: boolean;
 }
 
 export const useAdQuery = ({
@@ -34,22 +52,46 @@ export const useAdQuery = ({
   placement,
   active,
   retry,
+  onTransition,
   refreshOnPageView = false,
+  isRefreshable = false,
 }: UseAdQueryOptions) => {
   const consent = useAdRequestConsent(enabled);
-  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { resolveAd } = useAdLifecycle(enabled);
+  const onFetchTransition = useAdSlotFetch(consent, onTransition);
+  const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
+  const { value: refreshEngine, isLoading: isRefreshEngineLoading } =
+    useConditionalFeature({
+      feature: featureAdRefreshEngine,
+      shouldEvaluate: enabled && isRefreshable,
+    });
+  const isRefreshEngine =
+    isRefreshable && refreshEngine === AdRefreshEngineVersion.V2;
   const registered = isAuthReady ? isLoggedIn : undefined;
   const pageViewId = useAdPageViewId();
+  const { entityRef, isPending: isEntityPending } = useAdEntityRef(enabled);
   const fetchOptions = useMemo(
-    () =>
-      resolveAdFetchOptions({
+    () => ({
+      ...resolveAdFetchOptions({
         placement,
         active,
         consent: consent ?? undefined,
         registered,
         pageViewId,
       }),
-    [placement, active, consent, registered, pageViewId],
+      ...(isRefreshEngine && {
+        refresh: { platform: getAdRefreshPlatform(isAndroidApp), count: 0 },
+      }),
+    }),
+    [
+      placement,
+      active,
+      consent,
+      registered,
+      pageViewId,
+      isRefreshEngine,
+      isAndroidApp,
+    ],
   );
 
   return useQuery<Ad | null>({
@@ -65,8 +107,22 @@ export const useAdQuery = ({
       consent?.consentExists ?? '',
       isLoggedIn,
     ],
-    queryFn: async () => (consent ? fetchAdByPlacement(fetchOptions) : null),
-    enabled: enabled && !!consent,
+    queryFn: async () =>
+      consent
+        ? fetchAdByPlacement({
+            ...fetchOptions,
+            entity: entityRef.current,
+            onTransition: onFetchTransition,
+          })
+        : null,
+    select: resolveAd,
+    // A refreshable slot waits for the engine flag, so its first request
+    // already asks for the refresh policy when the engine is on.
+    enabled:
+      enabled &&
+      !!consent &&
+      !isEntityPending &&
+      !(isRefreshable && isRefreshEngineLoading),
     staleTime,
     ...(gcTime !== undefined && { gcTime }),
     // an explicit undefined would replace the client's default retry rule

@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import nock from 'nock';
+import { del, set } from 'idb-keyval';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import {
@@ -19,6 +20,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/picks';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { PersistentContextKeys } from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import NewPicksPage from '../pages/picks/new';
 
 const mockOpenShareSheet = jest.fn();
@@ -46,20 +48,39 @@ const suggestion = (n: number) => ({
 });
 const author = { id: 'u1', name: 'A', username: 'a', image: '', permalink: '' };
 
-const mockData = (current: Picks | null, suggestions: unknown[]) => {
+const mockData = (
+  current: Picks | null,
+  suggestions: unknown[],
+  fromPicksId?: string,
+) => {
   mockGraphQL({
     request: { query: MY_CURRENT_PICKS_QUERY },
     result: { data: { myCurrentPicks: current } },
   });
   mockGraphQL({
-    request: { query: PICKS_SUGGESTIONS_QUERY },
+    request: {
+      query: PICKS_SUGGESTIONS_QUERY,
+      ...(fromPicksId ? { variables: { fromPicksId } } : {}),
+    },
     result: { data: { picksSuggestions: suggestions } },
   });
 };
 
+const mockRouterQuery = (query: Record<string, string>) =>
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/picks/new',
+        query,
+        replace,
+        push: jest.fn(),
+        isReady: true,
+      }) as unknown as NextRouter,
+  );
+
 const renderPage = (enabled = true, user: unknown = loggedUser) => {
   const gb = createReadyGrowthBook();
-  gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+  gb.setFeatures({ weekly_picks_v2: { defaultValue: enabled } });
   return render(
     <TestBootProvider
       client={
@@ -79,9 +100,11 @@ const title = (text: string) =>
     .getAllByText(text)
     .find((el) => el.classList.contains('line-clamp-2')) as HTMLElement;
 
-beforeEach(() => {
+beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
+  // The home card enrolls readers; the flag is read here only after it has
+  await set(PersistentContextKeys.WeeklyPicksEnrolled, [loggedUser.id]);
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -100,11 +123,62 @@ it('should redirect a logged-in user to the feed when the flag is off', async ()
   expect(screen.queryByText('Weekly picks')).not.toBeInTheDocument();
 });
 
+it('should redirect a reader the home card has not enrolled', async () => {
+  await del(PersistentContextKeys.WeeklyPicksEnrolled);
+  renderPage(true);
+  await waitFor(() => expect(replace).toHaveBeenCalledWith('/'));
+  expect(screen.queryByText('Weekly picks')).not.toBeInTheDocument();
+});
+
 it('should send a logged-out visitor to auth, not the feed, when the flag is off', async () => {
   renderPage(false, null);
   await waitFor(() => expect(replace).toHaveBeenCalled());
   expect(replace).not.toHaveBeenCalledWith('/');
   expect(replace.mock.calls[0][0]).toContain('onboarding');
+});
+
+it('should open for a viewer outside the rollout who came from a picks page', async () => {
+  mockRouterQuery({ origin: 'picks_page', from: 'picks-9', add: 'p2' });
+  mockData(
+    null,
+    [
+      suggestion(1),
+      { ...suggestion(2), reason: 'from_picks', upvoted: false, read: false },
+    ],
+    'picks-9',
+  );
+  renderPage(false);
+  await waitForNock();
+  await waitFor(() => expect(title('Post 2')).toBeTruthy());
+
+  expect(replace).not.toHaveBeenCalled();
+  expect(screen.getByText('1 of 5 selected')).toBeInTheDocument();
+  expect(screen.getByText('from the picks you opened')).toBeInTheDocument();
+  expect(screen.getByRole('textbox')).toHaveFocus();
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.StartPicks,
+        extra: JSON.stringify({ origin: Origin.PicksPage, is_edit: false }),
+      }),
+    ),
+  );
+});
+
+it('should open for a user with picks this week when the flag is off', async () => {
+  const current = {
+    id: 'picks-1',
+    weekStart: '2026-11-02',
+    author,
+    items: [{ position: 0, note: null, post: post(2) }],
+  } as Picks;
+  mockData(current, [suggestion(1), suggestion(2)]);
+  renderPage(false);
+  await waitForNock();
+  await waitFor(() => expect(title('Post 2')).toBeTruthy());
+
+  expect(replace).not.toHaveBeenCalled();
+  expect(screen.getByText("Edit this week's picks")).toBeInTheDocument();
 });
 
 it('should render suggestions and log the start with the origin', async () => {
@@ -113,7 +187,7 @@ it('should render suggestions and log the start with the origin', async () => {
   await waitForNock();
   await waitFor(() => expect(title('Post 1')).toBeTruthy());
   expect(screen.getByText('Weekly picks')).toBeInTheDocument();
-  expect(screen.queryByText('View my picks')).not.toBeInTheDocument();
+  expect(screen.queryByText('View your page')).not.toBeInTheDocument();
   await waitFor(() =>
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -140,7 +214,8 @@ it('should prefill the selection and keep picks missing from the suggestions', a
   await waitFor(() => expect(title('Post 9')).toBeTruthy());
   expect(screen.getByText('2 of 5 selected')).toBeInTheDocument();
   expect(screen.getByDisplayValue('old note')).toBeInTheDocument();
-  expect(screen.getByText('View my picks').closest('a')).toHaveAttribute(
+  expect(screen.getByText("Edit this week's picks")).toBeInTheDocument();
+  expect(screen.getByText('View your page').closest('a')).toHaveAttribute(
     'href',
     '/picks/picks-1',
   );
@@ -267,4 +342,8 @@ it('should fall back to the picks page when reading the saved picks fails', asyn
   fireEvent.click(screen.getAllByText('Done, share my picks')[0]);
   await waitFor(() => expect(push).toHaveBeenCalledWith('/picks/picks-9'));
   expect(mockOpenShareSheet).not.toHaveBeenCalled();
+});
+
+it('should hide the floating feedback widget that covers the bottom bar', () => {
+  expect(NewPicksPage.layoutProps).toMatchObject({ hideFeedbackWidget: true });
 });

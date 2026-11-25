@@ -25,6 +25,7 @@ const CAMPAIGN_FRAGMENT = gql`
       clicks
       impressions
       newMembers
+      origin
     }
     post {
       ...SharedPostInfo
@@ -93,9 +94,11 @@ export type CampaignFlags = Partial<{
   clicks: number;
   users: number;
   newMembers: number;
+  // Bundle boosts can't be stopped; a stopped free boost isn't refunded
+  origin: 'bundle' | 'free_boost' | null;
 }>;
 
-export type UserCampaignStats = Omit<CampaignFlags, 'budget'>;
+export type UserCampaignStats = Omit<CampaignFlags, 'budget' | 'origin'>;
 
 export enum CampaignState {
   Active = 'ACTIVE',
@@ -170,8 +173,14 @@ export const DAILY_CAMPAIGN_REACH_ESTIMATE = gql`
     $type: CampaignType!
     $value: ID!
     $budget: Int!
+    $audience: CampaignAudienceInput
   ) {
-    dailyCampaignReachEstimate(type: $type, value: $value, budget: $budget) {
+    dailyCampaignReachEstimate(
+      type: $type
+      value: $value
+      budget: $budget
+      audience: $audience
+    ) {
       min
       max
     }
@@ -188,12 +197,20 @@ export enum CampaignWallet {
   Squad = 'SQUAD',
 }
 
+// Who a boost targets. Tags left out default to the post's or squad's own
+// tags, and no countries means worldwide.
+export interface CampaignAudience {
+  tags?: string[];
+  countries?: string[];
+}
+
 export interface StartCampaignProps {
   value: string;
   budget: number;
   duration: number;
   type: CampaignType;
   wallet?: CampaignWallet;
+  audience?: CampaignAudience;
 }
 
 export interface EstimatedReach {
@@ -205,15 +222,47 @@ export const getDailyCampaignReachEstimate = async ({
   type,
   value,
   budget,
+  audience,
 }: Omit<StartCampaignProps, 'duration'>): Promise<EstimatedReach> => {
   const result = await gqlClient.request(DAILY_CAMPAIGN_REACH_ESTIMATE, {
     type,
     value,
     budget,
+    audience,
   });
 
   return result.dailyCampaignReachEstimate;
 };
+
+export const CAMPAIGN_AUDIENCE_TAGS = gql`
+  query CampaignAudienceTags($type: CampaignType!, $value: ID!) {
+    campaignAudienceTags(type: $type, value: $value)
+  }
+`;
+
+// The tags a boost targets until its audience is edited: the post's tags, or
+// a squad's recent tags (none, for any topic, when it has 3 or fewer)
+export const campaignAudienceTagsQueryOptions = ({
+  user,
+  type,
+  value,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  type: CampaignType;
+  value: string;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Campaigns, user, 'tags', type, value),
+  queryFn: async (): Promise<string[]> => {
+    const result = await gqlClient.request<{ campaignAudienceTags: string[] }>(
+      CAMPAIGN_AUDIENCE_TAGS,
+      { type, value },
+    );
+
+    return result.campaignAudienceTags;
+  },
+  staleTime: StaleTime.Default,
+  enabled: !!user && !!value,
+});
 
 export const START_CAMPAIGN = gql`
   mutation StartCampaign(
@@ -222,6 +271,7 @@ export const START_CAMPAIGN = gql`
     $budget: Int!
     $duration: Int!
     $wallet: CampaignWallet
+    $audience: CampaignAudienceInput
   ) {
     startCampaign(
       type: $type
@@ -229,6 +279,7 @@ export const START_CAMPAIGN = gql`
       duration: $duration
       budget: $budget
       wallet: $wallet
+      audience: $audience
     ) {
       transactionId
       referenceId
@@ -246,6 +297,7 @@ export const startCampaign = async ({
   budget,
   duration,
   wallet,
+  audience,
 }: StartCampaignProps): Promise<TransactionCreated> => {
   const result = await gqlClient.request(START_CAMPAIGN, {
     type,
@@ -253,6 +305,7 @@ export const startCampaign = async ({
     budget,
     duration,
     wallet,
+    audience,
   });
 
   return result.startCampaign;

@@ -30,6 +30,8 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
+import type { FeedWidget } from '../features/feedWidgets/types';
+import { FeedWidgetSize } from '../features/feedWidgets/types';
 import { PHONE_FEED_PLACEHOLDER_ROWS } from '../components/cards/placeholder/PlaceholderFeed';
 import type { ApiErrorResult } from '../graphql/common';
 import {
@@ -104,6 +106,11 @@ export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   index: number;
 }
 
+/** A widget the reader placed in the feed, in the slot of a card. */
+export interface WidgetItem extends FeedItemBase<FeedItemType.Widget> {
+  widget: FeedWidget;
+}
+
 export interface HighlightItem extends FeedItemBase<FeedItemType.Highlight> {
   highlights: PostHighlight[];
   feedMeta: string | null;
@@ -144,6 +151,7 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
 export type FeedItem =
   | PostItem
   | HighlightItem
+  | WidgetItem
   | AdItem
   | AdSquadItem
   | PlaceholderItem;
@@ -235,6 +243,12 @@ type UseFeedSettingParams = {
   feedName?: string;
   /** Posts a surface above the feed already shows, kept out of the grid. */
   excludedPostIds?: string[];
+  /**
+   * Widgets the reader placed in the feed, sorted by slot. Each takes the
+   * index of its slot among the items, ahead of the card there; an ad keeps
+   * its own cell, so a widget due where an ad lands follows the ad.
+   */
+  widgets?: FeedWidget[];
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
   searchId?: string;
@@ -697,6 +711,10 @@ export default function useFeed<T>(
     ],
   );
 
+  const hasWideWidgets = !!settings?.widgets?.some(
+    ({ size }) => size === FeedWidgetSize.Large,
+  );
+
   // The posts the grid last rendered. An exclusion that arrives once a post
   // is already in the grid leaves it where it is: the surface above the feed
   // may learn its post late (a first visit), and nothing on screen moves.
@@ -724,10 +742,31 @@ export default function useFeed<T>(
         widenableTypes,
         firstSlotOffset: effectiveFirstSlotOffset,
         minWideCardRow: settings?.deferWideCards ? 1 : 0,
+        hasWideWidgets,
       });
 
       const staticAd = settings?.staticAd;
       let staticAdInserted = !staticAd;
+
+      const widgets = settings?.widgets ?? [];
+      let nextWidget = 0;
+      // The column the next item starts in, so a wide widget knows whether
+      // two cards fit there.
+      let nextColumn = Math.min(
+        effectiveFirstSlotOffset,
+        Math.max(virtualizedNumCards - 1, 0),
+      );
+      // Items a wide widget has waited past for room, so one that can never
+      // fit (an ad every other cell) still lands, narrowed, within a row.
+      let wideWaitedFor = 0;
+      const canWiden =
+        hasWideWidgets &&
+        !isMobileViewport &&
+        !isListContext &&
+        virtualizedNumCards > 1;
+      const fitsWide = (): boolean =>
+        virtualizedNumCards - nextColumn >= 2 &&
+        computeAdClamp(visualCellsSoFar, cadence) >= 2;
 
       const pushAndAdvance = (item: FeedItem): void => {
         if (
@@ -752,6 +791,49 @@ export default function useFeed<T>(
           maxColSpan: computeAdClamp(visualCellsSoFar, cadence),
         });
         visualCellsSoFar += placement.colSpan;
+        nextColumn = placement.column + placement.colSpan;
+        if (nextColumn >= virtualizedNumCards) {
+          nextColumn = 0;
+        }
+      };
+
+      // The ad due at the current cell, if any, then every widget due by now,
+      // each followed by the ad its cell may bring. A widget so never takes
+      // an ad's cell, and the ads keep their cadence: a widget counts as a
+      // card against it.
+      const pushDueAdAndWidgets = (): void => {
+        const pushDueAd = (): void => {
+          const adItem = getAd({ index: visualCellsSoFar });
+          if (adItem) {
+            pushAndAdvance(adItem);
+          }
+        };
+        pushDueAd();
+        while (
+          nextWidget < widgets.length &&
+          (widgets[nextWidget].slot ?? 0) <= newItems.length
+        ) {
+          // A wide widget with no room for two cards here (the row's last
+          // column, an ad's cell next) waits for the next spot that has it,
+          // rather than narrowing; the widgets after it keep their order.
+          if (
+            canWiden &&
+            widgets[nextWidget].size === FeedWidgetSize.Large &&
+            !fitsWide() &&
+            wideWaitedFor < virtualizedNumCards
+          ) {
+            wideWaitedFor += 1;
+            return;
+          }
+          wideWaitedFor = 0;
+          pushAndAdvance({
+            type: FeedItemType.Widget,
+            widget: widgets[nextWidget],
+            dataUpdatedAt: feedQuery.dataUpdatedAt,
+          });
+          nextWidget += 1;
+          pushDueAd();
+        }
       };
 
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
@@ -771,11 +853,7 @@ export default function useFeed<T>(
             return;
           }
 
-          const adItem = getAd({ index: visualCellsSoFar });
-
-          if (adItem) {
-            pushAndAdvance(adItem);
-          }
+          pushDueAdAndWidgets();
 
           if (node.itemType === 'highlight') {
             if (!node.highlights.length || settings?.disableHighlightCards) {
@@ -837,6 +915,8 @@ export default function useFeed<T>(
     getAd,
     settings?.disableHighlightCards,
     settings?.excludedPostIds,
+    settings?.widgets,
+    hasWideWidgets,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
@@ -873,6 +953,7 @@ export default function useFeed<T>(
         cadence,
         firstSlotOffset: effectiveFirstSlotOffset,
         minWideCardRow: settings?.deferWideCards ? 1 : 0,
+        hasWideWidgets,
       }),
     [
       items,
@@ -885,6 +966,7 @@ export default function useFeed<T>(
       widenableTypes,
       effectiveFirstSlotOffset,
       settings?.deferWideCards,
+      hasWideWidgets,
     ],
   );
 

@@ -25,6 +25,7 @@ export function SquadPostWidgets({
   post,
   origin,
   className,
+  isHybrid = false,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -68,11 +69,12 @@ export function SquadPostWidgets({
         postId={post.id}
         source={post.source}
         className={{ container: cardClasses }}
+        isAdvertiseLinkStart={isHybrid}
       />
       <PostExcoPlayerWidget post={post} placement="rail" />
       {canShare && (
         <>
-          <ShareBar post={post} />
+          <ShareBar post={post} isBordered={isHybrid} />
           <ShareMobile
             post={post}
             origin={origin}

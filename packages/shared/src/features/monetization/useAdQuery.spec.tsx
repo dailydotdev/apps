@@ -6,11 +6,23 @@ import * as ads from '../../lib/ads';
 import { useAdQuery } from './useAdQuery';
 import { useAdPageViewId } from './useAdPageViewId';
 import { useAdRequestConsent } from './useAdRequestConsent';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import {
+  AdRefreshEngineVersion,
+  featureAdEntityParams,
+} from '../../lib/featureManagement';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
+import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
+import type { Post } from '../../graphql/posts';
 
 jest.mock('./useAdPageViewId');
 jest.mock('./useAdRequestConsent');
 jest.mock('../../components/GrowthBookProvider', () => ({
   useFeature: () => false,
+  useFeaturesReadyContext: jest.fn(),
+}));
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
 }));
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ isAuthReady: true, isLoggedIn: true }),
@@ -26,6 +38,15 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(useAdRequestConsent).mockReturnValue({ gdprApplies: false });
   jest.spyOn(ads, 'fetchAdByPlacement').mockResolvedValue(null);
+  jest.mocked(useFeaturesReadyContext).mockReturnValue({
+    ready: true,
+    settled: true,
+    getFeatureValue: jest.fn(),
+  });
+  jest.mocked(useConditionalFeature).mockReturnValue({
+    value: AdRefreshEngineVersion.V1,
+    isLoading: false,
+  });
 });
 
 const renderAdQuery = (refreshOnPageView?: boolean) =>
@@ -73,4 +94,105 @@ it('fetches a fresh page-owned ad on every page view', async () => {
   expect(ads.fetchAdByPlacement).toHaveBeenLastCalledWith(
     expect.objectContaining({ pageViewId: 'page-view-2' }),
   );
+});
+
+describe('a refreshable slot', () => {
+  const renderRefreshable = () =>
+    renderHook(
+      () =>
+        useAdQuery({
+          queryKey: ['rail-ad'],
+          placement: ads.AdPlacement.Feed,
+          isRefreshable: true,
+        }),
+      { wrapper },
+    );
+
+  it('asks Skadi for the refresh policy on the v2 engine', async () => {
+    jest.mocked(useConditionalFeature).mockReturnValue({
+      value: AdRefreshEngineVersion.V2,
+      isLoading: false,
+    });
+    renderRefreshable();
+
+    await waitFor(() =>
+      expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
+        expect.objectContaining({
+          refresh: expect.objectContaining({ count: 0 }),
+        }),
+      ),
+    );
+  });
+
+  it('asks for no refresh policy on v1, where autorotate_ads rotates it', async () => {
+    renderRefreshable();
+
+    await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalled());
+    expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
+      expect.not.objectContaining({ refresh: expect.anything() }),
+    );
+  });
+
+  it('waits for the engine flag before its first request', async () => {
+    jest.mocked(useConditionalFeature).mockReturnValue({
+      value: AdRefreshEngineVersion.V1,
+      isLoading: true,
+    });
+    renderRefreshable();
+
+    await flush();
+    expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
+  });
+});
+
+it('holds a slot on a post page until the features settle, then sends the post once', async () => {
+  jest.mocked(useAdPageViewId).mockReturnValue('page-view-1');
+  jest
+    .mocked(useConditionalFeature)
+    .mockImplementation(({ feature }) =>
+      feature.id === featureAdEntityParams.id
+        ? { value: true, isLoading: false }
+        : { value: AdRefreshEngineVersion.V1, isLoading: false },
+    );
+  jest.mocked(useFeaturesReadyContext).mockReturnValue({
+    ready: false,
+    settled: false,
+    getFeatureValue: jest.fn(),
+  });
+  const postWrapper = ({ children }: { children: ReactNode }) =>
+    wrapper({
+      children: (
+        <ActivePostContextProvider post={{ id: 'post-1' } as Post}>
+          {children}
+        </ActivePostContextProvider>
+      ),
+    });
+  const { rerender } = renderHook(
+    () =>
+      useAdQuery({
+        queryKey: ['post-ad'],
+        placement: ads.AdPlacement.PostSidebar,
+        refreshOnPageView: true,
+      }),
+    { wrapper: postWrapper },
+  );
+
+  await flush();
+  expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
+
+  jest.mocked(useFeaturesReadyContext).mockReturnValue({
+    ready: true,
+    settled: true,
+    getFeatureValue: jest.fn(),
+  });
+  rerender();
+
+  await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
+  expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
+    expect.objectContaining({
+      entity: { entity: ads.AdEntity.Post, id: 'post-1' },
+    }),
+  );
+  await flush();
+  expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1);
 });

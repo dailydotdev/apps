@@ -24,7 +24,6 @@ import {
   MegaphoneIcon,
 } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
-import { AgentIcon } from '../icons/Agent';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type {
   NotificationChannel,
@@ -67,8 +66,6 @@ export enum NotificationType {
   UserAwardThanks = 'user_award_thanks',
   BriefingReady = 'briefing_ready',
   DigestReady = 'digest_ready',
-  InterestContentAvailable = 'interest_content_available',
-  InterestContentBatch = 'interest_content_batch',
   UserFollow = 'user_follow',
   DirectMessageRequest = 'direct_message_request',
   DirectMessageRequestAccepted = 'direct_message_request_accepted',
@@ -108,6 +105,9 @@ export enum NotificationType {
   ReferralSignup = 'referral_signup',
   CreatorAchievement = 'creator_achievement',
   WeeklyPicksReady = 'weekly_picks_ready',
+  PicksOpened = 'picks_opened',
+  StartupsIntelReady = 'startups_intel_ready',
+  PostLimitedReach = 'post_limited_reach',
 }
 
 export enum NotificationIconType {
@@ -220,7 +220,6 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserAwardThanks]: 'text-brand-default',
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.DigestReady]: 'text-brand-default',
-    [NotificationType.InterestContentBatch]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
     [NotificationType.DirectMessageRequest]: 'text-brand-default',
     [NotificationType.DirectMessageRequestAccepted]: 'text-brand-default',
@@ -229,6 +228,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.LfgStillLooking]: 'text-brand-default',
     [NotificationType.LiveChatOpened]: 'text-brand-default',
     [NotificationType.WeeklyPicksReady]: 'text-brand-default',
+    [NotificationType.PicksOpened]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
@@ -288,6 +288,10 @@ export const notificationMutingCopy: Partial<
     mute: 'Mute new member notifications',
     unmute: 'Unmute new member notifications',
   },
+  [NotificationType.StartupsIntelReady]: {
+    mute: 'Turn off weekly intel for this squad',
+    unmute: 'Turn on weekly intel for this squad',
+  },
 };
 
 export const FOLLOWING_KEYS = [
@@ -340,6 +344,7 @@ export const SQUAD_MODERATION_KEYS = [
   NotificationType.SourcePostSubmitted,
   NotificationType.SquadMemberJoined,
   NotificationType.SquadFeatured,
+  NotificationType.StartupsIntelReady,
 ];
 
 export const SQUAD_POST_REVIEW_KEYS = [
@@ -381,7 +386,6 @@ export enum NotificationFilterCategory {
   Comments = 'comments',
   Followers = 'followers',
   Squads = 'squads',
-  Agents = 'agents',
   Updates = 'updates',
 }
 
@@ -419,10 +423,6 @@ export const notificationCategoryToTypes: Record<
     NotificationType.SourcePostRejected,
     NotificationType.ArticlePicked,
   ],
-  [NotificationFilterCategory.Agents]: [
-    NotificationType.InterestContentAvailable,
-    NotificationType.InterestContentBatch,
-  ],
   [NotificationFilterCategory.Updates]: [
     NotificationType.System,
     NotificationType.SourcePostAdded,
@@ -455,6 +455,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.ReferralSignup,
     NotificationType.WeeklyPicksReady,
+    NotificationType.PicksOpened,
   ],
 };
 
@@ -465,7 +466,6 @@ export const notificationFilterCategoryList: NotificationFilterCategory[] = [
   NotificationFilterCategory.Comments,
   NotificationFilterCategory.Followers,
   NotificationFilterCategory.Squads,
-  NotificationFilterCategory.Agents,
   NotificationFilterCategory.Updates,
 ];
 
@@ -478,7 +478,6 @@ export const notificationFilterCategoryLabel: Record<
   [NotificationFilterCategory.Comments]: 'Comments',
   [NotificationFilterCategory.Followers]: 'Followers',
   [NotificationFilterCategory.Squads]: 'Squads',
-  [NotificationFilterCategory.Agents]: 'Agents',
   [NotificationFilterCategory.Updates]: 'Updates',
 };
 
@@ -540,11 +539,6 @@ export const notificationCategoryBadge: Record<
     fg: 'text-white',
     Icon: SquadIcon,
   },
-  [NotificationFilterCategory.Agents]: {
-    bg: 'bg-accent-water-default',
-    fg: 'text-white',
-    Icon: AgentIcon,
-  },
   [NotificationFilterCategory.Updates]: {
     bg: 'bg-accent-bun-default',
     fg: 'text-black',
@@ -592,16 +586,6 @@ export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.DirectMessageRequestAccepted,
     label: 'Accepted message requests',
-    group: false,
-  },
-];
-
-export const LIVE_CHAT_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: NotificationType.LiveChatOpened,
-    label: 'A live chat opens on a post',
-    description:
-      'A push when the daily.dev team opens a live chat on a post. Each one is on for a day, then gone.',
     group: false,
   },
 ];

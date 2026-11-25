@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { subDays } from 'date-fns';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LoggedUser } from '../../../lib/user';
@@ -21,11 +22,15 @@ import * as streakHook from '../../../hooks/streaks/useReadingStreak';
 import { ActionType } from '../../../graphql/actions';
 import Toast from '../../notifications/Toast';
 import { DayOfWeek } from '../../../lib/date';
+import { LogEvent, TargetType } from '../../../lib/log';
 
 interface TestProps {
   user?: LoggedUser;
   alerts?: Alerts;
+  gb?: GrowthBook;
 }
+
+const logEvent = jest.fn();
 
 const defaultAlerts: Alerts = {
   filter: true,
@@ -99,13 +104,16 @@ const renderComponent = (props: TestProps = {}) => {
   const {
     user = { ...loggedUser, balance: { amount: 0 } },
     alerts = alertsWithStreakRecovery,
+    gb,
   } = props;
 
   return render(
     <TestBootProvider
       client={queryClient}
+      gb={gb}
       auth={{ user }}
       alerts={{ alerts, updateAlerts }}
+      log={{ logEvent }}
       settings={{
         loadedSettings: true,
         optOutReadingStreak: false,
@@ -153,7 +161,30 @@ beforeEach(async () => {
   completeAction.mockReset();
   updateAlerts.mockReset();
   displayToast.mockReset();
+  logEvent.mockReset();
 });
+
+const mockBrokenStreak = () =>
+  jest.spyOn(streakHook, 'useReadingStreak').mockReturnValue({
+    isLoading: false,
+    isStreaksEnabled: true,
+    isUpdatingConfig: false,
+    streak: {
+      current: 0,
+      max: 40,
+      total: 52,
+      weekStart: DayOfWeek.Monday,
+      lastViewAt: subDays(new Date(), 2),
+      freezesAvailable: 0,
+    },
+    updateStreakConfig: jest.fn(),
+    checkReadingStreak: jest.fn(),
+  });
+
+const softBreakOn = () =>
+  new GrowthBook({
+    features: { streak_improvements: { defaultValue: true } },
+  });
 
 it('should not render if user is not logged in', async () => {
   renderComponent({ user: undefined, alerts: defaultAlerts });
@@ -203,7 +234,12 @@ it('should render and fetch initial data if logged user can recover streak', asy
 
   // and rendered
   const popup = await screen.findByTestId('streak-recover-modal-heading');
-  expect(popup).toBeInTheDocument();
+  // Production markup, double space included.
+  expect(popup).toHaveTextContent(
+    /^Oh no! Your 10 day streak {2}has been broken!$/,
+    { normalizeWhitespace: false },
+  );
+  expect(screen.queryByText('Start again')).not.toBeInTheDocument();
 });
 
 it('should update alerts preferences on close', async () => {
@@ -288,6 +324,55 @@ it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
   // expect cost to be 100
   const cost = screen.getByText('Restore my streak100');
   expect(cost).toBeInTheDocument();
+});
+
+it('leads with the longest streak and offers a way back when the soft break is on', async () => {
+  mockBrokenStreak();
+  mockRecoveryQuery({
+    canRecover: true,
+    cost: 100,
+    oldStreakLength: 10,
+    regularCost: 100,
+  });
+
+  renderComponent({
+    user: { ...loggedUser, balance: { amount: 200 } },
+    gb: softBreakOn(),
+  });
+
+  await waitForNock();
+
+  const heading = await screen.findByTestId('streak-recover-modal-heading');
+  expect(heading).toHaveTextContent('Your best: 40 days. Today can be day 1.');
+  expect(screen.getByTestId('streak-recover-button')).toHaveTextContent(
+    'Restore my streak100',
+  );
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Impression,
+    target_type: TargetType.StreakSoftBreak,
+    target_id: 'restore modal',
+  });
+
+  fireEvent.click(screen.getByTestId('streak-recover-optout'));
+  mockAlertsMutation();
+  fireEvent.click(screen.getByRole('button', { name: 'Start again' }));
+  await waitForNock();
+
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Click,
+    target_type: TargetType.StreakSoftBreak,
+    target_id: 'restore modal',
+  });
+  expect(completeAction).toHaveBeenCalledWith(
+    ActionType.DisableReadingStreakRecover,
+  );
+  // The permanent opt-out is logged whichever button closed the modal.
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.DismissStreakRecover,
+  });
+  expect(updateAlerts).toHaveBeenCalledWith(
+    expect.objectContaining({ showRecoverStreak: false }),
+  );
 });
 
 it('Should show buy Cores message if user does not have enough Cores', async () => {
@@ -411,6 +496,83 @@ it('Should dismiss popup on close if checked option', async () => {
   expect(completeAction).toHaveBeenCalledWith(
     ActionType.DisableReadingStreakRecover,
   );
+});
+
+describe('earn-back', () => {
+  const earnBackOffer: UserStreakRecoverData = {
+    canRecover: true,
+    cost: 100,
+    oldStreakLength: 10,
+    regularCost: 100,
+    postsRead: 1,
+    postsRequired: 3,
+    earnBack: true,
+  };
+
+  it('shows the reading progress with a secondary instant restore', async () => {
+    mockRecoveryQuery(earnBackOffer);
+    renderComponent({ user: { ...loggedUser, balance: { amount: 200 } } });
+    await waitForNock();
+
+    const progress = await screen.findByTestId('streak-earn-back-progress');
+    expect(progress).toHaveTextContent('Read 3 posts to bring it back');
+    expect(progress).toHaveTextContent('1/3');
+    const segments = screen.getAllByTestId('streak-earn-back-segment');
+    expect(segments.map((segment) => segment.dataset.filled)).toEqual([
+      'true',
+      'false',
+      'false',
+    ]);
+
+    expect(
+      screen.getByRole('button', { name: 'Start reading' }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('streak-recover-button')).toHaveTextContent(
+      'Restore instantly · 100 Cores',
+    );
+  });
+
+  it('offers the instant restore for free when the first restore is free', async () => {
+    mockRecoveryQuery({ ...earnBackOffer, cost: 0 });
+    renderComponent();
+    await waitForNock();
+
+    expect(
+      await screen.findByTestId('streak-recover-button'),
+    ).toHaveTextContent('Restore instantly · Free');
+  });
+
+  it('closes the offer on start reading', async () => {
+    mockRecoveryQuery(earnBackOffer);
+    renderComponent();
+    await waitForNock();
+
+    mockAlertsMutation();
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Start reading' }),
+    );
+    await waitForNock();
+
+    expect(updateAlerts).toHaveBeenCalledWith(
+      expect.objectContaining({ showRecoverStreak: false }),
+    );
+  });
+
+  it('shows the success state once the streak was earned back', async () => {
+    mockRecoveryQuery({
+      ...earnBackOffer,
+      canRecover: false,
+      postsRead: 3,
+    });
+    renderComponent();
+    await waitForNock();
+
+    expect(
+      await screen.findByTestId('streak-earned-back-heading'),
+    ).toHaveTextContent('Your 10-day streak is back.');
+    expect(screen.queryByText('Start reading')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+  });
 });
 
 it('Should show error message on recover fail', async () => {

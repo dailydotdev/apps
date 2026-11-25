@@ -8,6 +8,12 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { hasSensitiveQueryParam } from '@dailydotdev/shared/src/lib/sensitiveQuery';
+import storageWrapper from '@dailydotdev/shared/src/lib/storageWrapper';
+import {
+  identifyHotjarUser,
+  StartupsHotjarEvent,
+  trackHotjarEvent,
+} from '@dailydotdev/shared/src/lib/hotjar';
 import { isSensitivePage } from '../lib/sensitivePages';
 
 const FB_PIXEL_ID = '519268979315924';
@@ -28,6 +34,28 @@ export type HotjarProps = {
   hotjarId: string;
 };
 
+// Meta matches on the SHA-256 of the trimmed, lowercased email. Hashing it
+// here keeps a value set after init (a signup in this session) from going out
+// in plain text.
+export const hashEmailForMeta = async (
+  email?: string,
+): Promise<string | undefined> => {
+  const normalized = email?.trim().toLowerCase();
+
+  if (!normalized || !globalThis.crypto?.subtle) {
+    return undefined;
+  }
+
+  const digest = await globalThis.crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(normalized),
+  );
+
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+};
+
 const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
   useEffect(() => {
     if (typeof globalThis.fbq === 'function') {
@@ -36,9 +64,17 @@ const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
   }, [consent]);
 
   useEffect(() => {
-    if (typeof globalThis.updateFbUserData === 'function') {
-      globalThis.updateFbUserData(userId, email);
-    }
+    let isCurrent = true;
+
+    hashEmailForMeta(email).then((emailHash) => {
+      if (isCurrent && typeof globalThis.updateFbUserData === 'function') {
+        globalThis.updateFbUserData(userId, emailHash);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
   }, [email, userId]);
 
   return (
@@ -86,10 +122,13 @@ const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
     'https://connect.facebook.net/en_US/fbevents.js',
   );
 
-  window.updateFbUserData = (userId, email) => {
-    if (window.fbq?.instance?.pixelsByID?.[PIXEL_ID]?.userData) {
-      window.fbq.instance.pixelsByID[PIXEL_ID].userData.external_id = userId;
-      window.fbq.instance.pixelsByID[PIXEL_ID].userData.email = email;
+  window.updateFbUserData = (userId, emailHash) => {
+    const userData = window.fbq?.instance?.pixelsByID?.[PIXEL_ID]?.userData;
+    if (userData) {
+      userData.external_id = userId;
+      if (emailHash) {
+        userData.em = emailHash;
+      }
     }
   };
 
@@ -180,13 +219,17 @@ const GtagTracking = ({
   );
 };
 
-export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
+const useHotjarConsent = (): boolean => {
   const { cookieExists: acceptedMarketing } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
   const { isGdprCovered } = useAuthContext();
-  const consent = !isGdprCovered || acceptedMarketing;
-  if (!consent || !isProduction) {
+  return isProduction && (!isGdprCovered || acceptedMarketing);
+};
+
+export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
+  const consent = useHotjarConsent();
+  if (!consent) {
     return null;
   }
   return (
@@ -203,6 +246,41 @@ export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
       `}
     </Script>
   );
+};
+
+// "daily.dev for Startups": the /startups/ landing page loads the same site
+// with the same consent rule, so one recording runs from there through the
+// checkout and the squad setup on daily.dev.
+export const STARTUPS_HOTJAR_ID = '6854906';
+
+// A Startups account made within the hour counts as a new signup, however it
+// came in (email, social, or back from a redirect)
+const NEW_ACCOUNT_MS = 60 * 60 * 1000;
+const signupStorage = storageWrapper();
+const SIGNUP_STORAGE_KEY = 'startups_hotjar_signup';
+
+export const StartupsHotjar = (): ReactElement => {
+  const consent = useHotjarConsent();
+  const { user } = useAuthContext();
+
+  useEffect(() => {
+    if (!consent || !user?.id) {
+      return;
+    }
+
+    identifyHotjarUser(user.id);
+
+    const isNewAccount =
+      !!user.infoConfirmed &&
+      !!user.createdAt &&
+      Date.now() - new Date(user.createdAt).getTime() < NEW_ACCOUNT_MS;
+    if (isNewAccount && signupStorage.getItem(SIGNUP_STORAGE_KEY) !== user.id) {
+      signupStorage.setItem(SIGNUP_STORAGE_KEY, user.id);
+      trackHotjarEvent(StartupsHotjarEvent.Signup);
+    }
+  }, [consent, user?.id, user?.infoConfirmed, user?.createdAt]);
+
+  return <HotJarTracking hotjarId={STARTUPS_HOTJAR_ID} />;
 };
 
 const TwitterTracking = (): ReactElement => {

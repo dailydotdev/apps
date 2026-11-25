@@ -3,10 +3,9 @@ import type {
   SourceFeatures,
 } from '@dailydotdev/shared/src/graphql/sources';
 
-// Parked: the jobs and perks flags join SourceFeatures in
+// Parked: the perks flag joins SourceFeatures in
 // graphql/sources.ts when the feature ships.
 export type ParkedSourceFeatures = SourceFeatures & {
-  jobs?: boolean | null;
   perks?: boolean | null;
 };
 

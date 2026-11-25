@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
-import type { NextSeoProps } from 'next-seo';
+import React, { useEffect, useState } from 'react';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -23,11 +24,19 @@ import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/
 
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { CompanyPageFromWebsite } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageFromWebsite';
+import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads/lib/checkoutAttribution';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import MainLayout from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { StartupsHotjar } from '../../components/Pixels';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seoTitles = getPageSeoTitles('Create your Squad');
+// /squads/new?company=1 is the free company page form, not a Squad
+const companySeoTitles = getPageSeoTitles('Set up your company page');
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
@@ -36,13 +45,20 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const NewSquad = (): ReactElement => {
+const NewSquad = (): ReactElement | null => {
   const [selectedChannel, setSelectedChannel] = useState<string | null>();
   const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { onSave } = useSlackConnectSourceMutation();
   const shouldLoadIntegration = query?.fs && !query?.error;
   const integrationId = query?.iid as string;
+
+  // The /startups ad source, kept for the checkout when the page upgrades
+  useEffect(() => {
+    if (isRouteReady && query.company) {
+      saveCheckoutAttribution(query);
+    }
+  }, [isRouteReady, query]);
 
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: async (squad) => {
@@ -76,7 +92,26 @@ const NewSquad = (): ReactElement => {
     !isRouteReady ||
     (isIntegrationLoading && !!shouldLoadIntegration)
   ) {
-    return <MangeSquadPageSkeleton />;
+    // The company page funnel opens on a blank page, like the checkout, not
+    // on the Squad form's skeleton
+    return query.company ? null : <MangeSquadPageSkeleton />;
+  }
+
+  if (query.company) {
+    return (
+      <>
+        <NextSeo
+          {...seo}
+          title={companySeoTitles.title}
+          openGraph={{ ...seo.openGraph, ...companySeoTitles.openGraph }}
+        />
+        <CompanyPageFromWebsite />
+        <PromptElement />
+        <Toast autoDismissNotifications />
+        {/* The landing CTAs open here, so the recording carries on from /startups/ */}
+        <StartupsHotjar />
+      </>
+    );
   }
 
   if (!user) {
@@ -126,7 +161,37 @@ const NewSquad = (): ReactElement => {
   );
 };
 
-NewSquad.getLayout = getMainLayout;
+// The company page path is a focused funnel page, with no app header or
+// sidebar, like the Startups checkout.
+const NewSquadLayout = ({
+  children,
+  layoutProps,
+}: {
+  children: ReactElement;
+  layoutProps?: MainLayoutProps;
+}): ReactElement | null => {
+  const { isReady, query, asPath } = useRouter();
+
+  if (!isReady) {
+    return null;
+  }
+
+  if (query.company) {
+    return children;
+  }
+
+  return (
+    <MainLayout {...layoutProps} activePage={asPath}>
+      {children}
+    </MainLayout>
+  );
+};
+
+NewSquad.getLayout = (
+  page: ReactElement,
+  _: unknown,
+  layoutProps?: MainLayoutProps,
+) => <NewSquadLayout layoutProps={layoutProps}>{page}</NewSquadLayout>;
 NewSquad.layoutProps = { seo };
 
 export default NewSquad;

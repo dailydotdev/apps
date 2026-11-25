@@ -51,6 +51,14 @@ const getErrorMessage = (error: unknown): string =>
   (error as GraphQLError)?.response?.errors?.[0]?.message ||
   labels.error.generic;
 
+export interface UsePicksEditorParams {
+  origin?: Origin;
+  /** The picks page the user came from; fills a thin suggestion list */
+  fromPicksId?: string;
+  /** A post from that page to preselect, with its note field focused */
+  addPostId?: string;
+}
+
 export interface UsePicksEditor {
   rows: PickRowData[];
   isLoading: boolean;
@@ -63,6 +71,8 @@ export interface UsePicksEditor {
   selectedIds: string[];
   notes: Record<string, string>;
   showLimitHint: boolean;
+  /** The preselected post, whose note field should take focus */
+  focusNotePostId: string | null;
   isSelected: (postId: string) => boolean;
   toggle: (row: PickRowData) => void;
   setNote: (postId: string, note: string) => void;
@@ -72,7 +82,9 @@ export interface UsePicksEditor {
 
 export const usePicksEditor = ({
   origin,
-}: { origin?: Origin } = {}): UsePicksEditor => {
+  fromPicksId,
+  addPostId,
+}: UsePicksEditorParams = {}): UsePicksEditor => {
   const { user, isAuthReady } = useAuthContext();
   const client = useQueryClient();
   const { logEvent } = useLogContext();
@@ -88,12 +100,16 @@ export const usePicksEditor = ({
     data: suggestions,
     isError: isSuggestionsError,
     refetch: refetchSuggestions,
-  } = useQuery(picksSuggestionsQueryOptions(user));
+  } = useQuery(picksSuggestionsQueryOptions(user, fromPicksId));
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [showLimitHint, setShowLimitHint] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const prefilled = useRef(false);
+  // State, not a ref: the add-on selection below must see the prefilled
+  // selection, so it waits for the render after the prefill.
+  const [isPrefilled, setIsPrefilled] = useState(false);
+  const [focusNotePostId, setFocusNotePostId] = useState<string | null>(null);
+  const added = useRef(false);
   const started = useRef(false);
   const loggedNotes = useRef<Record<string, string>>({});
   // A failed background refetch keeps the cached data and flips the status to
@@ -116,10 +132,10 @@ export const usePicksEditor = ({
   const isEdit = !!currentPicks;
 
   useEffect(() => {
-    if (prefilled.current || !isCurrentFetched) {
+    if (isPrefilled || !isCurrentFetched) {
       return;
     }
-    prefilled.current = true;
+    setIsPrefilled(true);
     if (!currentPicks) {
       return;
     }
@@ -132,7 +148,7 @@ export const usePicksEditor = ({
         items.filter((item) => item.note).map((i) => [i.post.id, i.note]),
       ) as Record<string, string>,
     );
-  }, [isCurrentFetched, currentPicks]);
+  }, [isPrefilled, isCurrentFetched, currentPicks]);
 
   useEffect(() => {
     if (started.current || !isAuthReady || !user || !isCurrentFetched) {
@@ -164,6 +180,30 @@ export const usePicksEditor = ({
 
   const reasonLog = (row: PickRowData) =>
     JSON.stringify({ post_id: row.post.id, reason: row.reason });
+
+  // "Add to my picks" from a picks page: preselect that post once the list
+  // and the current picks are in, or show the limit hint if 5 are picked.
+  useEffect(() => {
+    if (added.current || !addPostId || !isPrefilled || isLoading || isError) {
+      return;
+    }
+    added.current = true;
+    const row = rows.find((item) => item.post.id === addPostId);
+    if (!row) {
+      return;
+    }
+    if (selectedIds.includes(addPostId)) {
+      setFocusNotePostId(addPostId);
+      return;
+    }
+    if (selectedIds.length >= PICKS_MAX_ITEMS) {
+      setShowLimitHint(true);
+      return;
+    }
+    setSelectedIds((ids) => [...ids, addPostId]);
+    setFocusNotePostId(addPostId);
+    logEvent({ event_name: LogEvent.SelectPick, extra: reasonLog(row) });
+  }, [addPostId, isPrefilled, isLoading, isError, rows, selectedIds, logEvent]);
 
   const toggle = useCallback(
     (row: PickRowData) => {
@@ -224,6 +264,7 @@ export const usePicksEditor = ({
           count: items.length,
           notes_count: items.filter((item) => !!item.note).length,
           is_edit: isEdit,
+          origin,
         }),
       });
       client.invalidateQueries({
@@ -278,6 +319,7 @@ export const usePicksEditor = ({
     selectedIds,
     notes,
     showLimitHint,
+    focusNotePostId,
     isSelected: (postId) => selectedIds.includes(postId),
     toggle,
     setNote,

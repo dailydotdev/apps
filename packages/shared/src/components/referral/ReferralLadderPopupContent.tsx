@@ -31,6 +31,24 @@ import { LogEvent } from '../../lib/log';
 
 export const REFERRAL_LADDER_POPUP_TITLE = 'Invite friends, get Plus';
 
+const getReferralLadderSubtitle = ({
+  copied,
+  hasPendingRewards,
+}: {
+  copied: boolean;
+  hasPendingRewards: boolean;
+}): string => {
+  if (copied) {
+    return 'Invite copied. Paste it to a friend.';
+  }
+
+  if (hasPendingRewards) {
+    return "Some rewards need a quick check before they're added.";
+  }
+
+  return 'Friends count as soon as they sign up with your link.';
+};
+
 interface ReferralLadderPopupContentProps extends WithClassNameProps {
   logTargetId: TargetId;
   logTargetType: TargetType;
@@ -45,8 +63,14 @@ export const ReferralLadderPopupContent = ({
   showShareOptions = true,
   className,
 }: ReferralLadderPopupContentProps): ReactElement => {
-  const { referredCount, steps, friends, nextStep, remainingInvites } =
-    useReferralLadder();
+  const {
+    referredCount,
+    steps,
+    friends,
+    nextStep,
+    remainingInvites,
+    hasPendingRewards,
+  } = useReferralLadder();
   const { url } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
@@ -81,20 +105,19 @@ export const ReferralLadderPopupContent = ({
               referredCount,
               nextStep,
               remainingInvites,
+              hasPendingRewards,
             })}
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            {copied
-              ? 'Invite copied. Paste it to a friend.'
-              : 'Friends count as soon as they sign up with your link.'}
+            {getReferralLadderSubtitle({ copied, hasPendingRewards })}
           </Typography>
         </div>
       </div>
 
-      <ReferralLadderRewards steps={steps} />
+      <ReferralLadderRewards steps={steps} referredCount={referredCount} />
 
       {showShareOptions && (
         <>

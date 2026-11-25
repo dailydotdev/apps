@@ -1,7 +1,8 @@
-import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import type { UserLeaderboard } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   HIGHEST_LEVEL_QUERY,
+  LEADERBOARD_LIST_LIMIT,
   LEADERBOARD_QUERY,
   LeaderboardType,
   MOST_QUESTS_COMPLETED_LIMIT,
@@ -63,12 +64,18 @@ describe('leaderboard static props', () => {
 
     const result = await getUsersStaticProps();
 
+    expect(mockRequest).toHaveBeenCalledWith(LEADERBOARD_QUERY, {
+      limit: LEADERBOARD_LIST_LIMIT,
+    });
     expect(result).toMatchObject({
       props: {
-        highestLevel: [],
-        isHighestLevelSupported: false,
+        boards: { highestReputation: [] },
+        companies: [],
       },
     });
+    expect(
+      (result as { props: { boards: Record<string, unknown> } }).props.boards,
+    ).not.toHaveProperty(LeaderboardType.HighestLevel);
   });
 
   it('should include highest-level data when schema is supported', async () => {
@@ -82,8 +89,8 @@ describe('leaderboard static props', () => {
           image: '',
           permalink: '/users/user-1',
           createdAt: new Date().toISOString(),
-          providers: [],
-          balance: { amount: 0 },
+          bio: '',
+          reputation: 0,
         },
         level: {
           level: 10,
@@ -108,10 +115,12 @@ describe('leaderboard static props', () => {
 
     const result = await getUsersStaticProps();
 
+    expect(mockRequest).toHaveBeenCalledWith(HIGHEST_LEVEL_QUERY, {
+      limit: LEADERBOARD_LIST_LIMIT,
+    });
     expect(result).toMatchObject({
       props: {
-        highestLevel,
-        isHighestLevelSupported: true,
+        boards: { highestLevel },
       },
     });
   });

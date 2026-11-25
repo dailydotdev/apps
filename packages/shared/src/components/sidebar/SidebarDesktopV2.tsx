@@ -47,7 +47,7 @@ import {
 } from './common';
 import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
-import { mergeRailOrder } from './railOrder';
+import { mergeRailOrder, replaceRailItem } from './railOrder';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -99,12 +99,22 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { TooltipLinkWrapper } from '../tooltip/TooltipLinkWrapper';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
+import { PatchyRailIcon } from '../../features/patchy/PatchyRailIcon';
+import { PatchyOffer } from '../../features/patchy/PatchyOffer';
+import { PatchyPanel } from '../../features/patchy/PatchyPanel';
+import { getPatchyConfig } from '../../features/patchy/patchyConfig';
+import { usePatchyEnabled } from '../../features/patchy/usePatchyEnabled';
+import { usePatchyRail } from '../../features/patchy/usePatchyRail';
+import { PatchyPostModal } from '../../features/patchy/PatchyPostModal';
+import { getStreakGoalCopy } from '../../lib/streakGoal';
+import { LogEvent, TargetType } from '../../lib/log';
 import {
   SidebarShortcutsDock,
   useLegacyShortcutsMigration,
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
 import { RailMoreMenu } from './RailMoreMenu';
+import { SidebarCountBadge } from './SidebarCountBadge';
 import {
   SidebarDragStateProvider,
   useSidebarDragState,
@@ -113,14 +123,19 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
-import { SignalIcon } from '../icons/Signal';
-import { LfgSection } from './sections/LfgSection';
-import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
+import { MailIcon } from '../icons/Mail';
+import { MessagesSection } from './sections/MessagesSection';
+import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
+import { useUnreadMessagesCount } from '../../features/messages/hooks/useUnreadMessagesCount';
+import { isDmAvailable } from '../../features/messages/transport';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { getUnreadText } from '../notifications/utils';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Link from '../utilities/Link';
 import { SharedFeedPage, HorizontalSeparator } from '../utilities';
 import {
   appsUrl,
+  boostManagerUrl,
   businessWebsiteUrl,
   docs,
   downloadBrowserExtension,
@@ -198,6 +213,12 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'You',
   },
   {
+    // Patchy's own button above the utilities, not a tab. No icon, like
+    // Profile: listed so the panel title resolves.
+    id: SidebarCategory.Patchy,
+    label: 'Patchy',
+  },
+  {
     id: SidebarCategory.Squads,
     label: 'Squads',
     defaultPath: `${webappUrl}squads/discover`,
@@ -206,12 +227,11 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     ),
   },
   {
-    id: SidebarCategory.Lfg,
-    label: 'LFG',
-    panelTitle: 'Looking for group',
-    defaultPath: `${webappUrl}lfg`,
+    id: SidebarCategory.Messages,
+    label: 'Messages',
+    defaultPath: `${webappUrl}messages`,
     icon: (active) => (
-      <SignalIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
+      <MailIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -243,6 +263,9 @@ const SEP_PX = 1 + 24; // framing separator `h-px` + its `my-3`
 // order. It matches the key the panel preview already uses for the create panel.
 const RAIL_CREATE_ID = 'create';
 type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
+// Looking for group had its own tab before it moved into Messages. Saved
+// orders still hold its id, and Messages takes the slot the user gave it.
+const LEGACY_LFG_RAIL_ID = 'lfg' as RailItemId;
 // Rail items that never fold into "More" — they keep their slot at every
 // viewport height. Both are "you" controls rather than browsing destinations:
 // New post is the rail's primary action, and the avatar is the account entry
@@ -253,6 +276,8 @@ const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
 // Home sits above the tab strip rather than in it, so the rail's selection is
 // "Home, or one of the tabs" rather than a category on its own.
 const RAIL_HOME = 'home' as const;
+
+const PATCHY_RAIL_BUTTON_ID = 'sidebar-patchy';
 type RailSelection = SidebarCategoryId | typeof RAIL_HOME;
 
 const railButtonClass =
@@ -379,7 +404,7 @@ const SortableRailTab = ({
 interface RailHoverCardProps {
   label: string;
   children: ReactNode;
-  panel: ReactElement;
+  panel: ReactElement | ((close: () => void) => ReactElement);
   enabled?: boolean;
   alignOffset?: number;
 }
@@ -421,6 +446,8 @@ const RailHoverCard = ({
     suppressOpenRef.current = false;
   }, []);
 
+  const close = useCallback(() => setOpen(false), []);
+
   if (!enabled) {
     return <>{children}</>;
   }
@@ -447,7 +474,9 @@ const RailHoverCard = ({
           collisionPadding={12}
           className="rail-popup-panel z-tooltip"
         >
-          <RailHoverPanel title={label}>{panel}</RailHoverPanel>
+          <RailHoverPanel title={label}>
+            {typeof panel === 'function' ? panel(close) : panel}
+          </RailHoverPanel>
         </HoverCardPrimitive.Content>
       </HoverCardPrimitive.Portal>
     </HoverCardPrimitive.Root>
@@ -604,7 +633,6 @@ const SidebarSettingsButton = (): ReactElement => {
   const { logout } = useAuthContext();
   const { isOpen, onUpdate, wrapHandler } =
     useInteractivePopup(RAIL_POPUP_GROUP);
-  const { openModal } = useLazyModal();
   const canPurchaseCores = useCanPurchaseCores();
 
   const settingsItems: ProfileSectionItemProps[] = [
@@ -621,9 +649,9 @@ const SidebarSettingsButton = (): ReactElement => {
     ...(canPurchaseCores
       ? [
           {
-            title: 'Ads dashboard',
+            title: 'Boost manager',
             icon: TrendingIcon,
-            onClick: () => openModal({ type: LazyModal.AdsDashboard }),
+            href: boostManagerUrl,
           } satisfies ProfileSectionItemProps,
         ]
       : []),
@@ -780,15 +808,22 @@ export const SidebarDesktopV2 = ({
     loadedSettings,
     optOutQuestSystem,
     optOutReadingStreak,
-    isGamificationEnabled,
   } = useSettingsContext();
   const { isLoggedIn, user } = useAuthContext();
-  // The reading-streak rail tab: signed-in only, and hidden entirely when all
-  // gamification is off; when only streaks are off (but quests/levels/etc.
-  // remain) it stays but reads as the broader "Quests" / Game Center tab
-  // instead of a streak.
-  const showGameCenterTab = isLoggedIn && isGamificationEnabled;
-  const { isEnabled: showLfgTab } = useLfgEnabled();
+  // The reading-streak rail tab: signed-in only, and hidden when its panel
+  // would be empty (both streaks and quests off); when only streaks are off it
+  // stays but reads as the broader "Quests" / Game Center tab instead of a
+  // streak.
+  const showGameCenterTab =
+    isLoggedIn && (!optOutReadingStreak || !optOutQuestSystem);
+  // The tab paints with the other signed-in tabs, from the cached session.
+  // useMessagesEnabled waits for boot to land, which inserted the tab late and
+  // pushed the rail down. Only the count waits for it.
+  const showMessagesTab = isLoggedIn && isDmAvailable;
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
+  const { total: unreadMessagesCount } =
+    useUnreadMessagesCount(isMessagesEnabled);
+  const { unreadCount: unreadNotificationsCount } = useNotificationContext();
   const isStreakTabAStreak = !optOutReadingStreak;
   // Short label under the rail tab icon (and the More-menu row): "Streak" /
   // "Quests" — kept compact for the narrow rail (the tab usually shows the day
@@ -829,11 +864,29 @@ export const SidebarDesktopV2 = ({
   // day count. Reuses the same state machine the avatar streak ring used.
   const {
     isEnabled: isStreakEnabled,
+    isLoading: isStreakLoading,
+    streak: streakData,
     state: streakState,
     count: streakCount,
     hasReadToday: streakReadToday,
     copy: streakCopy,
+    goalProgress: streakGoalProgress,
   } = useStreakRingState();
+  // Patchy, the streak companion, has his own spot above the utilities with
+  // his own panel: he lives and reacts inside his circle, and leans out only
+  // to suggest something.
+  const isPatchyFlagOn = usePatchyEnabled({
+    shouldEvaluate: showGameCenterTab && isStreakEnabled,
+  });
+  const isPatchyEnabled =
+    isPatchyFlagOn && showGameCenterTab && isStreakTabAStreak;
+  const patchy = usePatchyRail({
+    isEnabled: isPatchyEnabled,
+    isStreakLoading,
+    state: streakState,
+    hasReadToday: streakReadToday,
+    lastViewAt: streakData?.lastViewAt,
+  });
 
   // The reorderable rail items: the tabs (each opens a panel), including the
   // avatar/"You" tab, plus New post — all draggable into any order and
@@ -846,7 +899,7 @@ export const SidebarDesktopV2 = ({
         // tabs fold into "More" from the end, so this keeps it on short rails.
         isLoggedIn ? SidebarCategory.Notifications : null,
         SidebarCategory.Squads,
-        showLfgTab ? SidebarCategory.Lfg : null,
+        showMessagesTab ? SidebarCategory.Messages : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
         // The avatar sits at the end of the tabs, directly above New post —
@@ -854,7 +907,7 @@ export const SidebarDesktopV2 = ({
         isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
-    [isLoggedIn, showGameCenterTab, showLfgTab],
+    [isLoggedIn, showGameCenterTab, showMessagesTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     RailItemId[]
@@ -882,7 +935,11 @@ export const SidebarDesktopV2 = ({
   const railOrder = useMemo(
     () =>
       mergeRailOrder(
-        railOrderOverride ?? storedRailOrder ?? [],
+        replaceRailItem(
+          railOrderOverride ?? storedRailOrder ?? [],
+          LEGACY_LFG_RAIL_ID,
+          SidebarCategory.Messages,
+        ),
         reorderableRailItems,
       ),
     [reorderableRailItems, storedRailOrder, railOrderOverride],
@@ -1583,6 +1640,15 @@ export const SidebarDesktopV2 = ({
     exitSafeZone();
   }, [exitSafeZone]);
 
+  // Closes the collapsed-rail peek from inside its panel, and keeps it closed
+  // until the pointer leaves the rail, like the collapse toggle does.
+  const closeHoverPeek = useCallback(() => {
+    peekSuppressedRef.current = true;
+    setIsRailHovered(false);
+    setHoveredCategory(null);
+    exitSafeZone();
+  }, [exitSafeZone]);
+
   // --- Prediction cone ---------------------------------------------------
   // `commitPreview` maps a rail trigger key to the panel preview it shows.
   // Hovering a panel-bearing icon is also what opens the collapsed peek — the
@@ -1728,7 +1794,10 @@ export const SidebarDesktopV2 = ({
 
   useEffect(() => () => exitSafeZone(), [exitSafeZone]);
 
-  const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
+  const renderCategorySection = (
+    category: SidebarCategoryId,
+    onClose?: () => void,
+  ): ReactElement => {
     if (category === SidebarCategory.Squads) {
       return (
         <NetworkSection
@@ -1748,16 +1817,26 @@ export const SidebarDesktopV2 = ({
     if (category === SidebarCategory.Notifications) {
       return <NotificationsRailPanel />;
     }
-    if (category === SidebarCategory.Lfg) {
+    if (category === SidebarCategory.Messages) {
       return (
-        <LfgSection
+        <MessagesSection
           {...defaultRenderSectionProps}
           isItemsButton={isNavButtons ?? false}
         />
       );
     }
     if (category === SidebarCategory.GameCenter) {
-      return <StreakQuestsSection />;
+      return <StreakQuestsSection onClose={onClose} />;
+    }
+    if (category === SidebarCategory.Patchy) {
+      return (
+        <PatchyPanel
+          patchy={patchy}
+          state={streakState}
+          hasReadToday={streakReadToday}
+          onClose={onClose}
+        />
+      );
     }
     if (category === SidebarCategory.Profile) {
       return (
@@ -1829,6 +1908,7 @@ export const SidebarDesktopV2 = ({
           state={streakState}
           hasReadToday={streakReadToday}
           selected={isSelected}
+          goalProgress={streakGoalProgress?.ratio}
         />
       );
     } else if (isStreakTab && !isStreakTabAStreak) {
@@ -1844,11 +1924,16 @@ export const SidebarDesktopV2 = ({
     }
     const labelText =
       showStreakBadge && streakCount > 0 ? `${streakCount}` : displayLabel;
-    const ariaLabel = showStreakBadge ? streakCopy : panelTitle;
+    let ariaLabel = panelTitle;
+    if (showStreakBadge) {
+      ariaLabel = streakGoalProgress
+        ? `${streakCopy} ${getStreakGoalCopy(streakGoalProgress)}`
+        : streakCopy;
+    }
     return (
       <RailHoverCard
         label={panelTitle}
-        panel={renderCategorySection(category.id)}
+        panel={(close) => renderCategorySection(category.id, close)}
         enabled={!isExpanded}
       >
         <button
@@ -1859,7 +1944,9 @@ export const SidebarDesktopV2 = ({
           aria-controls="sidebar-context-panel"
           aria-label={ariaLabel}
           aria-selected={isSelected}
-          onClick={() => onSelectCategory(category.id)}
+          onClick={() => {
+            onSelectCategory(category.id);
+          }}
           onMouseEnter={() => {
             onPrefetchCategory(category.id);
             commitPreview(category.id);
@@ -1900,8 +1987,73 @@ export const SidebarDesktopV2 = ({
                 {claimableQuestCount}
               </Bubble>
             )}
+            {category.id === SidebarCategory.Messages &&
+              unreadMessagesCount > 0 && (
+                <Bubble className={railCountBubbleClass}>
+                  {getUnreadText(unreadMessagesCount)}
+                </Bubble>
+              )}
           </span>
           {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
+        </button>
+      </RailHoverCard>
+    );
+  };
+
+  // Patchy's own spot, right above the utilities (the gift). Like a tab it
+  // previews his panel on hover and pins it on click, but he has no page, so
+  // the panel stays until you navigate. He lives and reacts in this circle.
+  const renderPatchyButton = (): ReactElement => {
+    const isSelected = selectedRailItem === SidebarCategory.Patchy;
+    const isPreviewing =
+      !isSelected && hoveredCategory === SidebarCategory.Patchy;
+    return (
+      <RailHoverCard
+        label="Patchy"
+        panel={(close) => renderCategorySection(SidebarCategory.Patchy, close)}
+        enabled={!isExpanded}
+      >
+        <button
+          type="button"
+          id={PATCHY_RAIL_BUTTON_ID}
+          data-sidebar-preview={SidebarCategory.Patchy}
+          aria-controls="sidebar-context-panel"
+          aria-label={`Patchy is ${getPatchyConfig().moods[patchy.mood].label}`}
+          aria-pressed={isSelected}
+          onClick={() => {
+            logEvent({
+              event_name: LogEvent.Click,
+              target_type: TargetType.Patchy,
+              extra: JSON.stringify({ origin: 'rail' }),
+            });
+            onSelectCategory(SidebarCategory.Patchy);
+          }}
+          onMouseEnter={() => commitPreview(SidebarCategory.Patchy)}
+          onMouseLeave={(event) =>
+            handlePreviewLeave(SidebarCategory.Patchy, event)
+          }
+          className={classNames(
+            railTabClass,
+            'group/patchytab',
+            isSelected && 'bg-surface-float !text-text-primary',
+            isPreviewing && 'bg-surface-hover text-text-primary',
+          )}
+        >
+          <span className="relative flex items-center justify-center">
+            <PatchyRailIcon
+              face={patchy.face}
+              motion={patchy.motion}
+              motionKey={patchy.motionKey}
+              emote={patchy.emote}
+              emoteCount={patchy.emoteCount}
+              emoteKey={patchy.emoteKey}
+              state={streakState}
+              hasReadToday={streakReadToday}
+              selected={isSelected}
+              showStreak={false}
+            />
+          </span>
+          {!isCompact && <span className={railTabLabelClass}>Patchy</span>}
         </button>
       </RailHoverCard>
     );
@@ -1959,7 +2111,10 @@ export const SidebarDesktopV2 = ({
         isItemsButton={false}
       />
     ) : (
-      renderCategorySection(activeCategory)
+      renderCategorySection(
+        activeCategory,
+        isHoverExpanded ? closeHoverPeek : undefined,
+      )
     );
 
   const activeCategoryConfig = sidebarCategories.find(
@@ -2111,6 +2266,20 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
+  const getTabUnreadCount = (id: SidebarCategoryId): number => {
+    if (id === SidebarCategory.Notifications) {
+      return unreadNotificationsCount ?? 0;
+    }
+    if (id === SidebarCategory.Messages) {
+      return unreadMessagesCount;
+    }
+    return 0;
+  };
+  const overflowUnreadCount = overflowTabIds.reduce(
+    (total, id) => total + getTabUnreadCount(id),
+    0,
+  );
+
   // Content of the rail "More" menu: each overflowed tab as a navigable row,
   // then a Shortcuts category listing every pinned shortcut. Only the tabs that
   // didn't fit inline are listed here — the inline tabs aren't repeated.
@@ -2126,6 +2295,7 @@ export const SidebarDesktopV2 = ({
           label: 'Notifications',
           href: `${webappUrl}notifications`,
           icon: <BellIcon size={IconSize.Small} aria-hidden />,
+          count: getTabUnreadCount(id),
         };
       }
       if (id === SidebarCategory.GameCenter) {
@@ -2149,6 +2319,7 @@ export const SidebarDesktopV2 = ({
         label: category?.label ?? '',
         href: category?.defaultPath ?? webappUrl,
         icon: category?.icon?.(false) ?? null,
+        count: getTabUnreadCount(id),
       };
     });
     return (
@@ -2159,7 +2330,10 @@ export const SidebarDesktopV2 = ({
               <span className="flex size-5 items-center justify-center">
                 {row.icon}
               </span>
-              <Typography type={TypographyType.Callout}>{row.label}</Typography>
+              <Typography type={TypographyType.Callout} className="flex-1">
+                {row.label}
+              </Typography>
+              {!!row.count && <SidebarCountBadge count={row.count} />}
             </a>
           </Link>
         ))}
@@ -2246,6 +2420,16 @@ export const SidebarDesktopV2 = ({
               railDividerBorderClass,
               railSeparatorLeft,
             )}
+          />
+        )}
+        {isPatchyEnabled && <PatchyPostModal />}
+        {patchy.assistant.offer && (
+          <PatchyOffer
+            key={patchy.assistant.offer.id}
+            offer={patchy.assistant.offer}
+            anchorId={PATCHY_RAIL_BUTTON_ID}
+            onAnswer={patchy.assistant.onAnswer}
+            onQuiet={patchy.onQuiet}
           />
         )}
         {!isSettingsSelected && (
@@ -2517,11 +2701,16 @@ export const SidebarDesktopV2 = ({
               {/* The "More" tab: collects the overflowed tabs and (once the
                 inline dock can't fit) all the shortcuts, in one dropdown. */}
               {moreNeeded && (
-                <RailMoreMenu compact={isCompact}>
+                <RailMoreMenu
+                  compact={isCompact}
+                  unreadCount={overflowUnreadCount}
+                >
                   {renderMoreMenuContent(overflowTabIds)}
                 </RailMoreMenu>
               )}
             </div>
+
+            {isPatchyEnabled && renderPatchyButton()}
 
             {/* Utility actions (not tabs) — Invite/Support/Settings — fixed at
               the bottom, outside the scroll. They open their own popups, so this

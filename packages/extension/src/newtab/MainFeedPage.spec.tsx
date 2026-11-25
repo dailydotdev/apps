@@ -4,7 +4,6 @@ import { render, screen } from '@testing-library/react';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
-import { useFeedWidgetShortcuts } from '@dailydotdev/shared/src/features/feedWidgets/feedState';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import MainFeedPage from './MainFeedPage';
 import { loginHref, onboardingHref } from './onboardingHref';
@@ -76,10 +75,6 @@ jest.mock(
   }),
 );
 
-jest.mock('@dailydotdev/shared/src/features/feedWidgets/feedState', () => ({
-  useFeedWidgetShortcuts: jest.fn(),
-}));
-
 jest.mock('@dailydotdev/shared/src/contexts/DndContext', () => ({
   useDndContext: () => ({
     isActive: false,
@@ -117,15 +112,6 @@ jest.mock('../companion/useCompanionSettings', () => ({
 const mockUseLaptopLayout = useLaptopLayout as jest.MockedFunction<
   typeof useLaptopLayout
 >;
-const mockUseFeedWidgetShortcuts =
-  useFeedWidgetShortcuts as jest.MockedFunction<typeof useFeedWidgetShortcuts>;
-
-beforeEach(() => {
-  mockUseFeedWidgetShortcuts.mockReturnValue({
-    hasShortcuts: false,
-    isPending: false,
-  });
-});
 
 const loggedOut = {
   user: undefined,
@@ -209,26 +195,5 @@ describe('MainFeedPage login strip', () => {
     expect(
       screen.queryByText('Sign in to personalize your feed'),
     ).not.toBeInTheDocument();
-  });
-
-  it('leaves shortcuts to the rail where its Shortcuts widget shows them', () => {
-    mockUseFeedWidgetShortcuts.mockReturnValue({
-      hasShortcuts: true,
-      isPending: false,
-    });
-    renderPage({ auth: loggedIn, isLaptop: false });
-
-    expect(screen.queryByTestId('shortcut-links')).not.toBeInTheDocument();
-    expect(screen.getByTestId('shortcuts')).toBeEmptyDOMElement();
-  });
-
-  it('holds the row while the rail is still unknown', () => {
-    mockUseFeedWidgetShortcuts.mockReturnValue({
-      hasShortcuts: false,
-      isPending: true,
-    });
-    renderPage({ auth: loggedIn, isLaptop: false });
-
-    expect(screen.queryByTestId('shortcut-links')).not.toBeInTheDocument();
   });
 });

@@ -18,6 +18,7 @@ import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { ToolOfficialSource } from '@dailydotdev/shared/src/graphql/tools';
+import { showsVerifiedBadge } from '@dailydotdev/shared/src/features/squads/lib/features';
 
 interface ToolOfficialSquadCardProps {
   source: ToolOfficialSource;
@@ -51,7 +52,7 @@ export const ToolOfficialSquadCard = ({
           <Typography type={TypographyType.Callout} bold truncate>
             {source.name}
           </Typography>
-          <VerifiedSquadBadge />
+          {showsVerifiedBadge(source) && <VerifiedSquadBadge />}
         </div>
         {source.description && (
           <Typography

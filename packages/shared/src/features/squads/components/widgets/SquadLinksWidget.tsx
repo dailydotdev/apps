@@ -1,13 +1,22 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { Squad } from '../../../../graphql/sources';
 import { IconSize } from '../../../../components/Icon';
 import { LinkIcon } from '../../../../components/icons';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import { SquadWidget } from './SquadWidget';
-import { hasSquadFeature } from '../../lib/features';
-import { getDisplayUrl, getSquadLinkMeta, squadLinkRel } from '../../lib/links';
+import { useSquadPageContext } from '../../SquadPageContext';
+import { isStaffViewer } from '../../lib/viewer';
+import { getStartupsCheckoutUrl } from '../../lib/routes';
+import { canSetSquadWebsite, hasSquadFeature } from '../../lib/features';
+import {
+  getDisplayUrl,
+  getSquadLinkMeta,
+  getSquadWebsiteRel,
+  squadLinkRel,
+} from '../../lib/links';
 
 interface SquadLinksWidgetProps {
   squad: Squad;
@@ -17,9 +26,11 @@ export const SquadLinksWidget = ({
   squad,
 }: SquadLinksWidgetProps): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const links = squad.links ?? [];
+  const { viewer, isViewerKnown } = useSquadPageContext();
+  const isStaff = isViewerKnown && isStaffViewer(viewer);
+  const links = hasSquadFeature(squad, 'links') ? (squad.links ?? []) : [];
 
-  if (!hasSquadFeature(squad, 'links') || (!squad.website && !links.length)) {
+  if (!canSetSquadWebsite(squad) || (!squad.website && !links.length)) {
     return null;
   }
 
@@ -37,21 +48,26 @@ export const SquadLinksWidget = ({
             url: squad.website,
             label: getDisplayUrl(squad.website),
             Icon: LinkIcon,
+            rel: getSquadWebsiteRel(squad),
           },
         ]
       : []),
-    ...links.map((url) => ({ url, ...getSquadLinkMeta(url) })),
+    ...links.map((url) => ({
+      url,
+      ...getSquadLinkMeta(url),
+      rel: squadLinkRel,
+    })),
   ];
 
   return (
     <SquadWidget title="Links">
       <ul className="mt-2 flex flex-col gap-1">
-        {rows.map(({ url, label, Icon }) => (
+        {rows.map(({ url, label, Icon, rel }) => (
           <li key={url}>
             <a
               href={url}
               target="_blank"
-              rel={squadLinkRel}
+              rel={rel}
               onClick={() => onClick(url)}
               className="group flex items-center gap-2 py-1 text-text-secondary typo-callout hover:text-text-primary"
             >
@@ -59,10 +75,30 @@ export const SquadLinksWidget = ({
                 <Icon size={IconSize.Size16} />
               </span>
               <span className="min-w-0 flex-1 truncate">{label}</span>
+              {isStaff && (
+                <span
+                  className={classNames(
+                    'shrink-0 rounded-6 px-1.5 py-0.5 typo-caption2',
+                    rel.includes('nofollow')
+                      ? 'bg-surface-float text-text-tertiary'
+                      : 'bg-overlay-float-avocado text-accent-avocado-default',
+                  )}
+                >
+                  {rel.includes('nofollow') ? 'nofollow' : 'dofollow'}
+                </span>
+              )}
             </a>
           </li>
         ))}
       </ul>
+      {isStaff && rows.some(({ rel }) => rel.includes('nofollow')) && (
+        <a
+          href={getStartupsCheckoutUrl({ sourceId: squad.id })}
+          className="mt-2 text-text-tertiary typo-footnote hover:text-text-primary"
+        >
+          Get dofollow links on the Startup plan
+        </a>
+      )}
     </SquadWidget>
   );
 };

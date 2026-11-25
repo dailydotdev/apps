@@ -14,6 +14,7 @@ import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
+import { useTrackPostView } from '@dailydotdev/shared/src/hooks/post/useTrackPostView';
 import {
   getPostByIdKey,
   updatePostCache,
@@ -75,6 +76,12 @@ const Container = ({
 
 export const refreshTokenKey = ['refresh_token'];
 
+const requestProtocol = {
+  requestMethod: companionRequest,
+  fetchMethod: companionFetch,
+  isCompanion: true,
+};
+
 export default function Companion({
   postData,
   companionHelper,
@@ -123,12 +130,13 @@ export default function Companion({
   const [isDragging, setIsDragging] = useState(false);
   useQuery({
     queryKey: REQUEST_PROTOCOL_KEY,
-    queryFn: () => ({
-      requestMethod: companionRequest,
-      fetchMethod: companionFetch,
-      isCompanion: true,
-    }),
+    queryFn: () => requestProtocol,
+    // Seed the cache so hooks reading the protocol in this same render (the
+    // view below) proxy through the background instead of calling the API
+    // from the content script.
+    initialData: requestProtocol,
   });
+  useTrackPostView({ post });
   const [assetsLoadedDebounce] = useDebounceFn(() => setAssetsLoaded(true), 10);
   const routeChangedCallbackRef = useLogPageView();
 

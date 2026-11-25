@@ -16,10 +16,7 @@ import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
 import type { FeedOrigin } from '../../graphql/feed';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  featureFeedChips,
-  featureInterestAgent,
-} from '../../lib/featureManagement';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -36,11 +33,11 @@ interface ChipItem {
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
 
-export const chipBaseClass =
+const chipBaseClass =
   'shell-press shrink-0 rounded-10 border px-2.5 py-1.5 font-bold typo-callout';
-export const chipActiveClass =
+const chipActiveClass =
   'border-border-subtlest-tertiary bg-surface-float text-text-primary hover:bg-surface-hover';
-export const chipInactiveClass =
+const chipInactiveClass =
   'border-transparent text-text-tertiary hover:text-text-primary';
 
 interface UnifiedMobileFeedNavProps {
@@ -70,10 +67,6 @@ function UnifiedMobileFeedNav({
       shouldEvaluate: isLoggedIn,
     },
   );
-  const { value: showAgent } = useConditionalFeature({
-    feature: featureInterestAgent,
-    shouldEvaluate: isLoggedIn,
-  });
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
 
@@ -123,15 +116,6 @@ function UnifiedMobileFeedNav({
         href: `${webappUrl}feeds/new`,
         group: 'categories',
         isIconOnly: true,
-      });
-    }
-
-    if (isLoggedIn && showAgent) {
-      list.push({
-        id: 'agents',
-        label: 'Agents',
-        href: `${webappUrl}agent`,
-        group: 'rest',
       });
     }
 
@@ -213,7 +197,6 @@ function UnifiedMobileFeedNav({
     sortedFeeds,
     defaultFeedId,
     shouldHideGameCenter,
-    showAgent,
   ]);
 
   const activeId = useMemo(

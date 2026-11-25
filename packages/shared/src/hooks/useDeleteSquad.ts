@@ -10,6 +10,7 @@ import { LogEvent } from '../lib/log';
 import { ButtonColor } from '../components/buttons/Button';
 import { useToastNotification } from './useToastNotification';
 import { DEFAULT_ERROR } from '../graphql/common';
+import { isCompanyPage } from '../features/squads/lib/companyPage';
 
 interface UseDeleteSquadModal {
   onDeleteSquad: () => void;
@@ -44,20 +45,24 @@ export const useDeleteSquad = ({
   });
 
   const onDeleteSquad = useCallback(async () => {
+    const isCompany = isCompanyPage(squad);
+    const squadDescription = squad.active
+      ? `Deleting ${squad.name} means you and all Squad members will lose access to all posts that were shared in the Squad. Are you sure?`
+      : `Deleting your Squad will free up your handle and members you invited will not be able to join`;
     const options: PromptOptions = {
       title: `Delete ${squad.name}`,
-      description: squad.active
-        ? `Deleting ${squad.name} means you and all Squad members will lose access to all posts that were shared in the Squad. Are you sure?`
-        : `Deleting your Squad will free up your handle and members you invited will not be able to join`,
+      description: isCompany
+        ? `Deleting ${squad.name} removes the page and every post on it, for you and its members. Are you sure?`
+        : squadDescription,
       okButton: {
-        title: 'Yes, delete Squad',
+        title: isCompany ? 'Yes, delete page' : 'Yes, delete Squad',
         color: ButtonColor.Ketchup,
       },
       onConfirm: deleteSquadMutation,
     };
 
     await showPrompt(options);
-  }, [deleteSquadMutation, showPrompt, squad.active, squad.name]);
+  }, [deleteSquadMutation, showPrompt, squad]);
 
   return useMemo(
     () => ({ isPending, onDeleteSquad }),

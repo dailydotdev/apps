@@ -15,12 +15,13 @@ import { SourceMemberRole, SourceType } from './sources';
 import type {
   BasicSourceMember,
   Source,
+  SourceFeatures,
   SourceMember,
   SourcePermissions,
   Squad,
   SquadRule,
 } from './sources';
-import type { FeedData, PollOption, Post } from './posts';
+import type { FeedData, PollOption, Post, PostAgentViews } from './posts';
 import {
   RankingAlgorithm,
   SOURCE_FEED_QUERY,
@@ -39,6 +40,7 @@ import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
 import type { WarningReason } from '../features/squads/types';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
+import { getAdClickIds } from '../features/squads/lib/checkoutAttribution';
 
 type BaseSquadForm = Pick<
   Squad,
@@ -60,6 +62,9 @@ export enum PrivacyOption {
 
 export type SquadForm = BaseSquadForm & {
   status?: PrivacyOption;
+  company?: boolean;
+  /** A company page's website */
+  website?: string;
   file?: File;
   header?: File;
 };
@@ -178,7 +183,6 @@ export const SOURCES_QUERY = gql`
               }
             }
           }
-          referralUrl
         }
       }
     }
@@ -198,6 +202,10 @@ export const CREATE_SQUAD_MUTATION = gql`
     $postingMinReputation: Int
     $isPrivate: Boolean
     $categoryId: ID
+    $company: Boolean
+    $website: String
+    $fbclid: String
+    $twclid: String
   ) {
     createSquad(
       name: $name
@@ -210,6 +218,10 @@ export const CREATE_SQUAD_MUTATION = gql`
       postingMinReputation: $postingMinReputation
       isPrivate: $isPrivate
       categoryId: $categoryId
+      company: $company
+      website: $website
+      fbclid: $fbclid
+      twclid: $twclid
     ) {
       ...SourceBaseInfo
       members {
@@ -336,6 +348,41 @@ export const updateSquadLinks = async (
   return res.updateSquadLinks;
 };
 
+export const UPDATE_SQUAD_SETTINGS_MUTATION = gql`
+  mutation UpdateSquadSettings(
+    $sourceId: ID!
+    $showVerifiedBadge: Boolean
+    $hideAds: Boolean
+  ) {
+    updateSquadSettings(
+      sourceId: $sourceId
+      showVerifiedBadge: $showVerifiedBadge
+      hideAds: $hideAds
+    ) {
+      id
+      features {
+        showVerifiedBadge
+        hideAds
+      }
+    }
+  }
+`;
+
+export type SquadSettingsInput = Partial<
+  Pick<SourceFeatures, 'showVerifiedBadge' | 'hideAds'>
+>;
+
+export const updateSquadSettings = async ({
+  sourceId,
+  ...input
+}: SquadSettingsInput & { sourceId: string }): Promise<SquadSettingsInput> => {
+  const res = await gqlClient.request<{
+    updateSquadSettings: { features: SquadSettingsInput };
+  }>(UPDATE_SQUAD_SETTINGS_MUTATION, { sourceId, ...input });
+
+  return res.updateSquadSettings.features;
+};
+
 export const UPDATE_SQUAD_RULES_MUTATION = gql`
   mutation UpdateSquadRules($sourceId: ID!, $rules: [SquadRuleInput!]!) {
     updateSquadRules(sourceId: $sourceId, rules: $rules) {
@@ -421,6 +468,34 @@ export const squadLatestPostsQueryOptions = ({
   staleTime: StaleTime.Default,
 });
 
+export const SOURCE_REFERRAL_URL_QUERY = gql`
+  query SourceReferralUrl($id: ID!) {
+    source(id: $id) {
+      referralUrl
+    }
+  }
+`;
+
+/** The viewer's invite link. Shortening it is slow, so the squad query skips it. */
+export const squadReferralUrlQueryOptions = ({
+  user,
+  sourceId,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  sourceId?: string;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Squad, user, sourceId, 'referralUrl'),
+  queryFn: async (): Promise<string | null> => {
+    const res = await gqlClient.request<{
+      source: Pick<Squad, 'referralUrl'>;
+    }>(SOURCE_REFERRAL_URL_QUERY, { id: sourceId });
+
+    return res.source?.referralUrl ?? null;
+  },
+  enabled: !!user?.id && !!sourceId,
+  staleTime: StaleTime.OneDay,
+});
+
 const SQUAD_COVER_QUERY = gql`
   query SquadCover($id: ID!) {
     source(id: $id) {
@@ -461,6 +536,7 @@ export const SIMILAR_SQUADS_QUERY = gql`
       membersCount
       features {
         verified
+        showVerifiedBadge
       }
     }
   }
@@ -577,6 +653,8 @@ export const SQUAD_ANALYTICS_QUERY = gql`
       shares
       clicks
       upvotesRatio
+      agentViews
+      agentViewsBot
     }
   }
 `;
@@ -587,6 +665,48 @@ export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
       date
       impressions
       impressionsAds
+    }
+  }
+`;
+
+export const SQUAD_AGENT_ANALYTICS_QUERY = gql`
+  query SquadAgentAnalytics($sourceId: ID!) {
+    squadAnalytics(sourceId: $sourceId) {
+      id
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
+    }
+  }
+`;
+
+export const SQUAD_AGENT_ANALYTICS_HISTORY_QUERY = gql`
+  query SquadAgentAnalyticsHistory($sourceId: ID!) {
+    squadAnalyticsHistory(sourceId: $sourceId) {
+      date
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
     }
   }
 `;
@@ -645,6 +765,13 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       postingMinReputation
       membersCount
       createdAt
+      flags {
+        company
+      }
+      features {
+        verified
+        products
+      }
     }
   }
 `;
@@ -664,6 +791,8 @@ export type SquadStaticData = Pick<
   | 'permalink'
   | 'membersCount'
   | 'createdAt'
+  | 'flags'
+  | 'features'
 >;
 
 export const getSquadStaticFields = async (
@@ -890,6 +1019,44 @@ export const squadAnalyticsHistoryQueryOptions = ({
   };
 };
 
+export const squadAgentAnalyticsQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalytics, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalytics: SquadAgentAnalytics | null;
+      }>(SQUAD_AGENT_ANALYTICS_QUERY, { sourceId });
+
+      return result.squadAnalytics;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
+export const squadAgentAnalyticsHistoryQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalyticsHistory, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalyticsHistory: SquadAgentAnalyticsHistoryNode[];
+      }>(SQUAD_AGENT_ANALYTICS_HISTORY_QUERY, { sourceId });
+
+      return result.squadAnalyticsHistory;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
 export async function getSquadMembers(
   id: string,
 ): Promise<BasicSourceMember[]> {
@@ -933,6 +1100,10 @@ export interface SquadAnalytics {
   shares: number;
   clicks: number;
   upvotesRatio: number;
+  /** AI agent reads; null unless the plan includes them */
+  agentViews?: number | null;
+  /** AI crawler visits; null unless the plan includes them */
+  agentViewsBot?: number | null;
 }
 
 export interface SquadAnalyticsHistoryNode {
@@ -940,6 +1111,14 @@ export interface SquadAnalyticsHistoryNode {
   impressions: number;
   impressionsAds: number;
 }
+
+export type SquadAgentAnalytics = PostAgentViews & {
+  id: string;
+};
+
+export type SquadAgentAnalyticsHistoryNode = PostAgentViews & {
+  date: Date;
+};
 
 export interface SquadInvitationProps {
   token?: string;
@@ -1010,8 +1189,16 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
 });
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
-  const inputData: SharedSquadInput = formToInput(form);
-  const data = await gqlClient.request(CREATE_SQUAD_MUTATION, inputData);
+  const { description, ...inputData } = formToInput(form);
+  // The API rejects an empty description, so a squad created without one
+  // (the Startups company step asks only for a name) leaves it out
+  const data = await gqlClient.request(CREATE_SQUAD_MUTATION, {
+    ...inputData,
+    ...(description ? { description } : {}),
+    ...(form.company && { company: true }),
+    ...(form.company && form.website && { website: form.website }),
+    ...(form.company && getAdClickIds()),
+  });
 
   return data.createSquad;
 }
@@ -1435,3 +1622,98 @@ export const sourceMutedAuthorsQueryOptions = ({
     getNextPageParam: (page) => getNextPageParam(page?.pageInfo),
     enabled: !!user && !!sourceId,
   });
+
+export enum CompanyPageRequestStatus {
+  Pending = 'pending',
+  Ready = 'ready',
+  Created = 'created',
+  Failed = 'failed',
+}
+
+/** A company page the founder asked for by entering their website. */
+export interface CompanyPageRequest {
+  id: string;
+  website: string;
+  status: CompanyPageRequestStatus;
+  error?: string;
+  name?: string;
+  handle?: string;
+  description?: string;
+  image?: string;
+  source?: Pick<Squad, 'id' | 'handle' | 'permalink'>;
+}
+
+const COMPANY_PAGE_REQUEST_FRAGMENT = gql`
+  fragment CompanyPageRequestFragment on CompanyPageRequest {
+    id
+    website
+    status
+    error
+    name
+    handle
+    description
+    image
+    source {
+      id
+      handle
+      permalink
+    }
+  }
+`;
+
+const REQUEST_COMPANY_PAGE_MUTATION = gql`
+  mutation RequestCompanyPage($website: String!) {
+    requestCompanyPage(website: $website) {
+      ...CompanyPageRequestFragment
+    }
+  }
+  ${COMPANY_PAGE_REQUEST_FRAGMENT}
+`;
+
+const CLAIM_COMPANY_PAGE_REQUEST_MUTATION = gql`
+  mutation ClaimCompanyPageRequest($id: ID!) {
+    claimCompanyPageRequest(id: $id) {
+      ...CompanyPageRequestFragment
+    }
+  }
+  ${COMPANY_PAGE_REQUEST_FRAGMENT}
+`;
+
+const COMPANY_PAGE_REQUEST_QUERY = gql`
+  query CompanyPageRequest($id: ID!) {
+    companyPageRequest(id: $id) {
+      ...CompanyPageRequestFragment
+    }
+  }
+  ${COMPANY_PAGE_REQUEST_FRAGMENT}
+`;
+
+export const requestCompanyPage = async (
+  website: string,
+): Promise<CompanyPageRequest> => {
+  const res = await gqlClient.request<{
+    requestCompanyPage: CompanyPageRequest;
+  }>(REQUEST_COMPANY_PAGE_MUTATION, { website });
+
+  return res.requestCompanyPage;
+};
+
+export const claimCompanyPageRequest = async (
+  id: string,
+): Promise<CompanyPageRequest> => {
+  const res = await gqlClient.request<{
+    claimCompanyPageRequest: CompanyPageRequest;
+  }>(CLAIM_COMPANY_PAGE_REQUEST_MUTATION, { id });
+
+  return res.claimCompanyPageRequest;
+};
+
+export const getCompanyPageRequest = async (
+  id: string,
+): Promise<CompanyPageRequest> => {
+  const res = await gqlClient.request<{
+    companyPageRequest: CompanyPageRequest;
+  }>(COMPANY_PAGE_REQUEST_QUERY, { id });
+
+  return res.companyPageRequest;
+};

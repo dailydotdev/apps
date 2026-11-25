@@ -10,6 +10,9 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureFeedWidgets } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useFeedWidgetsOptOut } from '@dailydotdev/shared/src/features/feedWidgets/feedState';
+import { readStoredFeedRail } from '@dailydotdev/shared/src/features/feedWidgets/storedRail';
+import { slottedFeedWidgets } from '@dailydotdev/shared/src/features/feedWidgets/slots';
 import { useToggleFeedbackButton } from '@dailydotdev/shared/src/hooks/useToggleFeedbackButton';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
@@ -184,12 +187,20 @@ const AccountManageSubscriptionPage = (): ReactElement => {
       toggleOpenNewTab();
     }
   };
-  const { value: isFeedWidgetsOptedOut, toggle: toggleFeedWidgets } =
-    useSettingsBooleanFlag('feedWidgetsOptOut');
-  // Only readers who have met the rail, so opening this page is no exposure.
+  const {
+    isOptedOut: isFeedWidgetsOptedOut,
+    setOptedOut: setFeedWidgetsOptedOut,
+  } = useFeedWidgetsOptOut();
+  // Only readers who have placed or hidden widgets, on a laptop where the
+  // feed takes them, so opening this page is no exposure.
   const { value: isFeedWidgetsOn } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isFeedWidgetsOptedOut || !!flags?.feedWidgets,
+    shouldEvaluate:
+      isLaptop &&
+      (isFeedWidgetsOptedOut ||
+        slottedFeedWidgets(
+          readStoredFeedRail(flags?.feedWidgets)?.widgets ?? [],
+        ).length > 0),
   });
   const { showFeedbackButton, toggleFeedbackButton } =
     useToggleFeedbackButton();
@@ -297,9 +308,9 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             <SettingsSwitch
               name="feed-widgets"
               checked={!isFeedWidgetsOptedOut}
-              onToggle={toggleFeedWidgets}
+              onToggle={() => setFeedWidgetsOptedOut(!isFeedWidgetsOptedOut)}
             >
-              Show widgets above the feed
+              Show widgets in the feed
             </SettingsSwitch>
           )}
 

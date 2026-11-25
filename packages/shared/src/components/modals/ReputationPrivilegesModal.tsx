@@ -8,7 +8,7 @@ import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { Image } from '../image/Image';
 import { cloudinaryReputationPrivilegesUnlocked } from '../../lib/image';
-import { reputation } from '../../lib/constants';
+import { reputation, webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 
 export const ReputationPrivilegesModal = ({
@@ -48,17 +48,28 @@ export const ReputationPrivilegesModal = ({
             privileges and superpowers. Keep up the fantastic work!
           </p>
         </div>
-        <Button
-          target="_blank"
-          tag="a"
-          rel={anchorDefaultRel}
-          href={reputation}
-          className="w-full"
-          variant={ButtonVariant.Primary}
-          onClick={onClose}
-        >
-          Tell me more
-        </Button>
+        <div className="flex w-full flex-col gap-3">
+          <Button
+            tag="a"
+            href={`${webappUrl}analytics/reputation`}
+            className="w-full"
+            variant={ButtonVariant.Primary}
+            onClick={onClose}
+          >
+            See your reputation
+          </Button>
+          <Button
+            target="_blank"
+            tag="a"
+            rel={anchorDefaultRel}
+            href={reputation}
+            className="w-full"
+            variant={ButtonVariant.Float}
+            onClick={onClose}
+          >
+            Tell me more
+          </Button>
+        </div>
       </div>
     </Modal>
   );

@@ -5,7 +5,7 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { feature, featureFeedExplain } from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 
 interface UseFeedExplainModeProps {
@@ -48,15 +48,11 @@ export const useFeedExplainMode = ({
     feature: feature.feedVersion,
     shouldEvaluate: isForYou,
   });
-  const { value: isFlagOn } = useConditionalFeature({
-    feature: featureFeedExplain,
-    shouldEvaluate: isForYou,
-  });
   const [isOn] = useQueryState({
     key: [QueryStateKeys.FeedExplain],
     defaultValue: false,
   });
-  const isOffered = isForYou && isFlagOn;
+  const isOffered = isForYou;
   const isAvailable = isOffered && isRecommended;
 
   return {
@@ -76,19 +72,13 @@ export const useForYouControls = (): Pick<
   'isAvailable' | 'version'
 > => {
   const { user } = useAuthContext();
-  // The flag first, so readers without it never count as seeing the feed
-  // version experiment from a settings page.
-  const { value: isFlagOn } = useConditionalFeature({
-    feature: featureFeedExplain,
-    shouldEvaluate: !!user,
-  });
   const { value: version } = useConditionalFeature({
     feature: feature.feedVersion,
-    shouldEvaluate: !!user && isFlagOn,
+    shouldEvaluate: !!user,
   });
 
   return {
-    isAvailable: !!user && isFlagOn,
+    isAvailable: !!user,
     version,
   };
 };

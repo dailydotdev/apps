@@ -5,6 +5,7 @@ import type {
   ReferralLadderStep,
 } from '../../graphql/users';
 import { referralLadderQueryOptions } from '../../graphql/users';
+import { isReferralLadderStepPending } from '../../lib/referral';
 
 interface UseReferralLadderProps {
   enabled?: boolean;
@@ -20,6 +21,8 @@ interface UseReferralLadder {
   nextStep?: ReferralLadderStep;
   remainingInvites: number;
   isCompleted: boolean;
+  // Reached by friend count but not granted yet (e.g. held for review).
+  hasPendingRewards: boolean;
 }
 
 const noSteps: ReferralLadderStep[] = [];
@@ -47,5 +50,8 @@ export const useReferralLadder = ({
     nextStep,
     remainingInvites: nextStep ? nextStep.invites - referredCount : 0,
     isCompleted: steps.length > 0 && !nextStep,
+    hasPendingRewards: steps.some((step) =>
+      isReferralLadderStepPending(step, referredCount),
+    ),
   };
 };

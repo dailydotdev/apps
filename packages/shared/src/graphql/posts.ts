@@ -30,6 +30,7 @@ import {
 import type { PostHero } from './types';
 import type { FeedItemExplain } from '../features/feedExplain/types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
+import type { AdSlotLifecycle } from '../features/monetization/adSlotLifecycle';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -137,6 +138,19 @@ export const getReadArticleHref = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost' | 'permalink'>,
 ): string | undefined =>
   getPostReadTarget(post).target?.permalink ?? post.permalink;
+
+/**
+ * A share without commentary has nothing of its own to reshare, so resharing
+ * it shares the post it wraps, the same way the API resolves it.
+ */
+export const getPostToShare = <
+  T extends Pick<Post, 'type' | 'title' | 'sharedPost'>,
+>(
+  post: T,
+): T | SharedPost =>
+  post.type === PostType.Share && !post.title && post.sharedPost
+    ? post.sharedPost
+    : post;
 
 export const getPostTitle = (
   post:
@@ -349,8 +363,18 @@ export type RelatedPost = Pick<
   source: Pick<Source, 'id' | 'handle' | 'name' | 'image'>;
 };
 
+export interface AdRefreshConfig {
+  id: string;
+  intervalSec: number;
+  maxPerSlot: number;
+  maxPerSession: number;
+  idleAfterSec?: number;
+  minVisiblePercent?: number;
+}
+
 export interface Ad {
   pixel?: string[];
+  lifecycle?: AdSlotLifecycle;
   source: string;
   company: string;
   link: string;
@@ -365,6 +389,7 @@ export interface Ad {
   backgroundColor?: string;
   data?: { post?: Post; source?: Squad };
   generationId?: string;
+  refresh?: AdRefreshConfig | null;
   matchingTags?: string[];
   adDomain?: string;
   companyLogo?: string;
@@ -713,9 +738,6 @@ export const VIEW_POST_MUTATION = gql`
     }
   }
 `;
-
-export const sendViewPost = (id: string): Promise<void> =>
-  gqlClient.request(VIEW_POST_MUTATION, { id });
 
 export const LATEST_CHANGELOG_POST_QUERY = gql`
   query LatestChangelogPost {
@@ -1429,7 +1451,10 @@ export const useCanBoostPost = (post: Post) => {
   }
 
   const canBoost =
-    canBuy && checkCanBoostByUser(post, user.id) && !post?.private;
+    canBuy &&
+    checkCanBoostByUser(post, user.id) &&
+    !post?.private &&
+    post?.type !== PostType.Brief;
 
   return { canBoost };
 };
@@ -1548,6 +1573,15 @@ export const getGenerateBriefingMutationOptions = () => {
 export const defautRefetchMs = 4000;
 export const briefRefetchIntervalMs = defautRefetchMs;
 
+export enum LimitedReachReason {
+  AiWritten = 'ai_written',
+  Promotional = 'promotional',
+  OversoldTitle = 'oversold_title',
+  Language = 'language',
+  // Free company pages learn reach is limited, a plan shows the reason
+  Locked = 'locked',
+}
+
 export const POST_ANALYTICS_QUERY = gql`
   query PostAnalytics($id: ID!) {
     postAnalytics(id: $id) {
@@ -1568,6 +1602,20 @@ export const POST_ANALYTICS_QUERY = gql`
       reachAds
       impressionsAds
       clicks
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
+      limitedReachReason
     }
   }
 `;
@@ -1590,6 +1638,20 @@ export type PostAnalytics = {
   reachAds: number;
   impressionsAds: number;
   clicks: number;
+  agentViews: number | null;
+  agentViewsClaude: number | null;
+  agentViewsChatgpt: number | null;
+  agentViewsGemini: number | null;
+  agentViewsPerplexity: number | null;
+  agentViewsExa: number | null;
+  agentViewsMeta: number | null;
+  agentViewsBot: number | null;
+  agentViewsClaudeBot: number | null;
+  agentViewsChatgptBot: number | null;
+  agentViewsPerplexityBot: number | null;
+  agentViewsExaBot: number | null;
+  agentViewsMetaBot: number | null;
+  limitedReachReason: LimitedReachReason | null;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
@@ -1621,18 +1683,49 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
           date
           impressions
           impressionsAds
+          agentViews
+          agentViewsClaude
+          agentViewsChatgpt
+          agentViewsGemini
+          agentViewsPerplexity
+          agentViewsExa
+          agentViewsMeta
+          agentViewsBot
+          agentViewsClaudeBot
+          agentViewsChatgptBot
+          agentViewsPerplexityBot
+          agentViewsExaBot
+          agentViewsMetaBot
         }
       }
     }
   }
 `;
 
+export type PostAgentViews = Pick<
+  PostAnalytics,
+  | 'agentViews'
+  | 'agentViewsClaude'
+  | 'agentViewsChatgpt'
+  | 'agentViewsGemini'
+  | 'agentViewsPerplexity'
+  | 'agentViewsExa'
+  | 'agentViewsMeta'
+  | 'agentViewsBot'
+  | 'agentViewsClaudeBot'
+  | 'agentViewsChatgptBot'
+  | 'agentViewsPerplexityBot'
+  | 'agentViewsExaBot'
+  | 'agentViewsMetaBot'
+>;
+
 export type PostAnalyticsHistory = Pick<
   PostAnalytics,
   'id' | 'impressions' | 'impressionsAds'
-> & {
-  date: Date;
-};
+> &
+  PostAgentViews & {
+    date: Date;
+  };
 
 export const postAnalyticsHistoryQuery = ({
   id,

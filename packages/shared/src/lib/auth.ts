@@ -38,7 +38,6 @@ export enum AuthTriggers {
   Author = 'author',
   Bookmark = 'bookmark',
   Comment = 'comment',
-  LiveChat = 'live chat',
   CommentUpvote = 'comment upvote',
   DevCard = 'devcard',
   Filter = 'filter',
@@ -60,6 +59,7 @@ export enum AuthTriggers {
   CreateFeedFilters = 'create feed filters',
   AccountPage = 'account page',
   NewComment = 'new comment',
+  CommentsTeaser = 'comments teaser',
   SearchInput = 'search input',
   SearchSuggestion = 'search suggestion',
   LoginPage = 'login page',
@@ -75,11 +75,14 @@ export enum AuthTriggers {
   OAuth = 'oauth',
   Opportunity = 'opportunity',
   RecruiterSelfServe = 'recruiter self serve',
+  StartupsCheckout = 'startups checkout',
+  CompanyPage = 'company page',
   AiFluencyQuiz = 'ai fluency quiz',
   AddToStack = 'add to stack',
   PostPage = 'post page',
   Hackathon = 'hackathon',
   Marketplace = 'marketplace',
+  AgentOnboarding = 'agent onboarding',
 }
 
 export type AuthTriggersType =
@@ -93,6 +96,21 @@ export type AuthTriggersType =
       | Origin.SourcePage
       | Origin.TagPage
     >;
+
+// Flows that sign a social account up without the profile form and go
+// straight back to what the visitor came for
+export const autoProfileTriggers: AuthTriggersType[] = [
+  AuthTriggers.RecruiterSelfServe,
+  AuthTriggers.StartupsCheckout,
+  AuthTriggers.CompanyPage,
+  AuthTriggers.AgentOnboarding,
+];
+
+// Founders signing up to create a company page, through the checkout or the
+// free company page form
+export const isStartupsAuthTrigger = (trigger?: AuthTriggersType): boolean =>
+  trigger === AuthTriggers.StartupsCheckout ||
+  trigger === AuthTriggers.CompanyPage;
 
 export interface LoginPasswordParameters {
   identifier: string;

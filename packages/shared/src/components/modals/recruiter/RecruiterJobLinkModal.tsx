@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import z from 'zod';
+import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';

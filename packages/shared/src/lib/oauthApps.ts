@@ -33,6 +33,7 @@ export const OAUTH_SCOPES = [
   'offline_access',
   'read',
   'write',
+  'reading_history',
 ];
 
 export const MAX_OAUTH_APPS_PER_USER = 5;
@@ -44,7 +45,7 @@ export const oauthEndpoints = {
   mcpResource: `${publicApiUrl}/mcp`,
 };
 
-export const mcpClaudeInstallCommand = `claude mcp add --transport http daily.dev ${oauthEndpoints.mcpResource}`;
+export const mcpClaudeInstallCommand = `claude mcp add --transport http daily-dev ${oauthEndpoints.mcpResource}`;
 
 export class OAuthRequestError extends Error {
   status: number;

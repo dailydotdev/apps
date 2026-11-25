@@ -23,6 +23,14 @@ import { useStreakFreeze } from '@dailydotdev/shared/src/hooks/streaks/useStreak
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureStreakFreeze } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import { StreakPauseSettings } from '@dailydotdev/shared/src/components/streak/StreakPauseSettings';
+import {
+  usePatchyEnabled,
+  usePatchyReactions,
+  usePatchySuggestions,
+} from '@dailydotdev/shared/src/features/patchy/usePatchyEnabled';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../../next-seo';
@@ -46,6 +54,34 @@ const GamificationSettingsPage = (): ReactElement => {
     toggleAllGamification,
   } = useSettingsContext();
   const { openModal } = useLazyModal();
+  const { logEvent } = useLogContext();
+  const isPatchyEnabled = usePatchyEnabled();
+  const {
+    isReactionsEnabled: isPatchyReactionsEnabled,
+    setReactionsEnabled: setPatchyReactionsEnabled,
+  } = usePatchyReactions();
+  const {
+    isSuggestionsEnabled: isPatchySuggestionsEnabled,
+    setSuggestionsEnabled: setPatchySuggestionsEnabled,
+  } = usePatchySuggestions();
+  const onTogglePatchySuggestions = () => {
+    const enabled = !isPatchySuggestionsEnabled;
+    setPatchySuggestionsEnabled(enabled);
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.PatchySuggestions,
+      target_id: enabled ? 'on' : 'off',
+    });
+  };
+  const onTogglePatchyReactions = () => {
+    const enabled = !isPatchyReactionsEnabled;
+    setPatchyReactionsEnabled(enabled);
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.PatchyReactions,
+      target_id: enabled ? 'on' : 'off',
+    });
+  };
   const hasAccessToCores = useHasAccessToCores();
   const { value: isStreakFreezeEnabled } = useConditionalFeature({
     feature: featureStreakFreeze,
@@ -57,7 +93,7 @@ const GamificationSettingsPage = (): ReactElement => {
   });
 
   const [userTimeZone, setUserTimeZone] = useState<string>(
-    getUserInitialTimezone({ userTimezone: user?.timezone, update: true }),
+    getUserInitialTimezone({ userTimezone: user?.timezone }),
   );
 
   return (
@@ -74,7 +110,8 @@ const GamificationSettingsPage = (): ReactElement => {
             onToggle={toggleAllGamification}
           >
             Master toggle for all gamification features. Turning this off hides
-            streaks, levels, quests, and achievements across daily.dev.
+            streaks, levels, quests, achievements, and Top Reader badge
+            announcements across daily.dev.
           </SettingsSwitch>
         </section>
 
@@ -92,6 +129,33 @@ const GamificationSettingsPage = (): ReactElement => {
             streaks off will not affect your activity or progress.
           </SettingsSwitch>
         </section>
+
+        {isPatchyEnabled && (
+          <section className="flex flex-col gap-2">
+            <Typography bold type={TypographyType.Subhead}>
+              Patchy
+            </Typography>
+
+            <SettingsSwitch
+              name="patchy-reactions"
+              checked={isPatchyReactionsEnabled}
+              onToggle={onTogglePatchyReactions}
+            >
+              Let Patchy react inside his circle when you upvote, bookmark or
+              keep your streak going.
+            </SettingsSwitch>
+
+            <SettingsSwitch
+              name="patchy-suggestions"
+              checked={isPatchySuggestionsEnabled}
+              onToggle={onTogglePatchySuggestions}
+            >
+              Let Patchy suggest one useful thing now and then, like following a
+              tag you keep reading or a short read when your streak is at risk.
+              At most 3 a day.
+            </SettingsSwitch>
+          </section>
+        )}
 
         {/* Streak freezes (merged from the former Streaks page): buy packs
             with Cores + the auto-apply toggle. Gated on Cores access and the
@@ -139,6 +203,8 @@ const GamificationSettingsPage = (): ReactElement => {
           </section>
         )}
 
+        <StreakPauseSettings />
+
         {/* One switch for the whole quest experience — quests, level/XP
             progress, and achievements move together (reading streaks stay
             separate above). */}
@@ -154,7 +220,7 @@ const GamificationSettingsPage = (): ReactElement => {
           >
             Toggle to display or hide quests, level/XP progress, and
             achievements across daily.dev. Turning this off won&apos;t affect
-            your progress — you&apos;ll still earn everything in the background.
+            your progress. You&apos;ll still earn everything in the background.
           </SettingsSwitch>
         </section>
 
@@ -171,7 +237,7 @@ const GamificationSettingsPage = (): ReactElement => {
             >
               Select your time zone and the beginning of the weekend in your
               area, so that we can be accurate in sending the notifications.
-              This will also effect the{' '}
+              This will also affect the{' '}
               <ReadingStreakIcon
                 secondary
                 size={IconSize.Size16}

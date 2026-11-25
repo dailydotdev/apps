@@ -132,6 +132,7 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
         permalink
         features {
           verified
+          showVerifiedBadge
         }
         currentMember {
           role
@@ -757,6 +758,20 @@ export const USER_STREAK_QUERY = gql`
   ${USER_STREAK_FRAGMENT}
 `;
 
+export interface UserStreakReset {
+  // Local date (YYYY-MM-DD) in `timezone`: the first missed weekday no freeze
+  // covered. Null when the API could not pin the day down.
+  missedDate: string | null;
+  timezone: string | null;
+  at: string;
+}
+
+// Local dates (YYYY-MM-DD, inclusive) in the user's timezone.
+export interface UserStreakPause {
+  start: string;
+  end: string;
+}
+
 export interface UserStreak {
   max: number;
   total: number;
@@ -764,6 +779,13 @@ export interface UserStreak {
   weekStart: DayOfWeek;
   lastViewAt: Date;
   freezesAvailable: number;
+  // Unused free freezes from the one-time grant (part of
+  // freezesAvailable, consumed first): 0 once all were used, null when the
+  // reader never got them.
+  freeFreezes?: number | null;
+  // Null when the streak was never reset; the API only returns it for the
+  // viewer's own streak and keeps it after the streak restarts.
+  lastReset?: UserStreakReset | null;
 }
 
 export interface UserProfileAnalytics {
@@ -837,7 +859,21 @@ export interface UserStreakRecoverData {
   cost: number;
   oldStreakLength: number;
   regularCost?: number;
+  // Earn-back (streak_earn_back): new posts read since the reset, capped at
+  // postsRequired, which it equals once the streak was earned back
+  postsRead?: number;
+  postsRequired?: number;
+  earnBack?: boolean;
 }
+
+export interface StreakRecoverQuery {
+  streakRecover: UserStreakRecoverData;
+}
+
+export const isStreakEarnedBack = (recover?: UserStreakRecoverData): boolean =>
+  !!recover?.earnBack &&
+  !!recover.postsRequired &&
+  (recover.postsRead ?? 0) >= recover.postsRequired;
 
 export const USER_STREAK_RECOVER_QUERY = gql`
   query UserStreakRecover {
@@ -846,6 +882,9 @@ export const USER_STREAK_RECOVER_QUERY = gql`
       cost
       oldStreakLength
       regularCost
+      postsRead
+      postsRequired
+      earnBack
     }
   }
 `;

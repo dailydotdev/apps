@@ -107,7 +107,7 @@ describe('ReadingOverview component', () => {
     expect(screen.getByTestId('ReadingOverviewSkeleton')).toBeInTheDocument();
   });
 
-  it('should render main content when not loading', () => {
+  it('should render main content when not loading', async () => {
     renderComponent();
 
     expect(screen.getByText('Reading Overview')).toBeInTheDocument();
@@ -116,7 +116,7 @@ describe('ReadingOverview component', () => {
       screen.getByText('Posts read in the last months (16)'),
     ).toBeInTheDocument();
     expect(screen.getByText('Top tags by reading days')).toBeInTheDocument();
-    expect(screen.getByText('javascript')).toBeInTheDocument();
+    expect(await screen.findByText('javascript')).toBeInTheDocument();
     expect(screen.getByText('react')).toBeInTheDocument();
     expect(screen.getByText('+60%')).toBeInTheDocument(); // javascript percentage
     expect(screen.getByText('+40%')).toBeInTheDocument(); // react percentage
@@ -138,6 +138,13 @@ describe('ReadingOverview component', () => {
     renderComponent({ readHistory: [], mostReadTags: [] });
 
     expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
+  });
+
+  it('should not render raw tag values while the titles load', () => {
+    renderComponent();
+
+    expect(screen.getAllByTestId('tagProgressPlaceholder')).toHaveLength(2);
+    expect(screen.queryByText('javascript')).not.toBeInTheDocument();
   });
 
   it('should render the keyword title once it is available', async () => {

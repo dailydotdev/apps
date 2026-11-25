@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -21,6 +21,15 @@ import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useReferralReminderModal } from '../../hooks/referral/useReferralReminderModal';
+import { useIsBootPopupsPaused } from '../../lib/bootPopupsPause';
+import { useAppStoreReviewPrompt } from '../../hooks/useAppStoreReviewPrompt';
+import { useStreakGoal } from '../../hooks/streaks/useStreakGoal';
+import {
+  getStreakBreakKey,
+  hasSeenStreakGoalBreakPrompt,
+  markStreakGoalBreakPromptSeen,
+  StreakGoalPromptReason,
+} from '../../lib/streakGoal';
 
 const REP_TRESHOLD = 250;
 
@@ -50,6 +59,11 @@ interface BootPopupEntry {
  * - Do NOT call `updateLastBootPopup()` — they don't consume the daily slot
  * - Still respect opt-out checks and other guards in their useEffect
  *
+ * ### Paused pages
+ * - A page calls `usePauseBootPopups(true)` (lib/bootPopupsPause) to hold
+ *   every popup, e.g. the daily.dev for Startups setup on a company squad
+ * - Held popups stay queued and open on the next page that does not pause
+ *
  * ## Adding a new boot popup
  *
  * 1. Add a `useEffect` in this component that checks the relevant conditions
@@ -64,7 +78,7 @@ export const BootPopups = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
-  const { optOutAchievements } = useSettingsContext();
+  const { optOutAchievements, isGamificationEnabled } = useSettingsContext();
   const { updateUserProfile } = useProfileForm();
   const {
     alerts,
@@ -73,6 +87,7 @@ export const BootPopups = (): ReactElement => {
     updateLastBootPopup,
     updateHasSeenOpportunity,
   } = useContext(AlertContext);
+  const isPaused = useIsBootPopupsPaused();
   const [bootPopups, setBootPopups] = useState(() => new Map());
   const [immediatePopups, setImmediatePopups] = useState(() => new Map());
   const [interactiveBootPopup, setInteractiveBootPopup] =
@@ -86,6 +101,15 @@ export const BootPopups = (): ReactElement => {
   const marketingCtaPlus = getMarketingCta(MarketingCtaVariant.Plus);
 
   const { streak, isStreaksEnabled } = useReadingStreak();
+  const { isEnabled: isStreakGoalEnabled, goal: streakGoal } = useStreakGoal();
+  // The milestone and restore modals own a boot they show on, even after
+  // they close and clear their alert
+  const hasStreakModalThisBoot = useRef(false);
+  if (alerts?.showStreakMilestone || alerts?.showRecoverStreak) {
+    hasStreakModalThisBoot.current = true;
+  }
+
+  const appStoreReviewCta = useAppStoreReviewPrompt();
 
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
@@ -177,6 +201,31 @@ export const BootPopups = (): ReactElement => {
     user?.isPlus,
   ]);
 
+  /**
+   * Boot popup for the App Store review ask (marketing CTA)
+   */
+  useEffect(() => {
+    // The streak milestone and restore modals own the boot they show on. The
+    // ask stays in boot data, so it waits for the next one instead of
+    // stacking on top of them.
+    if (!appStoreReviewCta || !loadedAlerts || hasStreakModalThisBoot.current) {
+      return;
+    }
+
+    addBootPopup({
+      type:
+        appStoreReviewCta.variant === MarketingCtaVariant.AppStoreReviewPlus
+          ? LazyModal.AppStoreReviewPlus
+          : LazyModal.AppStoreReview,
+      props: {
+        marketingCta: appStoreReviewCta,
+        onAfterClose: () => {
+          updateLastBootPopup();
+        },
+      },
+    });
+  }, [appStoreReviewCta, loadedAlerts, updateLastBootPopup]);
+
   useEffect(() => {
     if (marketingCtaPopoverSmall) {
       setInteractiveBootPopup({
@@ -258,6 +307,64 @@ export const BootPopups = (): ReactElement => {
   ]);
 
   /**
+   * Streak goal offer: once at day 2 without a goal, and once per reset
+   */
+  useEffect(() => {
+    if (
+      !isStreakGoalEnabled ||
+      !isActionsFetched ||
+      !loadedAlerts ||
+      !user ||
+      !streak ||
+      hasStreakModalThisBoot.current
+    ) {
+      return;
+    }
+
+    const isDayTwo =
+      streak.current === 2 &&
+      !streakGoal &&
+      !checkHasCompleted(ActionType.StreakGoalSkipped);
+    const breakKey = getStreakBreakKey(streak);
+    const isAfterBreak =
+      streak.current === 0 &&
+      streak.max > 0 &&
+      !!breakKey &&
+      !hasSeenStreakGoalBreakPrompt(user.id, breakKey);
+
+    if (!isDayTwo && !isAfterBreak) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.StreakGoal,
+      props: {
+        reason: isDayTwo
+          ? StreakGoalPromptReason.DayTwo
+          : StreakGoalPromptReason.Break,
+        preselectedGoal: isDayTwo ? null : streakGoal,
+        onAfterOpen: () => {
+          if (!isDayTwo && breakKey) {
+            markStreakGoalBreakPromptSeen(user.id, breakKey);
+          }
+        },
+        onAfterClose: () => {
+          updateLastBootPopup();
+        },
+      },
+    });
+  }, [
+    checkHasCompleted,
+    isActionsFetched,
+    isStreakGoalEnabled,
+    loadedAlerts,
+    streak,
+    streakGoal,
+    updateLastBootPopup,
+    user,
+  ]);
+
+  /**
    * Received gift plus modal
    */
   useEffect(() => {
@@ -282,7 +389,7 @@ export const BootPopups = (): ReactElement => {
    * Top reader badge modal
    */
   useEffect(() => {
-    if (!alerts?.showTopReader) {
+    if (!alerts?.showTopReader || !isGamificationEnabled) {
       return;
     }
 
@@ -296,7 +403,13 @@ export const BootPopups = (): ReactElement => {
         },
       },
     });
-  }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
+  }, [
+    alerts.showTopReader,
+    isGamificationEnabled,
+    logEvent,
+    updateAlerts,
+    updateLastBootPopup,
+  ]);
 
   /**
    * Immediate popup for achievement unlock celebration.
@@ -372,26 +485,31 @@ export const BootPopups = (): ReactElement => {
    * Immediate popups — shown as soon as alerts are loaded, bypassing the daily limit.
    */
   useEffect(() => {
-    if (!loadedAlerts || immediatePopups.size === 0) {
+    if (isPaused || !loadedAlerts || immediatePopups.size === 0) {
       return;
     }
     openModal(immediatePopups.values().next().value);
     setImmediatePopups(new Map());
-  }, [immediatePopups, loadedAlerts, openModal]);
+  }, [immediatePopups, isPaused, loadedAlerts, openModal]);
 
   /**
    * Queued popups — subject to the one-per-day gate (`alerts.bootPopup`).
    * Only the first popup in the queue is shown.
    */
   useEffect(() => {
-    if (!loadedAlerts || !alerts?.bootPopup || bootPopups.size === 0) {
+    if (
+      isPaused ||
+      !loadedAlerts ||
+      !alerts?.bootPopup ||
+      bootPopups.size === 0
+    ) {
       return;
     }
     openModal(bootPopups.values().next().value);
     setBootPopups(new Map());
-  }, [alerts?.bootPopup, bootPopups, loadedAlerts, openModal]);
+  }, [alerts?.bootPopup, bootPopups, isPaused, loadedAlerts, openModal]);
 
-  return !interactiveBootPopup ? null : (
+  return isPaused || !interactiveBootPopup ? null : (
     <InteractivePopup {...interactiveBootPopup} />
   );
 };

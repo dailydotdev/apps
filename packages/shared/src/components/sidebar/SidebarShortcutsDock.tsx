@@ -83,6 +83,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
 import { toWebappHref } from '../../lib/links';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 type ShortcutIcon = (active: boolean) => ReactElement;
 
@@ -92,6 +93,8 @@ interface ShortcutDef {
   path: string;
   icon: ShortcutIcon;
 }
+
+const CORES_SHORTCUT_ID = 'cores';
 
 // The catalog of pages a user can pin from the tray. Dragging an arbitrary
 // panel row in also resolves to one of these (by path) when it matches.
@@ -159,7 +162,7 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     icon: (a) => <BriefIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
-    id: 'cores',
+    id: CORES_SHORTCUT_ID,
     label: 'Cores',
     // The core wallet.
     path: walletUrl,
@@ -181,6 +184,9 @@ const normalizePath = (path: string): string =>
     .replace(/^https?:\/\/[^/]+/, '')
     .split('?')[0]
     .split('#')[0] || '/';
+
+const isCoresShortcut = (key: string): boolean =>
+  key === CORES_SHORTCUT_ID || normalizePath(key) === normalizePath(walletUrl);
 
 const isJobsPath = (path: string): boolean =>
   normalizePath(path).split('/').filter(Boolean)[0] === 'jobs';
@@ -363,7 +369,7 @@ const TrayItem = ({
       onClick={() => (added ? onRemove(def.id) : onAdd(def.id))}
       {...(added ? { 'aria-pressed': true } : { ...attributes, ...listeners })}
       className={classNames(
-        'flex flex-col items-center gap-1 rounded-10 p-2 transition-colors',
+        'flex w-full min-w-0 flex-col items-center gap-1 rounded-10 p-2 transition-colors',
         added
           ? 'bg-surface-float text-text-primary'
           : 'touch-none text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
@@ -376,7 +382,8 @@ const TrayItem = ({
       <Typography
         type={TypographyType.Caption2}
         color={added ? TypographyColor.Primary : TypographyColor.Tertiary}
-        className="line-clamp-1 text-center"
+        className="w-full truncate text-center"
+        title={def.label}
       >
         {def.label}
       </Typography>
@@ -448,6 +455,7 @@ export const useLegacyShortcutsMigration = (): void => {
 export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
   const { isJobsEnabled } = useJobsFeature();
+  const hasCoresAccess = useHasAccessToCores();
   const { flags, updateFlag, isRemoteSettingsLoaded } = useSettingsContext();
   const stored = flags?.sidebarShortcuts;
   // The dock now lives in settings, so "storage has answered" is the remote
@@ -474,6 +482,9 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         if (!isJobsEnabled && isJobsPath(keyOf(entry))) {
           return false;
         }
+        if (!hasCoresAccess && isCoresShortcut(keyOf(entry))) {
+          return false;
+        }
         const key = keyOf(entry);
         if (seen.has(key)) {
           return false;
@@ -481,7 +492,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         seen.add(key);
         return true;
       });
-  }, [isJobsEnabled, stored]);
+  }, [hasCoresAccess, isJobsEnabled, stored]);
   const keys = useMemo(() => items.map(keyOf), [items]);
   const pinnedPaths = useMemo(
     () => new Set(items.map((entry) => normalizePath(keyOf(entry)))),
@@ -632,6 +643,7 @@ export const SidebarShortcutsDock = ({
   const router = useRouter();
   const { items, persist, addCatalog, removeShortcut, pinPage } =
     useSidebarShortcutItems();
+  const hasCoresAccess = useHasAccessToCores();
   // Render from a local order mirror during (and just after) a reorder drop so
   // the DOM is already in the new order when dnd-kit measures the drop landing.
   // The persisted store updates asynchronously and would otherwise lag a frame,
@@ -1166,17 +1178,19 @@ export const SidebarShortcutsDock = ({
                 Drag a page from any panel onto the sidebar, or add one:
               </Typography>
               <div className="grid grid-cols-4 gap-1">
-                {SHORTCUT_CATALOG.filter((def) => !keys.includes(def.id)).map(
-                  (def) => (
-                    <TrayItem
-                      key={def.id}
-                      def={def}
-                      added={false}
-                      onAdd={addCatalog}
-                      onRemove={removeShortcut}
-                    />
-                  ),
-                )}
+                {SHORTCUT_CATALOG.filter(
+                  (def) =>
+                    !keys.includes(def.id) &&
+                    (hasCoresAccess || !isCoresShortcut(def.id)),
+                ).map((def) => (
+                  <TrayItem
+                    key={def.id}
+                    def={def}
+                    added={false}
+                    onAdd={addCatalog}
+                    onRemove={removeShortcut}
+                  />
+                ))}
               </div>
             </div>
           </RootPortal>

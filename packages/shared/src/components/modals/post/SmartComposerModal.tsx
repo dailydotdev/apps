@@ -28,6 +28,7 @@ import { Switch } from '../../fields/Switch';
 import { Drawer, DrawerPosition } from '../../drawers/Drawer';
 import { labels } from '../../../lib/labels';
 import { scheduledPostsUrl } from '../../../lib/constants';
+import { isIOSNative, isPWA } from '../../../lib/func';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
@@ -50,6 +51,7 @@ import {
   type TextFormHandle,
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
+import { AiWrittenWarning } from '../../post/composer/AiWrittenWarning';
 import { PollForm } from '../../post/composer/PollForm';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import {
@@ -70,6 +72,7 @@ import {
   type TextFormState,
 } from '../../post/composer/types';
 import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
+import { useTrackCompanyPageFirstPost } from '../../../features/squads/hooks/useTrackCompanyPageFirstPost';
 
 // `defaultWriteTab` is persisted as the WriteFormTab *key* (e.g. "Share"), not
 // the enum value ("Share a link") — see settings/composition.tsx which saves
@@ -120,7 +123,7 @@ export function SmartComposerModal({
   closeOnBack = true,
   ...props
 }: SmartComposerModalProps): ReactElement {
-  const { user } = useAuthContext();
+  const { user, isAndroidApp } = useAuthContext();
   const { logEvent } = useLogContext();
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -327,6 +330,16 @@ export function SmartComposerModal({
   );
 
   const handleViewScheduled = useCallback(async () => {
+    // Never trade an in-progress draft for the scheduled posts list: open the
+    // list in a new tab and leave the composer as it is. The native app
+    // wrappers and installed PWAs have no tabs (a new window leaves the app),
+    // so there we keep asking before navigating away.
+    const canOpenNewTab = !isAndroidApp && !isIOSNative() && !isPWA();
+    if (isDirty && canOpenNewTab) {
+      window.open(scheduledPostsUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     if (!(await confirmDiscardIfDirty())) {
       return;
     }
@@ -334,7 +347,13 @@ export function SmartComposerModal({
     const navigation = navigateAway(scheduledPostsUrl);
     onRequestClose?.();
     await navigation;
-  }, [confirmDiscardIfDirty, navigateAway, onRequestClose]);
+  }, [
+    confirmDiscardIfDirty,
+    isAndroidApp,
+    isDirty,
+    navigateAway,
+    onRequestClose,
+  ]);
 
   useEffect(() => {
     logEvent({
@@ -416,6 +435,7 @@ export function SmartComposerModal({
   const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
+  const trackFirstPost = useTrackCompanyPageFirstPost();
   // Scheduling: single-source, non-moderated create only.
   const canSchedule =
     !isEditing && !isMulti && !!primary && !moderationRequired(primary);
@@ -445,6 +465,10 @@ export function SmartComposerModal({
         queryClient.invalidateQueries({
           queryKey: getPostByIdKey(editPost.id),
         });
+      }
+      // A scheduled post counts once it goes live, on the server
+      if (!editPost?.id && !(canSchedule && schedule.isScheduled)) {
+        trackFirstPost(selected);
       }
       onPosted?.();
       onSubmitted();
@@ -574,6 +598,7 @@ export function SmartComposerModal({
             onClick={handleViewScheduled}
             disabled={isInFlight}
             className={squareClassName}
+            showLabel={isLaptop}
           />
           {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (
@@ -641,6 +666,7 @@ export function SmartComposerModal({
           <span>{labels.postCreation.warnings.spammyPosts}</span>
         </div>
       )}
+      {kind !== 'poll' && <AiWrittenWarning />}
       {kind === 'text' && (
         <>
           <TextForm

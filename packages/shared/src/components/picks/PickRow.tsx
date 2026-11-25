@@ -8,14 +8,23 @@ import { Image } from '../image/Image';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { PICKS_NOTE_MAX_LENGTH } from '../../graphql/picks';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
-import type { PickRowData } from '../../hooks/picks/usePicksEditor';
+import type {
+  PickRowData,
+  PickRowReason,
+} from '../../hooks/picks/usePicksEditor';
+
+const fillLabels: Partial<Record<PickRowReason, string>> = {
+  from_picks: 'from the picks you opened',
+  popular: 'popular this week',
+};
 
 export const getPickSignal = ({
   upvoted,
   bookmarked,
   read,
   post,
-}: Omit<PickRowData, 'reason'>): string => {
+  reason,
+}: Omit<PickRowData, 'reason'> & { reason?: PickRowReason }): string => {
   const parts: string[] = [];
   if (upvoted) {
     parts.push('▲ upvoted');
@@ -26,8 +35,12 @@ export const getPickSignal = ({
   if (read && !upvoted && !bookmarked) {
     parts.push('read');
   }
+  const fillLabel = reason && fillLabels[reason];
+  if (fillLabel && !parts.length) {
+    parts.push(fillLabel);
+  }
   if (post.readTime) {
-    parts.push(`read ${post.readTime} min`);
+    parts.push(`${post.readTime} min`);
   }
   return parts.join(' · ');
 };
@@ -36,6 +49,8 @@ interface PickRowProps {
   row: PickRowData;
   selected: boolean;
   note: string;
+  /** Focus the note field as soon as it shows, for a post added from a link */
+  autoFocusNote?: boolean;
   onToggle: (row: PickRowData) => void;
   onNoteChange: (postId: string, note: string) => void;
   onNoteBlur: (postId: string) => void;
@@ -45,6 +60,7 @@ export function PickRow({
   row,
   selected,
   note,
+  autoFocusNote = false,
   onToggle,
   onNoteChange,
   onNoteBlur,
@@ -110,6 +126,7 @@ export function PickRow({
               maxLength={PICKS_NOTE_MAX_LENGTH}
               showMaxLength={false}
               value={note}
+              autoFocus={autoFocusNote}
               onInput={(event) =>
                 onNoteChange(post.id, event.currentTarget.value)
               }

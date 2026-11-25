@@ -23,15 +23,11 @@ import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import {
   actionCounterClassName as counterClassName,
-  actionCounterLabelClassName,
-  largeActionCounterLabelClassName,
-  FEED_ACTION_BUTTON_SIZE,
-  FEED_ACTION_ICON_SIZE,
+  largeActionCounterLabelClassName as counterLabelClassName,
 } from './actionCounter';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
-import { useListCardLargeActions } from '../../../hooks/cards/useListCardLargeActions';
 import ActionButtonsV2 from './ActionButtons.v2';
 import { getPostPath } from '../../../lib/links';
 
@@ -55,32 +51,24 @@ export interface ActionButtonsProps {
   bookmarkInHeader?: boolean;
 }
 
+// Both card types use the bar at 32px with 19px icons.
+const buttonSize = ButtonSize.Small;
+const iconSize = IconSize.Size19;
+
 const variantConfig = {
   grid: {
-    buttonSize: FEED_ACTION_BUTTON_SIZE,
-    iconSize: FEED_ACTION_ICON_SIZE,
-    // Asymmetric: an icon sits on the left edge and the impressions number on
-    // the right, which needs more room to look optically centred.
-    containerClassName: 'py-1.5 pl-1 pr-2.5',
+    // 32px buttons keep the 36px row: 4px from the card's left side and its
+    // bottom, and 8px after the views number.
+    containerClassName: 'pb-1 pl-1 pr-2',
     showTagsPanel: false,
     useCommentLink: false,
   },
   list: {
-    buttonSize: FEED_ACTION_BUTTON_SIZE,
-    iconSize: FEED_ACTION_ICON_SIZE,
-    containerClassName: '',
+    containerClassName: '-ml-[0.40625rem]',
     showTagsPanel: true,
     useCommentLink: true,
   },
 } as const;
-
-interface ActionButtonsV1Props extends ActionButtonsProps {
-  /**
-   * The bar at 32px with 19px icons: grid cards in the same 36px row, list
-   * cards in the list_card_large_actions treatment.
-   */
-  large?: boolean;
-}
 
 const ActionButtonsV1 = ({
   post,
@@ -93,15 +81,9 @@ const ActionButtonsV1 = ({
   variant = 'grid',
   showDownvoteAction = true,
   bookmarkInHeader = false,
-  large = false,
-}: ActionButtonsV1Props): ReactElement | null => {
+}: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const buttonSize = large ? ButtonSize.Small : config.buttonSize;
-  const iconSize = large ? IconSize.Size19 : config.iconSize;
-  const counterLabelClassName = large
-    ? largeActionCounterLabelClassName
-    : actionCounterLabelClassName;
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -202,12 +184,7 @@ const ActionButtonsV1 = ({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        // 32px grid buttons keep the 36px row: 4px from the card's left side
-        // and its bottom, and 8px after the views number.
-        large && variant === 'grid'
-          ? 'pb-1 pl-1 pr-2'
-          : config.containerClassName,
-        large && variant === 'list' && '-ml-[0.40625rem]',
+        config.containerClassName,
         className,
       )}
     >
@@ -346,30 +323,21 @@ const ActionButtonsV1 = ({
 const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
   const { variant = 'grid', bookmarkInHeader, ...rest } = props;
   const useV2 = useEngagementBarV2();
-  // Grid cards get the larger bar and, when the card renders it in its header,
-  // drop the bookmark from the bar. List cards get the larger bar only in the
-  // list_card_large_actions treatment, and always keep the bookmark.
-  const isGrid = variant === 'grid';
-  const isListLarge = useListCardLargeActions({ shouldEvaluate: !isGrid });
-  const large = isGrid || isListLarge;
-  const inHeader = isGrid && !!bookmarkInHeader;
+  // Grid cards drop the bookmark from the bar when the card renders it in its
+  // header. List cards always keep the bookmark in the bar.
+  const inHeader = variant === 'grid' && !!bookmarkInHeader;
   if (useV2) {
     return (
       <ActionButtonsV2
         {...rest}
         variant={variant}
-        density={large ? 'compact' : undefined}
+        density="compact"
         bookmarkInHeader={inHeader}
       />
     );
   }
   return (
-    <ActionButtonsV1
-      {...rest}
-      variant={variant}
-      large={large}
-      bookmarkInHeader={inHeader}
-    />
+    <ActionButtonsV1 {...rest} variant={variant} bookmarkInHeader={inHeader} />
   );
 };
 

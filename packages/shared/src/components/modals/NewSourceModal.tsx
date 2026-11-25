@@ -35,6 +35,7 @@ import { RequestKey } from '../../lib/query';
 import { ProfileImageSize } from '../ProfilePicture';
 import { gqlClient } from '../../graphql/common';
 import Link from '../utilities/Link';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface RSS {
   url: string;
@@ -91,6 +92,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const { user, isLoggedIn, loginState, showLogin } = useContext(AuthContext);
   const loginTrigger = AuthTriggers.SubmitNewSource;
   const { onRequestClose } = props;
+  const { displayToast } = useToastNotification();
   const [isDismissed, setIsDismissed] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
@@ -175,6 +177,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         }),
 
       onSuccess: () => {
+        displayToast(
+          "Source submitted for review. We'll let you know once it's reviewed.",
+        );
         if (hasPermissionCache || !isPushSupported || isDismissed) {
           onRequestClose?.(null);
           return;

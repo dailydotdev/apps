@@ -43,30 +43,30 @@ describe('Button', () => {
     it('should render secondary button with color', async () => {
       renderComponent({
         variant: ButtonVariant.Secondary,
-        color: ButtonColor.Burger,
-        children: 'Secondary burger',
+        color: ButtonColor.Cabbage,
+        children: 'Secondary cabbage',
       });
       expect(await screen.findByRole('button')).toBeInTheDocument();
       expect(await screen.findByRole('button')).toHaveClass(
-        'btn-secondary-burger',
+        'btn-secondary-cabbage',
       );
     });
 
     it('color prop can be overriden with className', async () => {
       renderComponent({
         variant: ButtonVariant.Secondary,
-        color: ButtonColor.Burger,
-        children: 'Secondary burger',
+        color: ButtonColor.Cabbage,
+        children: 'Secondary cabbage',
         className: 'btn-secondary-bacon',
       });
 
       const button = await screen.findByRole('button');
       expect(button).toBeInTheDocument();
 
-      expect(button).toHaveClass('btn-secondary-burger');
+      expect(button).toHaveClass('btn-secondary-cabbage');
       expect(button).toHaveClass('btn-secondary-bacon');
 
-      expect(button.className.indexOf('btn-secondary-burger')).toBeLessThan(
+      expect(button.className.indexOf('btn-secondary-cabbage')).toBeLessThan(
         button.className.indexOf('btn-secondary-bacon'),
       );
     });

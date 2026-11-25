@@ -59,6 +59,7 @@ describe('hidesCluster', () => {
   it('hides the bar on settings and forms only', () => {
     expect(hidesCluster('/you')).toBe(true);
     expect(hidesCluster('/settings/profile')).toBe(true);
+    expect(hidesCluster('/wallet')).toBe(true);
     expect(hidesCluster('/feeds/[slugOrId]/edit')).toBe(true);
     expect(hidesCluster('/squads/[handle]/edit')).toBe(true);
     expect(hidesCluster('/posts/[id]/edit')).toBe(true);

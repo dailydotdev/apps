@@ -60,7 +60,7 @@ beforeEach(() => {
 const renderWidget = (size: FeedWidgetSize) =>
   render(
     <TestBootProvider client={new QueryClient()}>
-      <FeedWidgetsProvider feedName="my-feed" isEditing={false}>
+      <FeedWidgetsProvider feedName="my-feed" isEditing={false} hasTopStory>
         <TopStoryWidget
           widget={{ id: 'w1', kind: FeedWidgetKind.TopStory, size }}
           size={size}

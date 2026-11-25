@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../../features/squads/lib/features';
 import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { FollowButton } from '../../contentPreference/FollowButton';
@@ -82,7 +82,7 @@ export function SourceStrip({
                     {source.name}
                   </Typography>
                 </Link>
-                {hasSquadFeature(source, 'verified') && <VerifiedSquadBadge />}
+                {showsVerifiedBadge(source) && <VerifiedSquadBadge />}
               </span>
               {sourceHandle && (
                 <Typography

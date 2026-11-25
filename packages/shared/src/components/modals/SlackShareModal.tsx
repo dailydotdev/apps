@@ -54,7 +54,7 @@ const channelLabel = (name: string) =>
 
 const maxVisibleChannels = 20;
 
-export const picksSlackDefaultMessage = "Here's what I read this week";
+export const picksSlackDefaultMessage = 'My top reads this week 👇';
 
 const SlackShareModal = ({
   post,

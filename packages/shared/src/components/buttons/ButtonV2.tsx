@@ -11,7 +11,8 @@ import type { IconProps } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
 
-import { ColorName as ButtonColor } from '../../styles/colors';
+import type { ButtonV2Color } from '../../styles/buttonColors';
+import { ButtonColor } from '../../styles/buttonColors';
 import {
   ButtonIconPosition,
   ButtonSize,
@@ -75,29 +76,6 @@ const VariantToClassNameV2: Record<ButtonVariant, string> = {
   [ButtonVariant.Quiz]: 'btn-v2-quiz',
 };
 
-// `Quiz` excluded — visuals come from buttons-v2.css @apply rules, not per-color tokens.
-const ColorableVariants: ReadonlyArray<ButtonVariant> = [
-  ButtonVariant.Primary,
-  ButtonVariant.Secondary,
-  ButtonVariant.Tertiary,
-  ButtonVariant.Float,
-  ButtonVariant.Subtle,
-  ButtonVariant.Option,
-];
-
-const variantColorClass = (
-  variant: ButtonVariant,
-  color: ButtonColor,
-): string | undefined => {
-  if (!ColorableVariants.includes(variant)) {
-    return undefined;
-  }
-  if (variant === ButtonVariant.Float) {
-    return `btn-v2-tertiaryFloat-${color}`;
-  }
-  return `btn-v2-${variant}-${color}`;
-};
-
 interface CommonButtonProps {
   size?: ButtonSize;
   loading?: boolean;
@@ -113,7 +91,7 @@ interface CommonButtonProps {
 }
 
 type ColorButtonProps =
-  | { color: ButtonColor; variant: ButtonVariant }
+  | { color: ButtonV2Color; variant: ButtonVariant.Tertiary }
   | { color?: never; variant?: ButtonVariant };
 
 type IconButtonProps =
@@ -247,7 +225,7 @@ function ButtonV2Component<TagName extends AllowedTags>(
         !iconOnly && icon && hasChildren && SizeToGapV2[size],
         iconPosition === ButtonIconPosition.Top && 'flex-col !gap-0.5 !px-2',
         variant && !color && VariantToClassNameV2[variant],
-        variant && color && variantColorClass(variant, color),
+        variant && color && `btn-v2-${variant}-${color}`,
         className,
       )}
       onMouseEnter={(event: ReactMouseEvent<AllowedElements>) => {

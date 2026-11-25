@@ -6,15 +6,17 @@ import type { AdRequestConsent } from '../features/monetization/adConsent';
 import { AdConsentExists } from '../features/monetization/adConsent';
 import { getAdPageViewId } from '../features/monetization/adPageView';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
+import type { AdSlotFetchTransition } from '../features/monetization/adSlotLifecycle';
 
 /**
  * Squads with the paid `adFree` feature carry no ads on their feed, their
- * search results, or the page and modal of any of their posts. Every ad
- * placement reads this one rule.
+ * search results, or the page and modal of any of their posts, unless their
+ * admins turned ads back on (`hideAds`). Every ad placement reads this one
+ * rule.
  */
 export const isSourceAdFree = (
   source?: Pick<Source, 'features'> | null,
-): boolean => !!source?.features?.adFree;
+): boolean => !!(source?.features?.hideAds ?? source?.features?.adFree);
 
 /**
  * A squad post opened from a feed card has no features until its own post
@@ -29,6 +31,7 @@ export const shouldSkipSourceAds = (
 export enum AdActions {
   Click = 'click',
   Refresh = 'refresh',
+  RefreshStop = 'refresh stop',
   Impression = 'impression',
   // Rendered and seen by IAB rules, unlike `Impression` which only means the
   // creative reached the viewport.
@@ -47,6 +50,16 @@ export enum AdPlacement {
   SponsorStrip = 'advertiser_bar',
 }
 
+export enum AdEntity {
+  Post = 'post',
+  Source = 'source',
+}
+
+export interface AdEntityTarget {
+  entity: AdEntity;
+  id: string;
+}
+
 export interface FetchAdByPlacementOptions {
   placement: AdPlacement;
   active?: boolean;
@@ -59,7 +72,37 @@ export interface FetchAdByPlacementOptions {
    */
   registered?: boolean;
   pageViewId?: string;
+  refresh?: AdRefreshRequest;
+  entity?: AdEntityTarget;
+  onTransition?: (transition: AdSlotFetchTransition) => void;
 }
+
+export interface AdRefreshRequest {
+  platform: string;
+  count?: number;
+  generationId?: string;
+}
+
+export const appendRefreshParams = (
+  params: URLSearchParams,
+  refresh?: AdRefreshRequest,
+): URLSearchParams => {
+  if (!refresh) {
+    return params;
+  }
+
+  params.set('platform', refresh.platform);
+
+  if (typeof refresh.count !== 'undefined') {
+    params.set('refresh', refresh.count.toString());
+  }
+
+  if (refresh.generationId) {
+    params.set('gen_id', refresh.generationId);
+  }
+
+  return params;
+};
 
 // Skadi matches any query param against ad set `REQUEST_METADATA` targeting,
 // so campaigns can target `{"registered":"true"}` or `{"registered":"false"}`.
@@ -69,6 +112,18 @@ export const appendRegisteredParam = (
 ): URLSearchParams => {
   if (typeof registered !== 'undefined') {
     params.set('registered', registered ? 'true' : 'false');
+  }
+
+  return params;
+};
+
+export const appendEntityParams = (
+  params: URLSearchParams,
+  entity?: AdEntityTarget,
+): URLSearchParams => {
+  if (entity) {
+    params.set('entity', entity.entity);
+    params.set('entity_id', entity.id);
   }
 
   return params;
@@ -129,11 +184,13 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
+  throwOnError = false,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
-}): Promise<Ad | null> => {
+  throwOnError?: boolean;
+}): Promise<{ ad: Ad | null; failed: boolean }> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
     headers['X-Page-View-Id'] = pageViewId;
@@ -150,8 +207,42 @@ const fetchAdRequest = async ({
     ...(Object.keys(headers).length > 0 && { headers }),
   });
 
+  if (throwOnError && !res.ok) {
+    throw new Error(`Ad request failed with status ${res.status}`);
+  }
+
   const ads = (await res.json()) as Ad[];
-  return addGenerationIdHeader({ ad: ads[0] ?? null, res });
+  return {
+    ad: addGenerationIdHeader({ ad: ads[0] ?? null, res }),
+    failed: res.ok === false,
+  };
+};
+
+const fetchAdSlot = async (
+  options: Parameters<typeof fetchAdRequest>[0],
+  {
+    onTransition,
+    throwOnError = false,
+  }: {
+    onTransition?: FetchAdByPlacementOptions['onTransition'];
+    throwOnError?: boolean;
+  } = {},
+): Promise<Ad | null> => {
+  onTransition?.({ type: 'pre-fetch' });
+  let result: Awaited<ReturnType<typeof fetchAdRequest>>;
+  try {
+    result = await fetchAdRequest({ ...options, throwOnError });
+  } catch (error) {
+    onTransition?.({ type: 'fetch-error' });
+    throw error;
+  }
+  const { ad, failed } = result;
+  if (failed) {
+    onTransition?.({ type: 'fetch-error' });
+  } else {
+    onTransition?.(ad ? { type: 'post-fetch', ad } : { type: 'no-fill' });
+  }
+  return ad;
 };
 
 export const resolveAdFetchOptions = ({
@@ -160,16 +251,18 @@ export const resolveAdFetchOptions = ({
   consent,
   registered,
   pageViewId,
+  entity,
 }: {
   placement?: AdPlacement;
   active?: boolean;
   consent?: AdRequestConsent;
   registered?: boolean;
   pageViewId?: string;
+  entity?: AdEntityTarget;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement, consent, registered, pageViewId };
+      return { placement, consent, registered, pageViewId, entity };
     case AdPlacement.SquadDirectory:
       return {
         placement,
@@ -177,6 +270,7 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
+        entity,
       };
     case AdPlacement.PostSidebar:
       return {
@@ -186,6 +280,7 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
+        entity,
       };
     case AdPlacement.Feed:
     default:
@@ -197,6 +292,7 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
+        entity,
       };
   }
 };
@@ -209,13 +305,22 @@ export const fetchAdByPlacement = async ({
   consent,
   registered,
   pageViewId,
+  refresh,
+  entity,
+  onTransition,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
+  const fetchSlot = (options: Parameters<typeof fetchAdRequest>[0]) =>
+    fetchAdSlot(options, { onTransition, throwOnError: !!refresh?.count });
+
   switch (placement) {
     case AdPlacement.PostComment:
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a/post',
         params: appendConsentParams(
-          appendRegisteredParam(new URLSearchParams(), registered),
+          appendEntityParams(
+            appendRegisteredParam(new URLSearchParams(), registered),
+            entity,
+          ),
           consent,
         ),
         pageViewId,
@@ -227,8 +332,9 @@ export const fetchAdByPlacement = async ({
       }
 
       appendRegisteredParam(params, registered);
+      appendEntityParams(params, entity);
 
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a/squads_directory',
         params: appendConsentParams(params, consent),
         pageViewId,
@@ -250,8 +356,10 @@ export const fetchAdByPlacement = async ({
       }
 
       appendRegisteredParam(params, registered);
+      appendEntityParams(params, entity);
+      appendRefreshParams(params, refresh);
 
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
@@ -261,7 +369,7 @@ export const fetchAdByPlacement = async ({
 };
 
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> =>
-  fetchAdRequest({ path: '/v1/a', params });
+  fetchAdSlot({ path: '/v1/a', params });
 
 export const fetchCommentAd = async (): Promise<Ad | null> => {
   return fetchAdByPlacement({

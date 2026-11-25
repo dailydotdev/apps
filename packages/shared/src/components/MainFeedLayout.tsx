@@ -19,7 +19,7 @@ import {
   requestIdleCallback,
 } from 'next/dist/client/request-idle-callback';
 import type { QueryKey } from '@tanstack/react-query';
-import type { FeedProps } from './Feed';
+import type { FeedGridWidgets, FeedProps } from './Feed';
 import Feed from './Feed';
 import { feedGutter, feedWidth, listFeedGutter } from './utilities/common';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
@@ -92,11 +92,18 @@ import { FeedHero } from './feeds/hero/FeedHero';
 import {
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
-  useFeedWidgetsOptOut,
+  useFeedWidgetsPromo,
 } from '../features/feedWidgets/feedState';
-import { FeedWidgetRailLoading } from '../features/feedWidgets/FeedWidgetRailFrame';
-import { HomeFeedTabs } from '../features/feedWidgets/HomeFeedTabs';
-import { getHomeHighlightsView } from '../features/feedWidgets/homeHighlightsView';
+import {
+  FeedWidgetCellLoading,
+  FeedWidgetPromo,
+  FeedWidgetSlot,
+  InFeedWidgetsProvider,
+  useInFeedWidgetsState,
+} from '../features/feedWidgets/InFeedWidgetsContext';
+import type { InFeedWidgetsContextValue } from '../features/feedWidgets/InFeedWidgetsContext';
+import type { FeedWidget } from '../features/feedWidgets/types';
+import { FEED_WIDGETS_PROMO_FROM } from '../features/feedWidgets/types';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -110,6 +117,8 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
+import { WeeklyPicksHero } from './picks/WeeklyPicksHero';
+import { useWeeklyPicksHero } from '../hooks/picks/useWeeklyPicksHero';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
@@ -125,15 +134,104 @@ import { useFeedTuneState } from '../features/feedExplain/useFeedTuneState';
 import { FeedTuneProvider } from '../features/feedExplain/FeedTuneContext';
 import { FeedExplainBar } from '../features/feedExplain/components/FeedExplainBar';
 
-// Its own chunk, so readers without the rail never download it; the skeleton
-// holds the rail's exact height while it loads.
-const FeedWidgetRail = dynamic(
+// Their own chunk, so readers who never place a widget never download it;
+// the placeholder holds a card's cell while it loads.
+const FeedWidgetCell = dynamic(
   () =>
     import(
-      /* webpackChunkName: "feedWidgetRail" */ '../features/feedWidgets/FeedWidgetRail'
-    ).then((mod) => mod.FeedWidgetRail),
-  { loading: () => <FeedWidgetRailLoading /> },
+      /* webpackChunkName: "inFeedWidgets" */ '../features/feedWidgets/InFeedWidgets'
+    ).then((mod) => mod.FeedWidgetCell),
+  { loading: () => <FeedWidgetCellLoading /> },
 );
+
+const FeedWidgetEditor = dynamic(() =>
+  import(
+    /* webpackChunkName: "inFeedWidgets" */ '../features/feedWidgets/InFeedWidgets'
+  ).then((mod) => mod.FeedWidgetEditor),
+);
+
+/**
+ * The grid's view of the reader's widgets: where they sit, and in Customize
+ * mode a cover over every card's slot. The editor (the gallery, the bar with
+ * Done) only loads once the reader customizes.
+ */
+const useFeedGridWidgets = ({
+  state: { isEnabled, isEditing, addingSlot },
+  widgets,
+  feedName,
+}: {
+  state: InFeedWidgetsContextValue;
+  widgets: FeedWidget[];
+  feedName: string;
+}): { feedWidgets?: FeedGridWidgets; editor: ReactNode } => {
+  const promo = useFeedWidgetsPromo();
+  const [isPromoClosed, setIsPromoClosed] = useState(false);
+  const isPromoOpen =
+    promo.isOpen && !isPromoClosed && !isEditing && addingSlot === null;
+  const { countView, done } = promo;
+  // Closed here at once, before the write lands.
+  const closePromo = useCallback(() => {
+    setIsPromoClosed(true);
+    done();
+  }, [done]);
+  const feedWidgets = useMemo<FeedGridWidgets | undefined>(
+    () =>
+      isEnabled
+        ? {
+            widgets,
+            // The wrapper holds the span, so the cell's loading state is as
+            // wide as the widget it stands in for.
+            renderWidget: (widget, { columns, left, right }) => (
+              <div
+                className="flex min-w-0"
+                style={
+                  columns > 1 ? { gridColumn: `span ${columns}` } : undefined
+                }
+              >
+                <FeedWidgetCell
+                  widget={widget}
+                  feedName={feedName}
+                  columns={columns}
+                  moveTargets={{ left, right }}
+                />
+              </div>
+            ),
+            renderSlot: isEditing
+              ? (index) => <FeedWidgetSlot slot={index} />
+              : undefined,
+            promo: isPromoOpen
+              ? {
+                  from: FEED_WIDGETS_PROMO_FROM,
+                  render: (index) => (
+                    <FeedWidgetPromo
+                      slot={index}
+                      onView={countView}
+                      onDone={closePromo}
+                    />
+                  ),
+                }
+              : undefined,
+          }
+        : undefined,
+    [
+      isEnabled,
+      isEditing,
+      widgets,
+      feedName,
+      isPromoOpen,
+      countView,
+      closePromo,
+    ],
+  );
+
+  return {
+    feedWidgets,
+    editor:
+      isEnabled && (isEditing || addingSlot !== null) ? (
+        <FeedWidgetEditor />
+      ) : null,
+  };
+};
 
 const FeedTunePanel = dynamic(() =>
   import(
@@ -166,12 +264,6 @@ const SearchProviderResults = dynamic(() =>
   import(
     /* webpackChunkName: "searchProviderResults" */ './search/SearchResults/SearchProviderResults'
   ).then((mod) => mod.SearchProviderResults),
-);
-
-const HighlightsPage = dynamic(() =>
-  import(
-    /* webpackChunkName: "highlightsPage" */ './highlights/HighlightsPage'
-  ).then((mod) => mod.HighlightsPage),
 );
 
 const FeedEmptyScreen = dynamic(
@@ -444,7 +536,6 @@ export default function MainFeedLayout({
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
   const { isFlagOn: isFeedWidgetsFlagOn, isEnabled: isFeedWidgetsEnabled } =
     useFeedWidgetRailState(feedName);
-  const { hide: hideFeedWidgets } = useFeedWidgetsOptOut();
   const { value: isFeedHeroFlagOn } = useConditionalFeature({
     feature: featureFeedHero,
     shouldEvaluate: isMainFeedPage && !isFeedWidgetsFlagOn,
@@ -454,20 +545,26 @@ export default function MainFeedLayout({
   // that it could push down.
   const { settled: areFeaturesSettled } = useFeaturesReadyContext();
   const isAwaitingFeatures = isMainFeedPage && !areFeaturesSettled;
-  // The rail is the hero's successor: where it is on, the hero yields, and a
-  // reader who turned the rail off gets the plain feed, not the hero back.
+  // The card sits above the feed, so the feed waits for its verdict the way
+  // it waits for the flags: painted once, in its final place.
+  const picksHero = useWeeklyPicksHero({ enabled: isHomePage });
+  const isAwaitingPicksHero = isHomePage && !picksHero.isSettled;
+  // The widgets are the hero's successor: where they are on, the hero yields,
+  // and a reader who turned them off gets the plain feed, not the hero back.
   const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsFlagOn;
   const homeTabGapClassName =
-    isHomeTabFeed &&
-    !isFeedWidgetsEnabled &&
-    !isExtension &&
-    'pt-2 tablet:pt-0';
-  // What the grid must not repeat, known before it paints and never waiting
-  // on the rail's own code or data, so the grid never moves when it lands.
-  // Only For you and Popular share their posts with the rail: Following and
-  // the custom feeds (on a phone the rail heads them too) keep their own.
+    isHomeTabFeed && !isExtension && 'pt-2 tablet:pt-0';
+  // Where the widgets sit and what the grid must not repeat, known before it
+  // paints and never waiting on the widgets' own code or data.
   const widgetFeedState = useFeedWidgetFeedState({
     enabled: isFeedWidgetsEnabled && isMainFeedPage,
+  });
+  const inFeedWidgets = useInFeedWidgetsState(
+    isFeedWidgetsEnabled && isMainFeedPage,
+  );
+  const { feedWidgets, editor: feedWidgetEditor } = useFeedGridWidgets({
+    state: inFeedWidgets,
+    widgets: widgetFeedState.widgets,
     feedName,
   });
   // The hero reports back rather than being asked: it only has a placement once
@@ -695,7 +792,7 @@ export default function MainFeedLayout({
           feedName: SharedFeedPage.Custom,
         },
         emptyScreen,
-        actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
+        actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             // On `/` with a custom default feed the rendered feed is the
@@ -810,7 +907,7 @@ export default function MainFeedLayout({
       isExplaining: isExplainFeed,
       canExplainPosts,
       emptyScreen,
-      actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
+      actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
@@ -851,7 +948,6 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     isTokenValid,
-    isFeedWidgetsEnabled,
     canExplainPosts,
     isExplainFeed,
     tuneDraft,
@@ -972,48 +1068,9 @@ export default function MainFeedLayout({
     'tablet:pt-6',
     isV2Grid ? 'mb-8 tablet:mb-0' : 'mb-8',
   );
-  // The feed's tabs follow the rail, so they carry the gap to the feed.
-  const railClassName = classNames(
-    heroInsetClassName,
-    'tablet:pt-4',
-    !isV2Grid && 'mb-2',
-  );
-  const feedTabs = isFeedWidgetsEnabled && (
-    <HomeFeedTabs
-      feedName={
-        feedNameProp === 'default' && isCustomDefaultFeed
-          ? SharedFeedPage.Custom
-          : feedName
-      }
-      heading={feedHeading}
-      hasChips={showExploreChips}
-      categories={exploreCategories}
-      isChipsPending={!feeds}
-    />
-  );
-  const railContent = (
-    <>
-      {/* The wrapper carries the insets, so the skeleton the lazy rail
-          shows while it loads sits exactly where the rail lands. */}
-      <div className={railClassName}>
-        <FeedWidgetRail feedName={feedName} onHide={hideFeedWidgets} />
-      </div>
-      {feedTabs}
-    </>
-  );
-  // On a phone the rail and its tabs head the page, outside the feed: a tab
-  // swaps the feed under them (its own feed, loading or empty), so they stay
-  // mounted and in place instead of coming back with each feed.
-  const isRailPageHead = isFeedWidgetsEnabled && isPhone;
-  // Happening now, switched in place under the rail from its tab.
-  const homeHighlightsView = isRailPageHead
-    ? getHomeHighlightsView(router.query)
-    : null;
   // Left undefined when neither is on so `Feed` keeps its own top slot.
   let topContent = chipsTopContent;
-  if (isFeedWidgetsEnabled) {
-    topContent = isRailPageHead ? undefined : railContent;
-  } else if (isFeedHeroEnabled) {
+  if (isFeedHeroEnabled) {
     topContent = (
       <>
         <FeedHero
@@ -1049,8 +1106,7 @@ export default function MainFeedLayout({
     isLaptopLayout &&
     !showExploreV2PageHeader &&
     !isSearchPageLaptop &&
-    (!!pageHeaderContent ||
-      (!isFeedWidgetsEnabled && (!!v2ActionButtons || !!feedHeading)));
+    (!!pageHeaderContent || !!v2ActionButtons || !!feedHeading);
 
   const tunePreviewKey = tuneDraft ? feedProps?.feedQueryKey : undefined;
   const tuneBaseKey = tunePreviewKey
@@ -1058,166 +1114,164 @@ export default function MainFeedLayout({
     : feedProps?.feedQueryKey;
 
   return (
-    <FeedTuneProvider
-      baseQueryKey={isTuning ? tuneBaseKey : undefined}
-      previewQueryKey={tunePreviewKey}
-    >
-      {showExploreV2PageHeader && (
-        <header className={classNames(pageHeaderClassName, '!py-0')}>
-          {/* Sort options as pill tabs — same navbar as the Tags / Squad
+    <InFeedWidgetsProvider value={inFeedWidgets}>
+      <FeedTuneProvider
+        baseQueryKey={isTuning ? tuneBaseKey : undefined}
+        previewQueryKey={tunePreviewKey}
+      >
+        {showExploreV2PageHeader && (
+          <header className={classNames(pageHeaderClassName, '!py-0')}>
+            {/* Sort options as pill tabs — same navbar as the Tags / Squad
               directory pages, not the underlined TabContainer. `tab`/
               `onTabChange` are the same pair tablet hands FeedExploreHeader, so
               the extension switches the feed in place here too. */}
-          <FeedExploreTabs tab={tab} setTab={onTabChange} />
-        </header>
-      )}
-      {isProviderSearch && searchQuery && (
-        <header
-          className={classNames(
-            pageHeaderClassName,
-            'hidden !py-0 tablet:flex',
-          )}
-        >
-          <SearchProviderNavbar query={searchQuery} provider={searchProvider} />
-        </header>
-      )}
-      {showFeedV2PageHeader && (
-        <header
-          className={classNames(
-            pageHeaderClassName,
-            '!py-0',
-            // The floating card clips with `overflow-clip`, so a sticky
-            // descendant pins to the viewport under the fixed chrome.
-            !!pageHeaderContent &&
-              'sticky top-[var(--sticky-header-offset)] z-3 bg-background-default',
-          )}
-        >
-          {pageHeaderContent || v2ActionButtons || (
-            <strong className="min-w-0 flex-1 truncate typo-callout">
-              {feedHeading}
-            </strong>
-          )}
-        </header>
-      )}
-      <FeedPageLayoutComponent
-        className={classNames(
-          'relative',
-          disableTopPadding && '!pt-0',
-          // Room for Tune beside the feed, or under it on a phone.
-          isTuning && (isLaptop ? 'pr-[28rem]' : 'pb-[60vh]'),
-        )}
-      >
-        {isExploreRoot && (!hasMounted || isPhoneWidth) && (
-          <div className="tablet:hidden">
-            <ExploreSortMenu />
-            <SpotlightField />
-          </div>
-        )}
-        {isAnyExplore && !showExploreV2PageHeader && !isPhone && (
-          <div className="hidden tablet:contents">
-            <FeedExploreComponent />
-          </div>
-        )}
-        {isSearchOn && !isSearchPageLaptop && search}
-        {isSearchOn && !isSearchPageLaptop && isPhone && (
-          <>
-            <ShellPage
-              title={searchQuery || 'Search'}
-              actions={
-                !isProviderSearch && <SearchMobileFiltersButton square />
-              }
-              row={searchProviderSegments}
-            />
-            <SpotlightField query={searchQuery || undefined} />
-          </>
-        )}
-        {isSearchOn && !isSearchPageLaptop && !isPhone && !isProviderSearch && (
-          <div
-            className={classNames(
-              'mb-3 hidden justify-end px-4 tablet:flex',
-              feedWidthClassName,
-            )}
-            style={feedWidthStyle}
-          >
-            <SearchMobileFiltersButton />
-          </div>
-        )}
-        {isSearchOn && isFinder && !isSearchPageLaptop && !isProviderSearch && (
-          <AskSearchBanner className="mx-4 mb-4" />
-        )}
-        {!isExtension && isHomePage && (
-          <WebappShortcutsRow className="px-4 pb-2" />
+            <FeedExploreTabs tab={tab} setTab={onTabChange} />
+          </header>
         )}
         {isProviderSearch && searchQuery && (
-          <SearchProviderResults
-            key={searchProvider}
-            provider={searchProvider}
-            query={searchQuery}
-          />
-        )}
-        {isRailPageHead && railContent}
-        {homeHighlightsView && (
-          // A screen tall, so a short list never pulls the rail back.
-          <div className="min-h-screen">
-            <HighlightsPage view={homeHighlightsView} />
-          </div>
-        )}
-        {feedProps && !homeHighlightsView && (
-          <Feed
-            {...feedProps}
-            shortcuts={shortcuts}
-            topContent={topContent}
-            // The flag, not the hero's render: this placement logs an
-            // impression, so it has to be suppressed from the first paint
-            // rather than flickering in and out as the hero resolves.
-            disableTopHero={isFeedHeroEnabled}
-            keepTopHero={isFeedWidgetsEnabled}
-            fillEmptyScreen={isRailPageHead}
-            // The render, so a hero that finds no headlines hands the
-            // highlights card and row one back to the grid.
-            disableHighlightCards={
-              isHeroRendered || widgetFeedState.hasHappeningNow
-            }
-            skipFirstAd={isHeroAdVisible || widgetFeedState.isAdVisible}
-            deferWideCards={isHeroRendered || widgetFeedState.hasTopStory}
-            excludedPostIds={widgetFeedState.excludedPostIds}
+          <header
             className={classNames(
-              !isFinder && gutterClassName,
-              homeTabGapClassName,
-              // The feed starts a gutter under the rail's tab row.
-              isRailPageHead && 'pt-2',
-              isAwaitingFeatures && 'invisible',
+              pageHeaderClassName,
+              'hidden !py-0 tablet:flex',
             )}
-          />
+          >
+            <SearchProviderNavbar
+              query={searchQuery}
+              provider={searchProvider}
+            />
+          </header>
         )}
-        {isExplainFeed && <FeedExplainBar isHidden={isTuning} />}
-        {isFeedPending && isPhone && !homeHighlightsView && (
-          <>
-            {/* The rail heads the page (above), so the placeholders
-                under it stay put. */}
+        {showFeedV2PageHeader && (
+          <header
+            className={classNames(
+              pageHeaderClassName,
+              '!py-0',
+              // The floating card clips with `overflow-clip`, so a sticky
+              // descendant pins to the viewport under the fixed chrome.
+              !!pageHeaderContent &&
+                'sticky top-[var(--sticky-header-offset)] z-3 bg-background-default',
+            )}
+          >
+            {pageHeaderContent || v2ActionButtons || (
+              <strong className="min-w-0 flex-1 truncate typo-callout">
+                {feedHeading}
+              </strong>
+            )}
+          </header>
+        )}
+        <FeedPageLayoutComponent
+          className={classNames(
+            'relative',
+            disableTopPadding && '!pt-0',
+            // Room for Tune beside the feed, or under it on a phone.
+            isTuning && (isLaptop ? 'pr-[28rem]' : 'pb-[60vh]'),
+          )}
+        >
+          {isExploreRoot && (!hasMounted || isPhoneWidth) && (
+            <div className="tablet:hidden">
+              <ExploreSortMenu />
+              <SpotlightField />
+            </div>
+          )}
+          {isAnyExplore && !showExploreV2PageHeader && !isPhone && (
+            <div className="hidden tablet:contents">
+              <FeedExploreComponent />
+            </div>
+          )}
+          {isSearchOn && !isSearchPageLaptop && search}
+          {isSearchOn && !isSearchPageLaptop && isPhone && (
+            <>
+              <ShellPage
+                title={searchQuery || 'Search'}
+                actions={
+                  !isProviderSearch && <SearchMobileFiltersButton square />
+                }
+                row={searchProviderSegments}
+              />
+              <SpotlightField query={searchQuery || undefined} />
+            </>
+          )}
+          {isSearchOn &&
+            !isSearchPageLaptop &&
+            !isPhone &&
+            !isProviderSearch && (
+              <div
+                className={classNames(
+                  'mb-3 hidden justify-end px-4 tablet:flex',
+                  feedWidthClassName,
+                )}
+                style={feedWidthStyle}
+              >
+                <SearchMobileFiltersButton />
+              </div>
+            )}
+          {isSearchOn &&
+            isFinder &&
+            !isSearchPageLaptop &&
+            !isProviderSearch && <AskSearchBanner className="mx-4 mb-4" />}
+          {!isExtension && isHomePage && (
+            <WebappShortcutsRow className="px-4 pb-2" />
+          )}
+          {isProviderSearch && searchQuery && (
+            <SearchProviderResults
+              key={searchProvider}
+              provider={searchProvider}
+              query={searchQuery}
+            />
+          )}
+          {isHomePage && <WeeklyPicksHero hero={picksHero} />}
+          {feedProps && (
+            <Feed
+              {...feedProps}
+              shortcuts={shortcuts}
+              topContent={topContent}
+              // The flag, not the hero's render: this placement logs an
+              // impression, so it has to be suppressed from the first paint
+              // rather than flickering in and out as the hero resolves. Held
+              // too while the picks card decides, so the two land together.
+              disableTopHero={isFeedHeroEnabled || isAwaitingPicksHero}
+              // The render, so a hero that finds no headlines hands the
+              // highlights card and row one back to the grid.
+              disableHighlightCards={
+                isHeroRendered || widgetFeedState.hasHappeningNow
+              }
+              skipFirstAd={isHeroAdVisible}
+              deferWideCards={
+                isHeroRendered || widgetFeedState.hasTopStoryFirst
+              }
+              excludedPostIds={widgetFeedState.excludedPostIds}
+              feedWidgets={feedWidgets}
+              className={classNames(
+                !isFinder && gutterClassName,
+                homeTabGapClassName,
+                (isAwaitingFeatures || isAwaitingPicksHero) && 'invisible',
+              )}
+            />
+          )}
+          {isExplainFeed && <FeedExplainBar isHidden={isTuning} />}
+          {isFeedPending && isPhone && (
             <PlaceholderFeed
               className={classNames(
                 !isFinder && gutterClassName,
                 homeTabGapClassName,
-                isFeedWidgetsEnabled && '!mt-0',
-                isRailPageHead && 'pt-2',
-                isAwaitingFeatures && 'invisible',
+                (isAwaitingFeatures || isAwaitingPicksHero) && 'invisible',
               )}
             />
-          </>
-        )}
-        {children}
-        {showSignupBanner && <PublicPageSignupBanner />}
-      </FeedPageLayoutComponent>
-      {/* Docked outside the page container so it spans the feed column and
+          )}
+          {children}
+          {showSignupBanner && <PublicPageSignupBanner />}
+        </FeedPageLayoutComponent>
+        {/* Docked outside the page container so it spans the feed column and
           pins to the window, and mounted here rather than in each app's
           MainFeedPage because this is the one component both the webapp and
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
-      {isSponsorStripEnabled && <SponsorStrip />}
-      {isTuning && (
-        <FeedTunePanel version={explainVersion} isSheet={!isLaptop} />
-      )}
-    </FeedTuneProvider>
+        {isSponsorStripEnabled && <SponsorStrip />}
+        {isTuning && (
+          <FeedTunePanel version={explainVersion} isSheet={!isLaptop} />
+        )}
+        {feedWidgetEditor}
+      </FeedTuneProvider>
+    </InFeedWidgetsProvider>
   );
 }

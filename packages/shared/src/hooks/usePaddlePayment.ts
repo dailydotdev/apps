@@ -27,6 +27,8 @@ interface UsePaddlePaymentProps extends Pick<
   priceType: PurchaseType;
   getProductQuantity?: (event: PaddleEventData) => number;
   origin?: Origin;
+  /** Merged into the extra of every checkout event */
+  logExtra?: Record<string, unknown>;
 }
 
 /**
@@ -50,6 +52,7 @@ export const usePaddlePayment = ({
   priceType,
   getProductQuantity,
   origin,
+  logExtra,
 }: UsePaddlePaymentProps) => {
   const targetType = purchaseTypeToTargetType[priceType];
   const router = useRouter();
@@ -63,6 +66,12 @@ export const usePaddlePayment = ({
   const [appliedDiscountId, setAppliedDiscountId] = useState<
     string | null | undefined
   >();
+  // What the open checkout charges today, after discounts and tax
+  const [checkoutTotals, setCheckoutTotals] = useState<{
+    total: number;
+    discount: number;
+    currency: string;
+  }>();
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
@@ -71,6 +80,8 @@ export const usePaddlePayment = ({
   getProductQuantityRef.current = getProductQuantity;
   const originRef = useRef(origin);
   originRef.current = origin;
+  const logExtraRef = useRef(logExtra);
+  logExtraRef.current = logExtra;
   const discountIdQuery = router.query?.d_id as string | undefined;
 
   const isOrganization = priceType === PurchaseType.Organization;
@@ -96,6 +107,16 @@ export const usePaddlePayment = ({
         'production',
       token: paddleToken,
       eventCallback: (event: PaddleEventData) => {
+        const totals = event?.data?.totals;
+
+        if (totals && event?.data?.currency_code) {
+          setCheckoutTotals({
+            total: totals.total,
+            discount: totals.discount,
+            currency: event.data.currency_code,
+          });
+        }
+
         if (disabledEvents?.includes(event?.name as CheckoutEventNames)) {
           if (event?.name === CheckoutEventNames.CHECKOUT_LOADED) {
             isCheckoutOpenRef.current = true;
@@ -124,6 +145,7 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                ...logExtraRef.current,
                 origin: originRef.current,
               }),
             });
@@ -137,6 +159,7 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                ...logExtraRef.current,
                 origin: originRef.current,
               }),
             });
@@ -148,6 +171,7 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                ...logExtraRef.current,
                 origin: originRef.current,
               }),
             });
@@ -169,6 +193,7 @@ export const usePaddlePayment = ({
                 cycle:
                   event?.data?.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 ...plusPlanExtra,
+                ...logExtraRef.current,
                 origin: originRef.current,
               }),
             });
@@ -186,6 +211,7 @@ export const usePaddlePayment = ({
               event_name: LogEvent.WarningCheckout,
               extra: JSON.stringify({
                 transaction_id: event?.data?.transaction_id,
+                ...logExtraRef.current,
                 origin: originRef.current,
               }),
             });
@@ -196,6 +222,7 @@ export const usePaddlePayment = ({
               event_name: LogEvent.ErrorCheckout,
               extra: JSON.stringify({
                 ...getCheckoutErrorExtra(event),
+                ...logExtraRef.current,
                 origin: originRef.current,
               }),
             });
@@ -207,6 +234,7 @@ export const usePaddlePayment = ({
               event_name: LogEvent.ErrorPayment,
               extra: JSON.stringify({
                 ...getCheckoutErrorExtra(event),
+                ...logExtraRef.current,
                 origin: originRef.current,
               }),
             });
@@ -311,5 +339,6 @@ export const usePaddlePayment = ({
     isPaddleReady: !!paddle,
     checkoutItemsLoading,
     appliedDiscountId,
+    checkoutTotals,
   };
 };

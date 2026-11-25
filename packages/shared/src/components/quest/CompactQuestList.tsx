@@ -8,7 +8,14 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import ProgressCircle from '../ProgressCircle';
-import { ArrowIcon, CoreIcon, LockIcon, ReputationIcon, VIcon } from '../icons';
+import {
+  ArrowIcon,
+  CoreIcon,
+  LockIcon,
+  RefreshIcon,
+  ReputationIcon,
+  VIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { plusUrl, webappUrl } from '../../lib/constants';
@@ -21,10 +28,21 @@ import type { QuestReward, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
+  getQuestChainLabel,
   isQuestClaimed,
 } from '../../graphql/quests';
+import {
+  QuestBonusAmount,
+  QuestBonusHighlight,
+  QuestBonusRewardBadge,
+  QuestSwapButton,
+  getQuestBonusContainerClassName,
+  getQuestBonusMultiplier,
+  useQuestBonusHighlight,
+} from './QuestBonusRewardBadge';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { useOpenQuestRefresh } from '../../hooks/useRefreshQuest';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import {
@@ -43,32 +61,55 @@ const rewardColorByType: Record<QuestRewardType, string> = {
 // The reward "value" of a quest — the thing that answers "what do I get?".
 const QuestRewardValue = ({
   reward,
+  multiplier = 1,
+  highlight = QuestBonusHighlight.Control,
 }: {
   reward: QuestReward;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'flex items-center gap-0.5 tabular-nums typo-caption1',
-      reward.type === QuestRewardType.Xp ? 'font-normal' : 'font-bold',
-      rewardColorByType[reward.type],
-    )}
-  >
-    {reward.type === QuestRewardType.Cores && <CoreIcon className="size-4" />}
-    {reward.type === QuestRewardType.Reputation && (
-      <ReputationIcon className="size-4" />
-    )}
-    <span>
-      {reward.amount}
-      {reward.type === QuestRewardType.Xp ? ' XP' : ''}
+  multiplier?: number;
+  highlight?: QuestBonusHighlight;
+}): ReactElement => {
+  const suffix = reward.type === QuestRewardType.Xp ? ' XP' : '';
+  const isBoosted = multiplier > 1;
+  const isGold = isBoosted && highlight === QuestBonusHighlight.V1;
+
+  return (
+    <span
+      className={classNames(
+        'flex items-center gap-0.5 tabular-nums typo-caption1',
+        reward.type === QuestRewardType.Xp && !isGold
+          ? 'font-normal'
+          : 'font-bold',
+        isGold ? 'text-accent-cheese-default' : rewardColorByType[reward.type],
+      )}
+    >
+      {reward.type === QuestRewardType.Cores && <CoreIcon className="size-4" />}
+      {reward.type === QuestRewardType.Reputation && (
+        <ReputationIcon className="size-4" />
+      )}
+      {isBoosted && highlight === QuestBonusHighlight.V2 ? (
+        <QuestBonusAmount
+          amount={reward.amount}
+          multiplier={multiplier}
+          suffix={suffix}
+        />
+      ) : (
+        <span>
+          {reward.amount}
+          {suffix}
+        </span>
+      )}
     </span>
-  </span>
-);
+  );
+};
 
 interface CompactQuestRowProps {
   quest: UserQuest;
   isClaiming: boolean;
   onClaim: (quest: UserQuest) => void;
   onUnlock?: () => void;
+  onRefresh?: (quest: UserQuest) => void;
+  /** Pins the bonus highlight (Storybook); the flag decides otherwise. */
+  highlight?: QuestBonusHighlight;
 }
 
 // Exported for the Storybook state matrix: the row is presentational (the data
@@ -78,12 +119,34 @@ export const CompactQuestRow = ({
   isClaiming,
   onClaim,
   onUnlock,
+  onRefresh,
+  highlight: pinnedHighlight,
 }: CompactQuestRowProps): ReactElement => {
+  const canRefresh = typeof quest.refreshCost === 'number' && !!onRefresh;
+  const multiplier = getQuestBonusMultiplier(quest);
+  const hasBonus = multiplier > 1;
+  const flagHighlight = useQuestBonusHighlight(
+    !pinnedHighlight && (hasBonus || canRefresh),
+  );
+  const highlight = pinnedHighlight ?? flagHighlight;
+  const isControl = highlight === QuestBonusHighlight.Control;
+  // v1 and v3 move the badge out of the title row (v1: beside the rewards,
+  // v3: a label above the title) so an always-visible Swap fits beside the
+  // title in the narrow sidebar.
+  const isSwapInTitle =
+    highlight === QuestBonusHighlight.V1 ||
+    highlight === QuestBonusHighlight.V2 ||
+    highlight === QuestBonusHighlight.V3;
+  const isBadgeInTitle =
+    highlight === QuestBonusHighlight.Control ||
+    highlight === QuestBonusHighlight.V2;
   const target = Math.max(quest.quest.targetCount, 1);
   const value = Math.min(Math.max(quest.progress, 0), target);
   const percentage = Math.min(100, Math.round((value / target) * 100));
   const isClaimed = isQuestClaimed(quest);
   const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
+  const chainLabel = getQuestChainLabel(quest);
+  const isBadgeAboveTitle = hasBonus && highlight === QuestBonusHighlight.V3;
   const isLockedComplete =
     quest.locked && !isClaimed && quest.status === QuestStatus.Completed;
   // Route each quest to the surface where it can actually be completed (same
@@ -108,7 +171,31 @@ export const CompactQuestRow = ({
   return (
     // Rounded hover pill + `hover:bg-surface-hover`, matching every other v2
     // panel list row (the px-3 container gives the same ~12px inset as `mx-3`).
-    <li className="group/quest relative flex flex-col gap-1 rounded-10 px-2 py-2.5 transition-colors hover:bg-surface-hover">
+    <li
+      className={classNames(
+        'group/quest relative flex flex-col gap-1 rounded-10 px-2 py-2.5 transition-colors hover:bg-surface-hover',
+        // Like QuestCard: a claimed quest keeps its 2x badge but loses the
+        // container treatment (v1 tint, v3 spotlight).
+        getQuestBonusContainerClassName(highlight, hasBonus && !isClaimed),
+      )}
+    >
+      {(chainLabel || isBadgeAboveTitle) && (
+        <div className="flex items-center gap-2">
+          {chainLabel && (
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+              bold
+              className="uppercase tracking-[0.12em]"
+            >
+              {chainLabel}
+            </Typography>
+          )}
+          {isBadgeAboveTitle && (
+            <QuestBonusRewardBadge quest={quest} highlight={highlight} />
+          )}
+        </div>
+      )}
       {/* Title row: title takes the full width with the open-details chevron in
           the top-right corner. */}
       <div className="flex items-start justify-between gap-1">
@@ -131,11 +218,27 @@ export const CompactQuestRow = ({
             </Typography>
           </a>
         </Link>
-        <ArrowIcon
-          aria-hidden
-          size={IconSize.XSmall}
-          className="mt-0.5 shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
-        />
+        <div className="flex shrink-0 items-center gap-1">
+          {isBadgeInTitle && (
+            <QuestBonusRewardBadge quest={quest} highlight={highlight} />
+          )}
+          {canRefresh && isSwapInTitle && (
+            <QuestSwapButton
+              quest={quest}
+              highlight={highlight}
+              onRefresh={onRefresh}
+              className="-my-1"
+            />
+          )}
+          <ArrowIcon
+            aria-hidden
+            size={IconSize.XSmall}
+            className={classNames(
+              'shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100',
+              canRefresh && isSwapInTitle && 'hidden',
+            )}
+          />
+        </div>
       </div>
       {quest.quest.description && (
         <Typography
@@ -150,11 +253,42 @@ export const CompactQuestRow = ({
       {/* Bottom strip: XP/Cores rewards on the left; status aligned to the right
           on the same row — claim/claimed, or the step count + small radial. */}
       <div className="mt-0.5 flex items-center justify-between gap-2">
-        <span className="flex min-w-0 shrink flex-wrap items-center gap-2">
+        <span
+          className={classNames(
+            'flex min-w-0 shrink flex-wrap items-center gap-2',
+            canRefresh &&
+              isControl &&
+              'group-focus-within/quest:hidden group-hover/quest:hidden',
+          )}
+        >
+          {hasBonus && highlight === QuestBonusHighlight.V1 && (
+            <QuestBonusRewardBadge
+              quest={quest}
+              highlight={highlight}
+              compact
+            />
+          )}
           {quest.rewards.map((reward) => (
-            <QuestRewardValue key={reward.type} reward={reward} />
+            <QuestRewardValue
+              key={reward.type}
+              reward={reward}
+              multiplier={quest.rewardMultipliers?.[reward.type] ?? 1}
+              highlight={highlight}
+            />
           ))}
         </span>
+        {canRefresh && isControl && (
+          <Button
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            icon={<RefreshIcon />}
+            onClick={() => onRefresh?.(quest)}
+            className="relative z-1 -my-1 !hidden group-focus-within/quest:!flex group-hover/quest:!flex"
+          >
+            Swap
+          </Button>
+        )}
         <div className="flex shrink-0 items-center gap-1.5">
           {canClaim && (
             <Button
@@ -223,6 +357,7 @@ export const CompactQuestRow = ({
 // as separate sections. Replaces the full QuestButton dashboard.
 interface CompactQuestListProps {
   period: 'daily' | 'weekly';
+  targetId?: TargetId;
 }
 
 const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
@@ -232,6 +367,7 @@ const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
 
 export const CompactQuestList = ({
   period,
+  targetId = TargetId.QuestSidebar,
 }: CompactQuestListProps): ReactElement | null => {
   const { data } = useQuestDashboard();
   const {
@@ -241,6 +377,7 @@ export const CompactQuestList = ({
   } = useClaimQuestReward();
   const claimingId = isClaiming ? variables?.userQuestId : undefined;
   const { logSubscriptionEvent } = usePlusSubscription();
+  const openQuestRefresh = useOpenQuestRefresh({ targetId });
 
   const quests = useMemo(() => {
     if (!data) {
@@ -287,6 +424,7 @@ export const CompactQuestList = ({
           isClaiming={claimingId === quest.userQuestId}
           onClaim={onClaim}
           onUnlock={onUnlock}
+          onRefresh={openQuestRefresh}
         />
       ))}
     </ul>

@@ -1,10 +1,8 @@
 import type { NextSeoProps } from 'next-seo';
 import type { ReactElement } from 'react';
 import React from 'react';
-import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../components/layouts/MainFeedPage';
+import { getMainFeedLayout } from '../components/layouts/MainFeedPage';
+import { mainFeedLayoutProps } from '../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, noindexSeoProps } from '../next-seo';
 
 const seo: NextSeoProps = {

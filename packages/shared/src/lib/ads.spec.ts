@@ -4,6 +4,7 @@ import { AdConsentExists } from '../features/monetization/adConsent';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
 import {
+  AdEntity,
   AdPlacement,
   fetchAdByPlacement,
   resolveAdFetchOptions,
@@ -99,6 +100,98 @@ describe('ads', () => {
   });
 
   describe('fetchAdByPlacement', () => {
+    it('rejects a non-JSON initial failure so the query can retry it', async () => {
+      const failure = new SyntaxError('Unexpected token <');
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: jest.fn().mockRejectedValue(failure),
+      } as unknown as Response);
+      const onTransition = jest.fn();
+
+      await expect(
+        fetchAdByPlacement({ placement: AdPlacement.Feed, onTransition }),
+      ).rejects.toBe(failure);
+      expect(onTransition.mock.calls).toEqual([
+        [{ type: 'pre-fetch' }],
+        [{ type: 'fetch-error' }],
+      ]);
+    });
+
+    it('rejects a failed refresh even when the error body is JSON', async () => {
+      const json = jest.fn().mockResolvedValue({ error: 'unavailable' });
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: false,
+        status: 503,
+        json,
+      } as unknown as Response);
+      const onTransition = jest.fn();
+
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: {
+            platform: 'web_desktop',
+            count: 1,
+            generationId: 'previous',
+          },
+          onTransition,
+        }),
+      ).rejects.toThrow('Ad request failed with status 503');
+      expect(json).not.toHaveBeenCalled();
+      expect(onTransition.mock.calls).toEqual([
+        [{ type: 'pre-fetch' }],
+        [{ type: 'fetch-error' }],
+      ]);
+    });
+
+    it('reports pre-fetch before the request and post-fetch with the generation id', async () => {
+      const onTransition = jest.fn();
+      const request = fetchAdByPlacement({
+        placement: AdPlacement.Feed,
+        onTransition,
+      });
+
+      expect(onTransition.mock.calls).toEqual([[{ type: 'pre-fetch' }]]);
+      expect(global.fetch).not.toHaveBeenCalled();
+
+      const result = await request;
+      expect(onTransition.mock.calls).toEqual([
+        [{ type: 'pre-fetch' }],
+        [{ type: 'post-fetch', ad: { ...ad, generationId: 'gen-123' } }],
+      ]);
+      expect(result).toEqual({ ...ad, generationId: 'gen-123' });
+    });
+
+    it.each([
+      { ok: true, status: 200, body: [], outcome: 'no-fill' },
+      {
+        ok: false,
+        status: 503,
+        body: { error: 'unavailable' },
+        outcome: 'fetch-error',
+      },
+    ])(
+      'reports $outcome for an HTTP $status response',
+      async ({ ok, status, body, outcome }) => {
+        jest.mocked(global.fetch).mockResolvedValue({
+          ok,
+          status,
+          json: async () => body,
+          headers: new Headers(),
+        } as Response);
+        const onTransition = jest.fn();
+
+        await expect(
+          fetchAdByPlacement({ placement: AdPlacement.Feed, onTransition }),
+        ).resolves.toBeNull();
+        expect(onTransition.mock.calls).toEqual([
+          [{ type: 'pre-fetch' }],
+          [{ type: outcome }],
+        ]);
+      },
+    );
+
     it('should fetch feed ads from the general ads endpoint', async () => {
       const result = await fetchAdByPlacement({
         placement: AdPlacement.Feed,
@@ -200,6 +293,39 @@ describe('ads', () => {
         });
     });
 
+    it.each([
+      {
+        placement: AdPlacement.Feed,
+        entity: { entity: AdEntity.Source, id: 'squad-1' },
+        url: 'http://localhost:3000/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&entity=source&entity_id=squad-1',
+      },
+      {
+        placement: AdPlacement.PostSidebar,
+        entity: { entity: AdEntity.Post, id: 'post-1' },
+        url: 'http://localhost:3000/v1/a?active=false&allow_squad_boost=true&entity=post&entity_id=post-1',
+      },
+      {
+        placement: AdPlacement.PostComment,
+        entity: { entity: AdEntity.Post, id: 'post-1' },
+        url: 'http://localhost:3000/v1/a/post?entity=post&entity_id=post-1',
+      },
+      {
+        placement: AdPlacement.SquadDirectory,
+        entity: { entity: AdEntity.Source, id: 'squad-1' },
+        url: 'http://localhost:3000/v1/a/squads_directory?allow_squad_boost=true&entity=source&entity_id=squad-1',
+      },
+    ])(
+      'should send the page entity for $placement',
+      async ({ placement, entity, url }) => {
+        await fetchAdByPlacement(resolveAdFetchOptions({ placement, entity }));
+
+        expect(global.fetch).toHaveBeenCalledWith(url, {
+          credentials: 'include',
+          headers: { 'X-Page-View-Id': 'page-view' },
+        });
+      },
+    );
+
     it('should send gdpr=0 without consent strings outside GDPR scope', async () => {
       await fetchAdByPlacement({
         placement: AdPlacement.PostComment,
@@ -288,6 +414,28 @@ describe('ads', () => {
         );
       },
     );
+
+    it('throws on a failed refresh request but not on the first request', async () => {
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: jest.fn().mockResolvedValue({ error: 'failed' }),
+        headers: { get: () => undefined },
+      } as unknown as Response);
+
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: { platform: 'web_desktop', count: 0 },
+        }),
+      ).resolves.toBeNull();
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: { platform: 'web_desktop', count: 1, generationId: 'gen' },
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('shouldSkipSourceAds', () => {
@@ -304,6 +452,22 @@ describe('ads', () => {
         source: {
           type: SourceType.Squad,
           features: { ...features, adFree: true },
+        },
+        expected: true,
+      },
+      {
+        name: 'serves an ad-free squad that turned ads back on',
+        source: {
+          type: SourceType.Squad,
+          features: { ...features, adFree: true, hideAds: false },
+        },
+        expected: false,
+      },
+      {
+        name: 'skips a squad the API says hides ads',
+        source: {
+          type: SourceType.Squad,
+          features: { ...features, hideAds: true },
         },
         expected: true,
       },

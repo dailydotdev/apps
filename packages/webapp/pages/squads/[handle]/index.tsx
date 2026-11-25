@@ -39,10 +39,14 @@ import type {
 } from '@dailydotdev/shared/src/lib/user';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
+import { useTrackCompanyPageReady } from '@dailydotdev/shared/src/features/squads/hooks/useTrackCompanyPageReady';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
-import { getLayout } from '../../../components/layouts/FeedLayout';
+import { isCompanyPage } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../../components/layouts/FeedLayout';
 import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
@@ -190,6 +194,7 @@ const SquadPage = ({
   const { logEvent } = useLogContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isForbidden } = useSquad({ handle });
+  useTrackCompanyPageReady(squad);
   const squadId = squad?.id;
   useRecentPageMeta({ image: squad?.image ?? initialSquad?.image });
   useEffect(() => {
@@ -373,7 +378,7 @@ export async function getServerSideProps({
 
     const seoTitleSource = referringUser
       ? `${referringUser.name} invited you to ${squad.name}`
-      : `${squad.name} Squad`;
+      : `${squad.name}${isCompanyPage(squad) ? '' : ' Squad'}`;
     const squadSeoTitles = getPageSeoTitles(seoTitleSource);
 
     const seo: NextSeoProps = {
@@ -385,8 +390,8 @@ export async function getServerSideProps({
       },
       nofollow: noindex,
       noindex,
-      // About is a segment of this page, not a second page to index.
-      ...(query.tab === 'about' && {
+      // About and Jobs are segments of this page, not more pages to index.
+      ...((query.tab === 'about' || query.tab === 'jobs') && {
         canonical: `${appOrigin}/squads/${squad.handle}`,
       }),
     };

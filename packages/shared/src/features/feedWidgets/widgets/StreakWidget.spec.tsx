@@ -36,6 +36,11 @@ jest.mock('../../../components/quest/CompactQuestList', () => ({
   ),
 }));
 
+let mockOptOutQuestSystem = false;
+jest.mock('../../../contexts/SettingsContext', () => ({
+  useSettingsContext: () => ({ optOutQuestSystem: mockOptOutQuestSystem }),
+}));
+
 jest.mock('../../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: () => ({ data: {} }),
 }));
@@ -48,6 +53,11 @@ jest.mock('../../../components/streak/popup/StreakFreezeRow', () => ({
 jest.mock('../../../hooks/streaks/useStreakFreeze', () => ({
   STREAK_FREEZE_CAP: 5,
   useStreakFreeze: () => ({ freezesAvailable: 1 }),
+}));
+
+let mockHasAccessToCores = true;
+jest.mock('../../../hooks/useCoresFeature', () => ({
+  useHasAccessToCores: () => mockHasAccessToCores,
 }));
 
 const mockOpenModal = jest.fn();
@@ -75,6 +85,7 @@ const ringState = (
   count: 12,
   hasReadToday: true,
   copy: '12-day reading streak.',
+  goalProgress: null,
   ...overrides,
 });
 
@@ -95,6 +106,8 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockUser = { id: 'u1' };
   mockIsFreezeEnabled = true;
+  mockHasAccessToCores = true;
+  mockOptOutQuestSystem = false;
   jest.mocked(useStreakRingState).mockReturnValue(ringState());
 });
 
@@ -160,6 +173,16 @@ it('keeps Small to the count and calendar, adds the meters when taller and quest
   expect(screen.getByTestId('quest-list-weekly')).toBeInTheDocument();
 });
 
+it('leaves quests out at Large when the reader turned quests off', () => {
+  mockOptOutQuestSystem = true;
+
+  renderWidget(FeedWidgetSize.Large);
+
+  expect(screen.getByText('Today’s goal')).toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-daily')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-weekly')).not.toBeInTheDocument();
+});
+
 it('offers more freezes, and hides the meter where freezes are off', () => {
   const { unmount } = renderWidget(FeedWidgetSize.Tall);
   expect(screen.getByText('One left for a day off')).toBeInTheDocument();
@@ -172,6 +195,17 @@ it('offers more freezes, and hides the meter where freezes are off', () => {
   mockIsFreezeEnabled = false;
   renderWidget(FeedWidgetSize.Tall);
   expect(screen.queryByText('Streak freezes')).not.toBeInTheDocument();
+});
+
+it('shows the freezes held but no way to buy more without Cores access', () => {
+  mockHasAccessToCores = false;
+
+  renderWidget(FeedWidgetSize.Tall);
+
+  expect(screen.getByText('One left for a day off')).toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Buy more' }),
+  ).not.toBeInTheDocument();
 });
 
 it("dates today and its countdown in the reader's timezone", () => {

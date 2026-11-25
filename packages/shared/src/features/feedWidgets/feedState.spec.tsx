@@ -11,28 +11,20 @@ import basePost from '../../../__tests__/fixture/post';
 import FeedContext from '../../contexts/FeedContext';
 import type { SettingsFlags } from '../../graphql/settings';
 import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
-import { fetchAdByPlacement } from '../../lib/ads';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { OtherFeedPage, RequestKey } from '../../lib/query';
+import { OtherFeedPage } from '../../lib/query';
 import {
   emptyFeedWidgetFeedState,
-  resetHomeRailFlag,
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
-  useFeedWidgetShortcuts,
   useFeedWidgetsOptOut,
 } from './feedState';
 
 jest.mock('../../hooks/useToastNotification', () => ({
   ...jest.requireActual('../../hooks/useToastNotification'),
   useToastNotification: jest.fn(),
-}));
-
-jest.mock('../../lib/ads', () => ({
-  ...jest.requireActual('../../lib/ads'),
-  fetchAdByPlacement: jest.fn(),
 }));
 
 const mockHero = (id: string) =>
@@ -57,192 +49,99 @@ const renderFeedState = ({
   columns?: number;
   client?: QueryClient;
 } = {}) =>
-  renderHook(
-    () => useFeedWidgetFeedState({ enabled, feedName: SharedFeedPage.MyFeed }),
-    {
-      wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-        <TestBootProvider
-          client={client}
-          settings={{ flags: { feedWidgets } as unknown as SettingsFlags }}
+  renderHook(() => useFeedWidgetFeedState({ enabled }), {
+    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+      <TestBootProvider
+        client={client}
+        settings={{ flags: { feedWidgets } as unknown as SettingsFlags }}
+      >
+        <FeedContext.Provider
+          value={{
+            pageSize: 13,
+            numCards: { eco: columns, roomy: columns, cozy: columns },
+          }}
         >
-          <FeedContext.Provider
-            value={{
-              pageSize: 13,
-              numCards: { eco: columns, roomy: columns, cozy: columns },
-            }}
-          >
-            {children}
-          </FeedContext.Provider>
-        </TestBootProvider>
-      ),
-    },
-  );
+          {children}
+        </FeedContext.Provider>
+      </TestBootProvider>
+    ),
+  });
 
 beforeEach(() => {
   nock.cleanAll();
   clearShownFeedHeroLeads();
-  // The slot only sits on the rail from the tablet breakpoint up.
   mockDesktop();
-  // Pending: the slot keeps the grid's first ad until the rail's answers.
-  jest.mocked(fetchAdByPlacement).mockReturnValue(new Promise(() => {}));
 });
 
 describe('useFeedWidgetFeedState', () => {
-  it('knows the default rail before anything of the rail loads', () => {
+  it('seats nothing for a reader who never placed a widget', () => {
     const { result } = renderFeedState();
 
-    expect(result.current).toEqual({
-      excludedPostIds: [],
-      hasHappeningNow: false,
-      hasTopStory: true,
-      isAdVisible: true,
-    });
+    expect(result.current).toEqual(emptyFeedWidgetFeedState);
   });
 
   it('keeps out the lead the top story shows', async () => {
     mockHero('lead');
 
-    const { result } = renderFeedState();
+    const { result } = renderFeedState({
+      feedWidgets: {
+        version: 1,
+        widgets: [{ id: 'top', kind: 'topStory', size: 'tall', slot: 3 }],
+      },
+    });
 
     await waitFor(() =>
       expect(result.current.excludedPostIds).toEqual(['lead']),
     );
   });
 
-  it('follows the stored rail, and drops the lead post with the top story', () => {
+  it('seats the placed widgets by slot, leaving out the old rail’s', () => {
+    const now = { id: 'now', kind: 'happeningNow', size: 'tall', slot: 5 };
+    const streak = { id: 'streak', kind: 'streak', size: 'small', slot: 1 };
     const { result } = renderFeedState({
       feedWidgets: {
         version: 1,
-        widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall' }],
+        widgets: [
+          now,
+          { id: 'rail', kind: 'notifications', size: 'small' },
+          streak,
+        ],
       },
     });
 
     expect(result.current).toEqual({
+      widgets: [streak, now],
       excludedPostIds: [],
       hasHappeningNow: true,
-      hasTopStory: false,
-      isAdVisible: true,
+      hasTopStoryFirst: false,
     });
   });
 
-  it('hands the first ad back to the grid once the slot comes back empty', async () => {
-    jest.mocked(fetchAdByPlacement).mockResolvedValue(null);
-
-    const { result } = renderFeedState();
-
-    await waitFor(() => expect(result.current.isAdVisible).toBe(false));
-  });
-
-  it('leaves the ad to the grid when the slot would be off the first screen', () => {
-    const { result } = renderFeedState({ columns: 2 });
-
-    expect(result.current.isAdVisible).toBe(false);
-  });
-
-  it('fetches a fresh ad for the next visit to the feed', async () => {
-    jest.mocked(fetchAdByPlacement).mockClear().mockResolvedValue(null);
-    const client = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
+  it('seats no cell for a kind this build cannot render', () => {
+    const streak = { id: 'streak', kind: 'streak', size: 'tall', slot: 1 };
+    const { result } = renderFeedState({
+      feedWidgets: {
+        version: 1,
+        widgets: [
+          { id: 'new', kind: 'fromANewerBuild', size: 'tall', slot: 0 },
+          streak,
+        ],
+      },
     });
 
-    const { result, unmount } = renderFeedState({ client });
-    await waitFor(() => expect(result.current.isAdVisible).toBe(false));
-    unmount();
-    // Leaving the feed drops its ad.
-    await waitFor(() =>
-      expect(
-        client.getQueryCache().findAll({ queryKey: [RequestKey.Ads] }),
-      ).toHaveLength(0),
-    );
-    renderFeedState({ client });
-
-    await waitFor(() => expect(fetchAdByPlacement).toHaveBeenCalledTimes(2));
+    expect(result.current.widgets).toEqual([streak]);
   });
 
-  it('holds back nothing while the rail is off', () => {
-    const { result } = renderFeedState({ enabled: false });
+  it('holds back nothing while the widgets are off', () => {
+    const { result } = renderFeedState({
+      enabled: false,
+      feedWidgets: {
+        version: 1,
+        widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall', slot: 0 }],
+      },
+    });
 
     expect(result.current).toEqual(emptyFeedWidgetFeedState);
-  });
-});
-
-const shortcutsRail = {
-  version: 1,
-  widgets: [{ id: 'links', kind: 'shortcuts', size: 'small' }],
-};
-
-const renderShortcuts = ({
-  feedName = SharedFeedPage.MyFeed,
-  feedWidgets,
-  isFlagOn = true,
-  loadedSettings = true,
-}: {
-  feedName?: string;
-  feedWidgets?: unknown;
-  isFlagOn?: boolean;
-  loadedSettings?: boolean;
-} = {}) =>
-  renderHook(() => useFeedWidgetShortcuts(feedName), {
-    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-      <TestBootProvider
-        client={new QueryClient()}
-        gb={
-          new GrowthBook({
-            features: { feed_widgets_v2: { defaultValue: isFlagOn } },
-          })
-        }
-        settings={{
-          loadedSettings,
-          flags: { feedWidgets } as unknown as SettingsFlags,
-        }}
-      >
-        {children}
-      </TestBootProvider>
-    ),
-  });
-
-describe('useFeedWidgetShortcuts', () => {
-  it('reports the Shortcuts widget on the stored rail', () => {
-    const { result } = renderShortcuts({ feedWidgets: shortcutsRail });
-
-    expect(result.current).toEqual({ hasShortcuts: true, isPending: false });
-  });
-
-  it('reports none for a rail without it, the default included', () => {
-    expect(renderShortcuts().result.current.hasShortcuts).toBe(false);
-    expect(
-      renderShortcuts({
-        feedWidgets: {
-          version: 1,
-          widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall' }],
-        },
-      }).result.current.hasShortcuts,
-    ).toBe(false);
-  });
-
-  it('reports none where the rail does not render', () => {
-    expect(
-      renderShortcuts({ feedWidgets: shortcutsRail, isFlagOn: false }).result
-        .current.hasShortcuts,
-    ).toBe(false);
-    expect(
-      renderShortcuts({
-        feedWidgets: shortcutsRail,
-        feedName: SharedFeedPage.Custom,
-      }).result.current,
-    ).toEqual({ hasShortcuts: false, isPending: false });
-  });
-
-  it('is pending on a rail feed until the settings that hold the rail load', () => {
-    expect(
-      renderShortcuts({ loadedSettings: false }).result.current.isPending,
-    ).toBe(true);
-    expect(
-      renderShortcuts({
-        loadedSettings: false,
-        feedName: SharedFeedPage.Custom,
-      }).result.current.isPending,
-    ).toBe(false);
   });
 });
 
@@ -256,8 +155,11 @@ describe('useFeedWidgetsOptOut', () => {
     } as unknown as ReturnType<typeof useToastNotification>);
   });
 
-  it('undoes into the latest flags, not the ones the rail hid from', async () => {
-    let flags = { feedWidgetsOptOut: false } as SettingsFlags;
+  it('hides on the stored widgets, and undoes into the latest flags', async () => {
+    const placed = { id: 'a', kind: 'streak', size: 'tall', slot: 2 };
+    let flags = {
+      feedWidgets: { version: 1, widgets: [placed] },
+    } as unknown as SettingsFlags;
     const { result, rerender } = renderHook(() => useFeedWidgetsOptOut(), {
       wrapper: ({ children }: { children: ReactNode }): ReactElement => (
         <TestBootProvider
@@ -271,41 +173,66 @@ describe('useFeedWidgetsOptOut', () => {
 
     result.current.hide();
     expect(setSettings).toHaveBeenLastCalledWith({
-      flags: { feedWidgetsOptOut: true },
+      flags: { feedWidgets: { version: 1, widgets: [placed], hidden: true } },
     });
 
     // The hide landed and another flag changed before Undo.
     flags = {
-      feedWidgetsOptOut: true,
+      feedWidgets: { version: 1, widgets: [placed], hidden: true },
       sidebarResourcesExpanded: true,
-    } as SettingsFlags;
+    } as unknown as SettingsFlags;
     rerender();
+    expect(result.current.isOptedOut).toBe(true);
     await displayToast.mock.calls[0][1].action.onClick();
 
     expect(setSettings).toHaveBeenLastCalledWith({
-      flags: { feedWidgetsOptOut: false, sidebarResourcesExpanded: true },
+      flags: {
+        feedWidgets: { version: 1, widgets: [placed], hidden: false },
+        sidebarResourcesExpanded: true,
+      },
     });
+  });
+
+  it('starts fresh from the rail’s opt-out', () => {
+    const { result } = renderHook(() => useFeedWidgetsOptOut(), {
+      wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+        <TestBootProvider
+          client={new QueryClient()}
+          settings={{
+            flags: { feedWidgetsOptOut: true } as SettingsFlags,
+            setSettings,
+          }}
+        >
+          {children}
+        </TestBootProvider>
+      ),
+    });
+
+    expect(result.current.isOptedOut).toBe(false);
   });
 });
 
 const renderRailState = (
   feedName: string,
   gb = new GrowthBook({
-    features: { feed_widgets_v2: { defaultValue: true } },
+    features: { feed_widgets_v4: { defaultValue: true } },
   }),
+  { insaneMode = false } = {},
 ) =>
   renderHook(() => useFeedWidgetRailState(feedName), {
     wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-      <TestBootProvider client={new QueryClient()} gb={gb}>
+      <TestBootProvider
+        client={new QueryClient()}
+        gb={gb}
+        settings={{ insaneMode }}
+      >
         {children}
       </TestBootProvider>
     ),
   });
 
 describe('useFeedWidgetRailState', () => {
-  beforeEach(() => resetHomeRailFlag());
-
-  it('heads For you and Popular from the tablet up', () => {
+  it('takes widgets on For you and Popular from the laptop up', () => {
     expect(
       renderRailState(SharedFeedPage.MyFeed).result.current.isEnabled,
     ).toBe(true);
@@ -314,11 +241,11 @@ describe('useFeedWidgetRailState', () => {
     ).toBe(true);
   });
 
-  it('keeps phones on the plain feed, never enrolled in the flag', async () => {
+  it('keeps phones and tablets on the plain feed, never enrolled in the flag', async () => {
     // No width breakpoint matches: a phone.
     mockMatchMedia(() => false);
     const gb = new GrowthBook({
-      features: { feed_widgets_v2: { defaultValue: true } },
+      features: { feed_widgets_v4: { defaultValue: true } },
     });
     const evaluate = jest.spyOn(gb, 'getFeatureValue');
     const feeds = [
@@ -337,12 +264,29 @@ describe('useFeedWidgetRailState', () => {
 
     feeds.forEach((result) => expect(result.current.isEnabled).toBe(false));
     expect(evaluate).not.toHaveBeenCalledWith(
-      'feed_widgets_v2',
+      'feed_widgets_v4',
       expect.anything(),
     );
   });
 
-  it('leaves Following and the custom feeds alone from the tablet up', () => {
+  it('never enrolls a laptop reader whose feed is a list', () => {
+    const gb = new GrowthBook({
+      features: { feed_widgets_v4: { defaultValue: true } },
+    });
+    const evaluate = jest.spyOn(gb, 'getFeatureValue');
+
+    const { result } = renderRailState(SharedFeedPage.MyFeed, gb, {
+      insaneMode: true,
+    });
+
+    expect(result.current.isEnabled).toBe(false);
+    expect(evaluate).not.toHaveBeenCalledWith(
+      'feed_widgets_v4',
+      expect.anything(),
+    );
+  });
+
+  it('leaves Following and the custom feeds alone', () => {
     expect(
       renderRailState(OtherFeedPage.Following).result.current.isEnabled,
     ).toBe(false);

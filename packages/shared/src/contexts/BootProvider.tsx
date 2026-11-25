@@ -504,7 +504,10 @@ export const BootDataProvider = ({
           isRemoteSettingsLoaded={isRemoteBootApplied}
           updateSettings={updateSettings}
         >
-          <EngagementAdsProvider rawCreatives={remoteData?.engagementCreatives}>
+          <EngagementAdsProvider
+            rawCreatives={remoteData?.engagementCreatives}
+            isRemoteBootApplied={isRemoteBootApplied}
+          >
             <AlertContextProvider
               alerts={alerts}
               isFetched={isBootReady}

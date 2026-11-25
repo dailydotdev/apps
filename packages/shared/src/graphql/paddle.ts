@@ -43,6 +43,8 @@ export interface BaseProductPricingPreview {
 export interface ProductPricingPreview extends BaseProductPricingPreview {
   metadata: ProductPricingMetadata;
   coresGiveback?: number | null;
+  /** Client-side only: the undiscounted price, set while a discount lowers it. */
+  originalPrice?: ProductPricing;
 }
 
 export enum PurchaseType {
@@ -50,6 +52,7 @@ export enum PurchaseType {
   Organization = 'organization',
   Cores = 'cores',
   Recruiter = 'recruiter',
+  Startups = 'startups',
 }
 
 export enum PlusPlanType {

@@ -6,7 +6,10 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
+import type {
+  QuestCompletionStats,
+  UserLeaderboard,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   HIGHEST_LEVEL_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,
@@ -61,7 +64,6 @@ import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
-import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   CoreIcon,

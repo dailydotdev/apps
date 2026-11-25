@@ -30,7 +30,11 @@ export default {
   content: [],
   // Channel highlight colors are stored as full classes in the DB, so Tailwind
   // can't see them as literals — safelist the accent text utilities.
-  safelist: [{ pattern: /^text-accent-.+-default$/ }],
+  // `ButtonV2` builds its colored variant classes from template strings.
+  safelist: [
+    { pattern: /^text-accent-.+-default$/ },
+    { pattern: /^btn-v2-[a-zA-Z]+-[a-zA-Z]+$/ },
+  ],
   theme: {
     colors: {
       raw: {
@@ -259,6 +263,15 @@ export default {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        // A grey flash over a row's cells, run twice. Opaque, so a sticky
+        // cell still hides what scrolls under it; 0% and 100% fall back to
+        // each cell's own background.
+        'row-blink': {
+          '50%': {
+            backgroundColor:
+              'color-mix(in srgb, var(--theme-text-tertiary) 24%, var(--theme-background-default))',
+          },
+        },
         'highlight-fade': {
           '0%': {
             boxShadow: '0 0 0 3px var(--status-warning)',
@@ -371,6 +384,55 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
+        // Patchy's rail face hops when he reacts, peek or not.
+        'patchy-bump': {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '30%': { transform: 'translateY(-3px) scale(1.12)' },
+          '60%': { transform: 'translateY(0) scale(0.96)' },
+        },
+        // Patchy's idle micro-animations inside the streak circle.
+        'patchy-wobble': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%': { transform: 'rotate(-8deg)' },
+          '40%': { transform: 'rotate(6deg)' },
+          '60%': { transform: 'rotate(-4deg)' },
+          '80%': { transform: 'rotate(2deg)' },
+        },
+        'patchy-yawn': {
+          '0%, 100%': { transform: 'scale(1) translateY(0)' },
+          '45%': { transform: 'scale(1.08) translateY(-1px)' },
+        },
+        'patchy-pant': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-1.5px)' },
+        },
+        'patchy-spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        // Friday deploy: he sinks half out of sight, then peeks back up.
+        'patchy-hide': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '30%, 70%': { transform: 'translateY(55%)' },
+        },
+        // A reaction's tiny emote floats out of the circle and fades.
+        'patchy-float': {
+          '0%': { transform: 'translate(0, 2px) scale(0.6)', opacity: '0' },
+          '20%': { transform: 'translate(0, 0) scale(1)', opacity: '1' },
+          '70%': { opacity: '1' },
+          '100%': {
+            transform: 'translate(3px, -12px) scale(0.9)',
+            opacity: '0',
+          },
+        },
+        // Daily streak toast: the flame pops in with the same strike + rebound
+        // as the rail tile's earn pop, then rests at its normal size.
+        'streak-toast-pop': {
+          '0%': { transform: 'scale(0.6)', opacity: '0' },
+          '45%': { transform: 'scale(1.3)', opacity: '1' },
+          '70%': { transform: 'scale(0.95)' },
+          '100%': { transform: 'scale(1)' },
+        },
         // The search palette: the scrim and panel fade in, and the list fades
         // in again every time its scope changes (it is keyed on the scope).
         // Opacity only: a transform left by `both` would make the scrolling
@@ -399,6 +461,7 @@ export default {
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'composer-in': 'fade-slide-up 0.2s ease-out both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'row-blink': 'row-blink 0.6s ease-in-out 2',
         'reaction-burst':
           'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',
         'raise-hand-pop':
@@ -416,7 +479,16 @@ export default {
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
         'streak-earn-border': 'streak-earn-border 0.6s ease-out both',
         'streak-earn-fill': 'streak-earn-fill 0.6s ease-out both',
+        'streak-toast-pop':
+          'streak-toast-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
+        'patchy-bump': 'patchy-bump 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'patchy-wobble': 'patchy-wobble 1.4s ease-in-out',
+        'patchy-yawn': 'patchy-yawn 1.5s ease-in-out',
+        'patchy-pant': 'patchy-pant 0.28s ease-in-out 5',
+        'patchy-spin': 'patchy-spin 1.2s cubic-bezier(0.45, 0, 0.55, 1)',
+        'patchy-hide': 'patchy-hide 1.6s ease-in-out',
+        'patchy-float': 'patchy-float 1.3s ease-out both',
       },
     },
     lineClamp: {

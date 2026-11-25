@@ -9,7 +9,7 @@
 /**
  * The slots a surface runs, by number. Presence is the whole configuration:
  * each slot renders an anchor (`data-ad-slot`, see ProgrammaticAd) and the
- * unit's sizes, refresh and demand live in Content Ignite's platform, keyed
+ * unit's sizes, refresh and demand live in the ad partner's platform, keyed
  * to that anchor. A surface that should stay dark ships an empty map.
  */
 export type AdSlots = Readonly<Record<string, true>>;

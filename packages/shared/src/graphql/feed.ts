@@ -500,8 +500,8 @@ export interface FeedHeroData {
 const FEED_HERO_HIGHLIGHTS = 12;
 
 export const FEED_HERO_QUERY = gql`
-  query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
-    feedHero(supportedTypes: $supportedTypes, first: ${FEED_HERO_HIGHLIGHTS}) {
+  query FeedHero($loggedIn: Boolean! = false, $featured: Int, ${SUPPORTED_TYPES}) {
+    feedHero(supportedTypes: $supportedTypes, first: ${FEED_HERO_HIGHLIGHTS}, featured: $featured) {
       posts {
         ${feedPostNodeSelection('contentHtml')}
       }

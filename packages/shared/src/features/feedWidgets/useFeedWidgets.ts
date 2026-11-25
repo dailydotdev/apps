@@ -4,6 +4,7 @@ import type { SettingsFlags } from '../../graphql/settings';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
+import { useFeedWidgetAvailability, usableFeedWidgets } from './availability';
 import type {
   FeedWidget,
   FeedWidgetConfig,
@@ -11,13 +12,18 @@ import type {
   FeedWidgetKind,
   FeedWidgetSize,
 } from './types';
-import { FEED_WIDGET_RAIL_VERSION, MAX_FEED_WIDGETS } from './types';
 import {
-  createFeedWidgetId,
-  mergeRenderedFeedWidgets,
-  moveFeedWidget,
-  visibleFeedWidgets,
-} from './layout';
+  FEED_WIDGET_IN_FEED_SIZE,
+  FEED_WIDGET_RAIL_VERSION,
+  MAX_FEED_WIDGETS,
+} from './types';
+import { createFeedWidgetId, visibleFeedWidgets } from './layout';
+import {
+  moveFeedWidgetSlot,
+  placeFeedWidget,
+  slottedFeedWidgets,
+  unplaceFeedWidget,
+} from './slots';
 import {
   customFeedWidgets,
   feedRailFingerprint,
@@ -31,13 +37,13 @@ import {
   isValidFeedWidgetConfig,
 } from './config';
 
-export type RemovedFeedWidget = { widget: FeedWidget; index: number };
+export type RemovedFeedWidget = { widget: FeedWidget; slot: number };
 
 /** Resolves `true` once the settings took the change, `false` otherwise. */
 export type FeedWidgetsSaved = Promise<boolean>;
 
 export type UseFeedWidgets = {
-  /** The widgets this build renders, in order. */
+  /** The widgets this build renders in the feed, by slot. */
   widgets: FeedWidget[];
   /** The reader has saved a rail of their own, empty or not. */
   isCustomized: boolean;
@@ -47,33 +53,29 @@ export type UseFeedWidgets = {
    */
   isReadOnly: boolean;
   canAdd: boolean;
-  /** `null` when nothing can be added: a read-only rail, or a full one. */
+  /**
+   * Places a widget on a feed card's slot, the first card by default. `null`
+   * when nothing can be added: a read-only rail, or a full one.
+   */
   addWidget: (
     kind: FeedWidgetKind,
-    size?: FeedWidgetSize,
+    options?: { size?: FeedWidgetSize; slot?: number },
   ) => { widget: FeedWidget; saved: FeedWidgetsSaved } | null;
   /** `null` when nothing was removed: an unknown id, or a read-only rail. */
   removeWidget: (
     id: string,
   ) => { removed: RemovedFeedWidget; saved: FeedWidgetsSaved } | null;
   restoreWidget: (removed: RemovedFeedWidget) => FeedWidgetsSaved;
-  moveWidget: (id: string, toIndex: number) => FeedWidgetsSaved;
+  /** `false` when the kind does not come in that size. */
   resizeWidget: (id: string, size: FeedWidgetSize) => FeedWidgetsSaved;
+  /** Moves a widget to another feed slot, swapping with what is there. */
+  moveWidget: (id: string, toSlot: number) => FeedWidgetsSaved;
   /** Saves a widget's config; `false` when it does not validate for its kind. */
   updateWidgetConfig: <K extends FeedWidgetKind>(
     id: string,
     config: FeedWidgetConfig<K>,
   ) => boolean;
-  /** One write for a whole new order, as a drag commits on drop. */
-  replaceWidgets: (next: FeedWidget[]) => FeedWidgetsSaved;
   resetWidgets: () => FeedWidgetsSaved;
-  /** The reader removed the daily.dev tips over our slot. */
-  isTipHidden: boolean;
-  /**
-   * Hides or brings back the tips, a rail-level field: a reader on the
-   * default stays on it. Resolves `false` on a read-only rail.
-   */
-  setTipHidden: (isHidden: boolean) => FeedWidgetsSaved;
 };
 
 /**
@@ -131,11 +133,20 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     feature: featureFeedWidgetsDefault,
     shouldEvaluate: custom === null,
   });
-  const defaultRail = useMemo(
-    () => resolveDefaultFeedRail(defaultFlag),
-    [defaultFlag],
+  // Only what this reader could add themselves: the default never seats a
+  // widget the gallery would refuse them.
+  const availability = useFeedWidgetAvailability();
+  const defaultRail = useMemo(() => {
+    const rail = resolveDefaultFeedRail(defaultFlag);
+    return { ...rail, widgets: usableFeedWidgets(rail.widgets, availability) };
+  }, [defaultFlag, availability]);
+  // The feed only shows widgets with a slot: the old header rail's, and a
+  // default flag that predates slots, are left out and dropped on the next
+  // write.
+  const stored = useMemo(
+    () => slottedFeedWidgets(custom ?? defaultRail.widgets),
+    [custom, defaultRail.widgets],
   );
-  const stored = custom ?? defaultRail.widgets;
   const isReadOnly = (saved?.version ?? 1) > FEED_WIDGET_RAIL_VERSION;
   const widgets = useMemo(
     () => visibleFeedWidgets(stored, feedWidgetSizes),
@@ -163,7 +174,9 @@ export const useFeedWidgets = (): UseFeedWidgets => {
       if (isReadOnlyRef.current) {
         return Promise.resolve(false);
       }
-      storedRef.current = customFeedWidgets(rail) ?? defaultRef.current.widgets;
+      storedRef.current = slottedFeedWidgets(
+        customFeedWidgets(rail) ?? defaultRef.current.widgets,
+      );
       savedRef.current = rail;
       // The settings roll the flags back on their own when a write is
       // rejected; the reader is told rather than watching the change undo.
@@ -210,43 +223,8 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [commit],
   );
 
-  const setTipHidden = useCallback<UseFeedWidgets['setTipHidden']>(
-    (isHidden) => {
-      const { current } = savedRef;
-      const ownWidgets = customFeedWidgets(current);
-      const { tipsHidden, fromDefault, ...rest } =
-        current && ownWidgets ? current : railFields(current);
-      const fields = isHidden ? { ...rest, tipsHidden: true } : rest;
-      if (ownWidgets) {
-        return commit({
-          ...fields,
-          version: FEED_WIDGET_RAIL_VERSION,
-          widgets: ownWidgets,
-        });
-      }
-      return commit(railOnDefault(fields, defaultRef.current.widgets));
-    },
-    [commit],
-  );
-
-  // A new order and sizes for the rendered widgets, merged into the stored
-  // list so the widgets this build skips keep their slots.
-  const writeRendered = useCallback(
-    (rendered: FeedWidget[]) => {
-      const { current } = storedRef;
-      return write(
-        mergeRenderedFeedWidgets(
-          current,
-          rendered,
-          visibleFeedWidgets(current, feedWidgetSizes),
-        ),
-      );
-    },
-    [write],
-  );
-
   const addWidget = useCallback<UseFeedWidgets['addWidget']>(
-    (kind, size) => {
+    (kind, { size = FEED_WIDGET_IN_FEED_SIZE, slot = 0 } = {}) => {
       if (
         isReadOnlyRef.current ||
         storedRef.current.length >= MAX_FEED_WIDGETS
@@ -257,9 +235,13 @@ export const useFeedWidgets = (): UseFeedWidgets => {
       const widget: FeedWidget = {
         id: createFeedWidgetId(kind),
         kind,
-        size: size && sizes.includes(size) ? size : sizes[0],
+        size: sizes.includes(size) ? size : sizes[0],
+        slot,
       };
-      return { widget, saved: write([...storedRef.current, widget]) };
+      return {
+        widget,
+        saved: write(placeFeedWidget(storedRef.current, widget, slot)),
+      };
     },
     [write],
   );
@@ -267,49 +249,56 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   const removeWidget = useCallback<UseFeedWidgets['removeWidget']>(
     (id) => {
       const { current } = storedRef;
-      const index = current.findIndex((widget) => widget.id === id);
-      if (index === -1 || isReadOnlyRef.current) {
+      const widget = current.find((item) => item.id === id);
+      if (!widget || isReadOnlyRef.current) {
         return null;
       }
       return {
-        removed: { widget: current[index], index },
-        saved: write(current.filter((widget) => widget.id !== id)),
+        removed: { widget, slot: widget.slot ?? 0 },
+        saved: write(unplaceFeedWidget(current, id)),
       };
     },
     [write],
   );
 
   const restoreWidget = useCallback<UseFeedWidgets['restoreWidget']>(
-    ({ widget, index }) => {
+    ({ widget, slot }) => {
       const { current } = storedRef;
       if (current.some((item) => item.id === widget.id)) {
         return Promise.resolve(false);
       }
-      const next = [...current];
-      next.splice(Math.min(index, next.length), 0, widget);
-      return write(next);
+      return write(placeFeedWidget(current, widget, slot));
     },
     [write],
   );
 
   const moveWidget = useCallback<UseFeedWidgets['moveWidget']>(
-    (id, toIndex) => {
-      const visible = visibleFeedWidgets(storedRef.current, feedWidgetSizes);
-      const next = moveFeedWidget(visible, id, toIndex);
-      return next === visible ? Promise.resolve(false) : writeRendered(next);
+    (id, toSlot) => {
+      const { current } = storedRef;
+      const widget = current.find((item) => item.id === id);
+      if (!widget || widget.slot === toSlot || toSlot < 0) {
+        return Promise.resolve(false);
+      }
+      return write(moveFeedWidgetSlot(current, id, toSlot));
     },
-    [writeRendered],
+    [write],
   );
 
   const resizeWidget = useCallback<UseFeedWidgets['resizeWidget']>(
-    (id, size) =>
-      write(
-        storedRef.current.map((widget) =>
-          widget.id === id && feedWidgetSizes(widget.kind).includes(size)
-            ? { ...widget, size }
-            : widget,
-        ),
-      ),
+    (id, size) => {
+      const { current } = storedRef;
+      const widget = current.find((item) => item.id === id);
+      if (
+        !widget ||
+        widget.size === size ||
+        !feedWidgetSizes(widget.kind).includes(size)
+      ) {
+        return Promise.resolve(false);
+      }
+      return write(
+        current.map((item) => (item.id === id ? { ...item, size } : item)),
+      );
+    },
     [write],
   );
 
@@ -346,21 +335,6 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [write],
   );
 
-  const replaceWidgets = useCallback<UseFeedWidgets['replaceWidgets']>(
-    (next) => {
-      const visible = visibleFeedWidgets(storedRef.current, feedWidgetSizes);
-      const isSame =
-        next.length === visible.length &&
-        next.every(
-          (widget, index) =>
-            widget.id === visible[index].id &&
-            widget.size === visible[index].size,
-        );
-      return isSame ? Promise.resolve(false) : writeRendered(next);
-    },
-    [writeRendered],
-  );
-
   const resetWidgets = useCallback(() => write(null), [write]);
 
   return {
@@ -375,9 +349,6 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     moveWidget,
     resizeWidget,
     updateWidgetConfig,
-    replaceWidgets,
     resetWidgets,
-    isTipHidden: saved?.tipsHidden === true,
-    setTipHidden,
   };
 };

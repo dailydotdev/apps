@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReadingStreakButton } from './ReadingStreakButton';
 import type { UserStreak } from '../../graphql/users';
@@ -7,9 +13,10 @@ import { LogEvent } from '../../lib/log';
 import { useIsPhone } from '../../hooks/useViewSize';
 
 const mockLogEvent = jest.fn();
+let mockIsMobile = true;
 
 jest.mock('../../hooks', () => ({
-  useViewSize: (size: string) => size === 'mobileL',
+  useViewSize: (size: string) => size === 'mobileL' && mockIsMobile,
   ViewSize: { Laptop: 'laptop', MobileL: 'mobileL' },
 }));
 
@@ -33,12 +40,54 @@ jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => false,
 }));
 
+// The real tooltip only mounts its content once tippy loads, which jsdom never
+// does, so this renders the popover whenever it is controlled open.
+jest.mock('../tooltips', () => ({
+  SimpleTooltip: ({
+    children,
+    content,
+    visible,
+  }: {
+    children: React.ReactNode;
+    content: React.ReactNode;
+    visible?: boolean;
+  }) => (
+    <>
+      {children}
+      {visible && content}
+    </>
+  ),
+}));
+
 jest.mock('../sidebar/sections/StreakQuestsSection', () => ({
-  StreakQuestsSection: () => <div data-testid="streak-quests-section" />,
+  StreakQuestsSection: ({ onClose }: { onClose?: () => void }) => (
+    <div data-testid="streak-quests-section">
+      <button type="button" onClick={onClose}>
+        Start again
+      </button>
+    </div>
+  ),
+}));
+
+let mockPatchyFlag = false;
+jest.mock('../../features/patchy/usePatchyEnabled', () => ({
+  usePatchyEnabled: ({ shouldEvaluate }: { shouldEvaluate: boolean }) =>
+    shouldEvaluate && mockPatchyFlag,
+}));
+
+jest.mock('../../features/patchy/PatchyHeaderIcon', () => ({
+  PatchyHeaderIcon: () => <span data-testid="patchy-header-icon" />,
+  PatchyStreakQuestsSection: () => <div data-testid="patchy-streak-section" />,
 }));
 
 jest.mock('./popup/ReadingStreakPopup', () => ({
-  ReadingStreakPopup: () => <div data-testid="reading-streak-popup" />,
+  ReadingStreakPopup: ({ onClose }: { onClose?: () => void }) => (
+    <div data-testid="reading-streak-popup">
+      <button type="button" onClick={onClose}>
+        Start again
+      </button>
+    </div>
+  ),
 }));
 
 const streak = {
@@ -54,11 +103,14 @@ const openStreak = () => {
       <ReadingStreakButton streak={streak} isLoading={false} compact />
     </QueryClientProvider>,
   );
-  fireEvent.click(screen.getByRole('button', { name: /7/ }));
+  fireEvent.click(screen.getByRole('button', { name: /^(7|Current streak)$/ }));
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockIsMobile = true;
+  mockPatchyFlag = false;
+  jest.mocked(useIsPhone).mockReturnValue(true);
 });
 
 it('opens the v2 streak panel as a sheet on phones', () => {
@@ -74,10 +126,62 @@ it('opens the v2 streak panel as a sheet on phones', () => {
   });
 });
 
+it('puts Patchy only in the button that asks for him, and logs where', () => {
+  mockPatchyFlag = true;
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <ReadingStreakButton streak={streak} isLoading={false} compact />
+      <ReadingStreakButton
+        streak={streak}
+        isLoading={false}
+        compact
+        withPatchy
+      />
+    </QueryClientProvider>,
+  );
+
+  expect(screen.getAllByTestId('patchy-header-icon')).toHaveLength(1);
+  const [, withPatchy] = screen.getAllByRole('button', { name: '7' });
+  fireEvent.click(withPatchy);
+  expect(screen.getByTestId('patchy-streak-section')).toBeInTheDocument();
+  expect(mockLogEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Click,
+    target_type: 'patchy',
+    extra: JSON.stringify({ origin: 'header' }),
+  });
+});
+
 it('keeps the streak popup below tablet outside the phone shell', () => {
   jest.mocked(useIsPhone).mockReturnValue(false);
   openStreak();
 
   expect(screen.getByTestId('reading-streak-popup')).toBeInTheDocument();
   expect(screen.queryByTestId('streak-quests-section')).not.toBeInTheDocument();
+});
+
+it('closes the desktop popover when the soft break starts again', async () => {
+  mockIsMobile = false;
+  jest.mocked(useIsPhone).mockReturnValue(false);
+  openStreak();
+
+  const popup = screen.getByTestId('reading-streak-popup');
+  fireEvent.click(within(popup).getByRole('button', { name: 'Start again' }));
+
+  await waitFor(() =>
+    expect(
+      screen.queryByTestId('reading-streak-popup'),
+    ).not.toBeInTheDocument(),
+  );
+});
+
+it('closes the phone sheet when the soft break starts again', async () => {
+  openStreak();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Start again' }));
+
+  await waitFor(() =>
+    expect(
+      screen.queryByRole('dialog', { name: 'Current Streak' }),
+    ).not.toBeInTheDocument(),
+  );
 });

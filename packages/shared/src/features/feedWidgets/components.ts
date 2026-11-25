@@ -6,8 +6,11 @@ import type {
   FeedWidgetDefinition,
 } from './registry';
 import { feedWidgetRegistry } from './registry';
-import type { FeedWidgetKind } from './types';
-import { FeedWidgetSize } from './types';
+import type {
+  BuiltFeedWidgetKind,
+  FeedWidgetKind,
+  FeedWidgetSize,
+} from './types';
 import { FeedWidgetLoading } from './FeedWidgetFrame';
 
 // Each widget is its own chunk, loaded the first time one renders, so the
@@ -77,27 +80,11 @@ const MessagesWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
-const ShortcutsWidget = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "feedWidgetShortcuts" */ './widgets/ShortcutsWidget'
-    ).then((mod) => mod.ShortcutsWidget),
-  { loading: FeedWidgetLoading },
-);
-
 const GettingStartedWidget = dynamic(
   () =>
     import(
       /* webpackChunkName: "feedWidgetGettingStarted" */ './widgets/GettingStartedWidget'
     ).then((mod) => mod.GettingStartedWidget),
-  { loading: FeedWidgetLoading },
-);
-
-const LiveChatWidget = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "feedWidgetLiveChat" */ './widgets/LiveChatWidget'
-    ).then((mod) => mod.LiveChatWidget),
   { loading: FeedWidgetLoading },
 );
 
@@ -110,12 +97,14 @@ const TodoListWidget = dynamic(
 );
 
 /**
- * The widgets that exist. A kind the registry names but this map lacks is not
- * built yet: hidden from the gallery, and left out of the rendered rail. The
- * map itself is synchronous, so knowing which kinds exist costs no download.
+ * The widgets that exist, one per kind in `builtFeedWidgetKinds`: a built
+ * kind without a widget, or a widget for a kind not in the list, fails to
+ * compile. A kind the registry names but this map lacks is not built yet:
+ * hidden from the gallery, and given no cell in the feed. The map itself is
+ * synchronous, so knowing which kinds exist costs no download.
  */
-export const feedWidgetComponents: {
-  [K in FeedWidgetKind]?: ComponentType<FeedWidgetComponentProps<K>>;
+const builtFeedWidgetComponents: {
+  [K in BuiltFeedWidgetKind]: ComponentType<FeedWidgetComponentProps<K>>;
 } = {
   topStory: TopStoryWidget,
   happeningNow: HappeningNowWidget,
@@ -125,11 +114,13 @@ export const feedWidgetComponents: {
   briefing: BriefingWidget,
   readingList: ReadingListWidget,
   messages: MessagesWidget,
-  shortcuts: ShortcutsWidget,
   gettingStarted: GettingStartedWidget,
-  liveChat: LiveChatWidget,
   todoList: TodoListWidget,
 };
+
+const feedWidgetComponents: {
+  [K in FeedWidgetKind]?: ComponentType<FeedWidgetComponentProps<K>>;
+} = builtFeedWidgetComponents;
 
 export const getFeedWidgetComponent = (
   kind: FeedWidgetKind,
@@ -141,15 +132,6 @@ export const getFeedWidgetComponent = (
 /** Sizes a kind supports; none when the widget is not built. */
 export const feedWidgetSizes = (kind: FeedWidgetKind): FeedWidgetSize[] =>
   feedWidgetComponents[kind] ? feedWidgetRegistry[kind].sizes : [];
-
-/** A phone shows no Large, so it never offers one either. */
-export const feedWidgetSizesForScreen = (
-  kind: FeedWidgetKind,
-  isPhone: boolean,
-): FeedWidgetSize[] =>
-  feedWidgetSizes(kind).filter(
-    (size) => !isPhone || size !== FeedWidgetSize.Large,
-  );
 
 /** The kinds a reader can add: built, and allowed for their account. */
 export const availableFeedWidgets = (

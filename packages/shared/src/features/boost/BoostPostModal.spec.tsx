@@ -5,7 +5,7 @@ import { BoostPostModal } from './BoostPostModal';
 import { useCampaignMutation } from './useCampaignMutation';
 import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { usePostById } from '../../hooks';
-import { useLazyModal } from '../../hooks/useLazyModal';
+import { useFeedbackModal, useLazyModal } from '../../hooks/useLazyModal';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import postFixture from '../../../__tests__/fixture/post';
@@ -26,7 +26,6 @@ jest.mock('../../hooks/useLazyModal');
 jest.mock('../../hooks/post/usePostImage');
 jest.mock('../../hooks/useDebounceFn');
 jest.mock('next/dynamic', () => () => 'div');
-
 const mockUsePostBoostMutation = useCampaignMutation as jest.MockedFunction<
   typeof useCampaignMutation
 >;
@@ -35,6 +34,9 @@ const mockUsePostBoostEstimation =
 const mockUsePostById = usePostById as jest.MockedFunction<typeof usePostById>;
 const mockUseLazyModal = useLazyModal as jest.MockedFunction<
   typeof useLazyModal
+>;
+const mockUseFeedbackModal = useFeedbackModal as jest.MockedFunction<
+  typeof useFeedbackModal
 >;
 
 // Mock other hooks
@@ -116,6 +118,10 @@ describe('BoostPostModal', () => {
       closeModal: jest.fn(),
       modal: undefined as unknown as ReturnType<typeof useLazyModal>['modal'],
     });
+    mockUseFeedbackModal.mockReturnValue({
+      closeModal: jest.fn(),
+      modal: null,
+    });
     mockUsePostById.mockReturnValue({
       post: createMockPost(),
       isLoading: false,
@@ -179,7 +185,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000 },
+        query: { budget: 2000 },
       });
     });
 
@@ -192,7 +198,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000 },
+        query: { budget: 2000 },
       });
     });
 
@@ -203,7 +209,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000 },
+        query: { budget: 2000 },
       });
     });
 
@@ -217,7 +223,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000 },
+        query: { budget: 2000 },
       });
     });
 
@@ -228,7 +234,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000 },
+        query: { budget: 2000 },
       });
     });
   });
@@ -246,13 +252,13 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(post);
 
       const boostButton = screen.getByRole('button', {
-        name: /Boost post for/,
+        name: /Boost post for|Cores and boost/,
       });
       fireEvent.click(boostButton);
 
       expect(mockOnBoostPost).toHaveBeenCalledWith({
-        duration: 7, // default totalDays
-        budget: 5000, // default coresPerDay
+        duration: 1, // the Quick preset
+        budget: 2000,
         type: 'POST',
         value: 'post-1',
         wallet: CampaignWallet.User,
@@ -273,15 +279,15 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(postWithYggdrasil);
 
       const boostButton = screen.getByRole('button', {
-        name: /Boost post for/,
+        name: /Boost post for|Cores and boost/,
       });
       fireEvent.click(boostButton);
 
       // Even though estimation params are different for yggdrasilId vs tags,
       // the boost submission always sends duration, budget, and id
       expect(mockOnBoostPost).toHaveBeenCalledWith({
-        duration: 7,
-        budget: 5000,
+        duration: 1,
+        budget: 2000,
         type: 'POST',
         value: 'post-1',
         wallet: CampaignWallet.User,
@@ -290,7 +296,7 @@ describe('BoostPostModal', () => {
 
     it('should not call onBoostPost when user has insufficient balance', () => {
       const post = createMockPost({ tags: ['javascript'] });
-      const userWithLowBalance = createMockUser(1000); // Less than 35K needed (5000 * 7)
+      const userWithLowBalance = createMockUser(1000); // Less than the Quick preset's 2,000
       const mockOnBoostPost = jest.fn();
       mockUsePostBoostMutation.mockReturnValue({
         ...defaultMockBoostMutation,
@@ -301,12 +307,61 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(post, userWithLowBalance);
 
       const boostButton = screen.getByRole('button', {
-        name: /Boost post for/,
+        name: /Boost post for|Cores and boost/,
       });
       fireEvent.click(boostButton);
 
       // Should not call onBoostPost, should trigger BUY_CORES screen instead
       expect(mockOnBoostPost).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Target audience', () => {
+    const startBoost = () =>
+      fireEvent.click(
+        screen.getByRole('button', { name: /Boost post for|Cores and boost/ }),
+      );
+
+    it("should keep the post's own tags worldwide until the audience is edited", () => {
+      const onStartBoost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost,
+      });
+
+      renderBoostPostModal(createMockPost({ tags: ['javascript'] }));
+
+      expect(screen.getByText('#javascript')).toBeInTheDocument();
+      expect(screen.getByText('Worldwide')).toBeInTheDocument();
+      startBoost();
+      expect(onStartBoost).toHaveBeenCalledWith(
+        expect.objectContaining({ audience: undefined }),
+      );
+    });
+
+    it('should boost and estimate the picked countries with the post tags', () => {
+      const onStartBoost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost,
+      });
+
+      renderBoostPostModal(createMockPost({ tags: ['javascript'] }));
+
+      fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[1]);
+      fireEvent.click(screen.getByText('Choose countries'));
+      fireEvent.click(screen.getByLabelText('Add United States'));
+
+      const audience = { tags: ['javascript'], countries: ['US'] };
+      expect(mockUsePostBoostEstimation).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          query: expect.objectContaining({ audience }),
+        }),
+      );
+      startBoost();
+      expect(onStartBoost).toHaveBeenCalledWith(
+        expect.objectContaining({ audience }),
+      );
     });
   });
 
@@ -338,7 +393,12 @@ describe('BoostPostModal', () => {
         },
         result: {
           data: {
-            source: { id: 'squad-1', name: 'Acme', currentMember: { seat } },
+            source: {
+              id: 'squad-1',
+              name: 'Acme',
+              handle: 'acme',
+              currentMember: { seat },
+            },
             squadSubscription: { plan, coresBalance },
           },
         },
@@ -361,11 +421,13 @@ describe('BoostPostModal', () => {
       const squadOption = await screen.findByLabelText(/Acme wallet/);
       expect(squadOption).toBeChecked();
 
-      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+      fireEvent.click(
+        screen.getByRole('button', { name: /Boost post for|Cores and boost/ }),
+      );
 
       expect(mockOnBoostPost).toHaveBeenCalledWith({
-        duration: 7,
-        budget: 5000,
+        duration: 1,
+        budget: 2000,
         type: 'POST',
         value: 'post-1',
         wallet: CampaignWallet.Squad,
@@ -384,14 +446,46 @@ describe('BoostPostModal', () => {
 
       await screen.findByLabelText(/Acme wallet/);
       fireEvent.click(screen.getByLabelText(/My Cores/));
-      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+      fireEvent.click(
+        screen.getByRole('button', { name: /Boost post for|Cores and boost/ }),
+      );
 
       expect(mockOnBoostPost).toHaveBeenCalledWith(
         expect.objectContaining({ wallet: CampaignWallet.User }),
       );
     });
 
-    it('should block the boost when the squad wallet is short', async () => {
+    it('should show the squad wallet balance in the header', async () => {
+      mockSquadWallet({ coresBalance: 20765 });
+
+      renderBoostPostModal(squadPost(), createMockUser(0));
+
+      await screen.findByLabelText(/Acme wallet/);
+      expect(screen.getByTitle('Acme wallet')).toHaveTextContent('20K');
+      expect(screen.getByTitle('Acme wallet')).toHaveAttribute(
+        'href',
+        expect.stringContaining('/squads/acme/manage/plan'),
+      );
+
+      fireEvent.click(screen.getByLabelText(/My Cores/));
+      expect(screen.getByTitle('My Cores')).toHaveTextContent('0');
+    });
+
+    it('should buy Cores into the squad wallet from the header', async () => {
+      mockSquadWallet({ coresBalance: 765 });
+
+      renderBoostPostModal(squadPost(), createMockUser(0));
+
+      await screen.findByLabelText(/Acme wallet/);
+      fireEvent.click(screen.getByLabelText('Buy Cores for Acme'));
+
+      expect(
+        await screen.findByText('Get More Cores for Acme'),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/1,235 more Cores/)).toBeInTheDocument();
+    });
+
+    it('should buy the missing Cores into a short squad wallet', async () => {
       mockSquadWallet({ coresBalance: 1000 });
 
       renderBoostPostModal(squadPost());
@@ -399,9 +493,14 @@ describe('BoostPostModal', () => {
       expect(
         await screen.findByText(/doesn't have enough Cores/),
       ).toBeInTheDocument();
+      fireEvent.click(
+        screen.getByRole('button', { name: /Boost post for|Cores and boost/ }),
+      );
+
       expect(
-        screen.getByRole('button', { name: /Boost post for/ }),
-      ).toBeDisabled();
+        await screen.findByText('Get More Cores for Acme'),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/1,000 more Cores/)).toBeInTheDocument();
     });
 
     it('should not offer the squad wallet without a seat', async () => {
@@ -425,7 +524,7 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(post);
 
       const boostButton = screen.getByRole('button', {
-        name: /Boost post for/,
+        name: /Boost post for|Cores and boost/,
       });
       expect(boostButton).toBeDisabled();
     });
@@ -440,7 +539,7 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(post);
 
       const boostButton = screen.getByRole('button', {
-        name: /Boost post for/,
+        name: /Boost post for|Cores and boost/,
       });
       expect(boostButton).toBeDisabled();
     });
@@ -452,7 +551,7 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(post);
 
       const boostButton = screen.getByRole('button', {
-        name: /Boost post for/,
+        name: /Boost post for|Cores and boost/,
       });
       expect(boostButton).toBeEnabled();
     });
@@ -490,19 +589,20 @@ describe('BoostPostModal', () => {
 
       renderBoostPostModal(post);
 
-      // Default: 5000 cores per day * 7 days = 35K cores
-      expect(screen.getByText('35K Cores over 7 days')).toBeInTheDocument();
+      // The Quick preset: 2,000 Cores for a day
+      expect(screen.getByText('2,000')).toBeInTheDocument();
+      expect(screen.getByText('1 day')).toBeInTheDocument();
     });
   });
 
   describe('Funnel logging', () => {
     const boostVars = {
       value: 'post-1',
-      budget: 5000,
-      duration: 7,
+      budget: 2000,
+      duration: 1,
       type: CampaignType.Post,
     };
-    const boostExtra = { budget: 5000, duration: 7, total_cores: 35000 };
+    const boostExtra = { budget: 2000, duration: 1, total_cores: 2000 };
     let mutationProps: Parameters<typeof useCampaignMutation>[0];
 
     beforeEach(() => {
@@ -513,7 +613,9 @@ describe('BoostPostModal', () => {
     });
 
     const clickBoost = () =>
-      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+      fireEvent.click(
+        screen.getByRole('button', { name: /Boost post for|Cores and boost/ }),
+      );
 
     it('should log the modal opening once with where it was opened from', () => {
       renderBoostPostModal(
@@ -550,6 +652,7 @@ describe('BoostPostModal', () => {
             origin: Origin.PostBoostButton,
             ...boostExtra,
             has_enough_balance: true,
+            boost_mode: 'quick',
           },
         },
       ]);
@@ -624,6 +727,7 @@ describe('BoostPostModal', () => {
         origin: Origin.BoostAgain,
         ...boostExtra,
         has_enough_balance: false,
+        boost_mode: 'quick',
       });
       expect(getLoggedEvents(LogEvent.StartBuyingCredits)).toEqual([
         {
@@ -647,7 +751,7 @@ describe('BoostPostModal', () => {
           (_, element) =>
             element?.tagName === 'P' &&
             element.textContent ===
-              'You need 34,000 more Cores to boost the post.',
+              'You need 1,000 more Cores to boost the post.',
         ),
       ).toBeInTheDocument();
     });
@@ -659,10 +763,8 @@ describe('BoostPostModal', () => {
       );
       fireEvent.click(screen.getByRole('button', { name: 'Buy Cores' }));
 
+      expect(screen.getByText('Packages')).toBeInTheDocument();
       expect(screen.queryByText(/more Cores/)).not.toBeInTheDocument();
-      expect(
-        screen.getByText('Choose how many Cores to buy.'),
-      ).toBeInTheDocument();
     });
 
     it('should log the final budget and duration when closed without boosting', () => {

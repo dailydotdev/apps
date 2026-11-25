@@ -1,3 +1,4 @@
+import { MY_CURRENT_PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
 import type { FeedData, Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   BookmarkSort,
@@ -12,6 +13,8 @@ import {
   SET_BOOKMARK_READ_STATE,
 } from '@dailydotdev/shared/src/graphql/bookmarks';
 import nock from 'nock';
+import { del, set } from 'idb-keyval';
+import { PersistentContextKeys } from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import {
@@ -229,9 +232,18 @@ it('should show empty screen when feed is empty', async () => {
 describe('weekly picks entry point', () => {
   const picksGrowthBook = (enabled: boolean) => {
     const gb = createReadyGrowthBook();
-    gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+    gb.setFeatures({ weekly_picks_v2: { defaultValue: enabled } });
     return gb;
   };
+
+  // The home card enrolls readers; the flag is read here only after it has
+  beforeEach(async () => {
+    await set(PersistentContextKeys.WeeklyPicksEnrolled, [defaultUser.id]);
+  });
+
+  afterEach(async () => {
+    await del(PersistentContextKeys.WeeklyPicksEnrolled);
+  });
 
   it('should link to the picks flow when the flag is on', async () => {
     useTablet();
@@ -259,8 +271,14 @@ describe('weekly picks entry point', () => {
       undefined,
       picksGrowthBook(true),
     );
+    // The phone shell is the slowest first render in this file; on a loaded CI
+    // runner it can take longer than the 1s default to reach the actions.
+    const link = await screen.findByRole(
+      'link',
+      { name: 'Make your picks' },
+      { timeout: 3000 },
+    );
     await waitForNock();
-    const link = await screen.findByRole('link', { name: 'Make your picks' });
     expect(link).toHaveAttribute(
       'href',
       expect.stringContaining('picks/new?origin=bookmarks'),
@@ -279,6 +297,60 @@ describe('weekly picks entry point', () => {
     await waitForNock();
     await screen.findByTestId('searchField');
     expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+  });
+
+  it('should hide the button for a reader the home card has not enrolled', async () => {
+    // Another account's enrollment on this device does not count
+    await set(PersistentContextKeys.WeeklyPicksEnrolled, ['someone-else']);
+    useTablet();
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      undefined,
+      picksGrowthBook(true),
+    );
+    await waitForNock();
+    await screen.findByTestId('searchField');
+    expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+  });
+
+  it('should offer the edit link when the flag is off but the user has picks this week', async () => {
+    useTablet();
+    renderComponent(
+      [
+        createFeedMock(),
+        {
+          request: { query: MY_CURRENT_PICKS_QUERY },
+          result: {
+            data: {
+              myCurrentPicks: {
+                id: 'picks-1',
+                weekStart: '2026-11-02',
+                author: {
+                  id: defaultUser.id,
+                  name: defaultUser.name,
+                  username: defaultUser.username,
+                  image: defaultUser.image,
+                  permalink: '',
+                },
+                items: [],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      undefined,
+      picksGrowthBook(false),
+    );
+    await waitForNock();
+    const link = await screen.findByRole('link', {
+      name: "Edit this week's picks",
+    });
+    expect(link).toHaveAttribute(
+      'href',
+      expect.stringContaining('picks/new?origin=bookmarks'),
+    );
   });
 
   it('should hide the button when logged out', async () => {

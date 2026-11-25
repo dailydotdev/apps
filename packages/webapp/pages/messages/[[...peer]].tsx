@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useMessagesEnabled } from '@dailydotdev/shared/src/features/messages/hooks/useMessagesEnabled';
 import { MessagesScreen } from '@dailydotdev/shared/src/features/messages/components/MessagesScreen';
+import { toSupportPeerId } from '@dailydotdev/shared/src/features/messages/support';
 import {
   getMessagesUrl,
   parseDmOrigin,
@@ -19,10 +20,17 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 const Page = (): ReactElement | null => {
   const router = useRouter();
   const { isEnabled, isGatedOut } = useMessagesEnabled();
-  const [peerId] = (router.query.peer as string[] | undefined) ?? [];
+  const [firstSegment, supportChatId] =
+    (router.query.peer as string[] | undefined) ?? [];
+  // A company page's support chat lives at /messages/support/<chat id>.
+  const peerId =
+    firstSegment === 'support' && supportChatId
+      ? toSupportPeerId(supportChatId)
+      : firstSegment;
   const commentId =
     typeof router.query.comment === 'string' ? router.query.comment : undefined;
   const showRequests = router.query.tab === 'requests';
+  const showLfg = router.query.tab === 'lfg';
   const reachOutId =
     typeof router.query.reachOut === 'string'
       ? router.query.reachOut
@@ -40,12 +48,16 @@ const Page = (): ReactElement | null => {
   useEffect(() => {
     if (router.isReady && router.query.origin !== undefined) {
       router.replace(
-        getMessagesUrl(peerId, { requests: showRequests, commentId }),
+        getMessagesUrl(peerId, {
+          requests: showRequests,
+          lfg: showLfg,
+          commentId,
+        }),
         undefined,
         { shallow: true },
       );
     }
-  }, [router, peerId, showRequests, commentId]);
+  }, [router, peerId, showRequests, showLfg, commentId]);
 
   if (isGatedOut || !router.isReady) {
     return null;
@@ -60,10 +72,11 @@ const Page = (): ReactElement | null => {
           commentId={commentId}
           origin={origin}
           showRequests={showRequests}
+          showLfg={showLfg}
           // Dropped from the URL once used, so a reload can't attach it twice.
           onCommentContextUsed={() =>
             router.replace(
-              getMessagesUrl(peerId, { requests: showRequests }),
+              getMessagesUrl(peerId, { requests: showRequests, lfg: showLfg }),
               undefined,
               {
                 shallow: true,

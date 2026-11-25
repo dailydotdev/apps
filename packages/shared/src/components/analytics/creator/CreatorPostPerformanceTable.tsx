@@ -92,7 +92,7 @@ const columns: Column[] = [
 
 const [publishedColumn, ...metricColumns] = columns;
 
-const cellClassName = 'px-2 laptop:py-3 laptop:align-middle';
+const cellClassName = 'px-2 @xl:py-3 @xl:align-middle';
 
 const columnLabel = (key: CreatorPostSortBy): string =>
   columns.find((column) => column.key === key)?.label ?? '';
@@ -188,14 +188,14 @@ const SortableHeader = ({
   );
 };
 
-// Below laptop the header row is hidden and each row stacks, so every metric
-// carries its own label.
+// In a narrow container the header row is hidden and each row stacks, so every
+// metric carries its own label.
 const MetricCellLabel = ({ column }: { column: Column }): ReactElement => (
   <Typography
     type={TypographyType.Caption2}
     color={TypographyColor.Tertiary}
     tag={TypographyTag.Span}
-    className="block truncate laptop:hidden"
+    className="block truncate @xl:hidden"
     aria-hidden
   >
     {column.shortLabel ?? column.label}
@@ -204,7 +204,7 @@ const MetricCellLabel = ({ column }: { column: Column }): ReactElement => (
 
 const metricCellClassName = classNames(
   cellClassName,
-  'min-w-0 pb-3 laptop:text-right',
+  'min-w-0 pb-3 @xl:text-right',
 );
 
 const MetricCell = ({
@@ -236,7 +236,7 @@ const MetricCell = ({
   </td>
 );
 
-// Column headers sort the table on laptop; the stacked rows below that have
+// Column headers sort the wide table; the stacked rows of a narrow one have
 // no header row, so the same sorting lives in a dropdown.
 const SortSelect = ({
   sort,
@@ -249,7 +249,7 @@ const SortSelect = ({
   const isDescending = sort.order === CreatorPostSortOrder.Desc;
 
   return (
-    <div className="flex justify-end laptop:hidden">
+    <div className="flex justify-end @xl:hidden">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -289,9 +289,9 @@ const SkeletonRows = (): ReactElement => (
   <>
     {Array.from({ length: 5 }, (_, index) => (
       // eslint-disable-next-line react/no-array-index-key
-      <tr key={index} className="block laptop:table-row">
+      <tr key={index} className="block @xl:table-row">
         <td
-          className={classNames(cellClassName, 'block py-2 laptop:table-cell')}
+          className={classNames(cellClassName, 'block py-2 @xl:table-cell')}
           colSpan={columns.length}
         >
           <ElementPlaceholder className="h-10 w-full rounded-8" />
@@ -311,12 +311,12 @@ export const CreatorPostPerformanceTable = ({
   fetchNextPage,
   audience = CreatorAnalyticsAudience.Creator,
 }: CreatorPostPerformanceTableProps): ReactElement => (
-  <div className="flex flex-col gap-4">
+  <div className="flex flex-col gap-4 @container">
     <SortSelect sort={sort} onSortChange={onSortChange} />
     <div>
       <table className="w-full border-collapse text-left">
         <caption className="sr-only">{tableCaption[audience]}</caption>
-        <thead className="hidden laptop:table-header-group">
+        <thead className="hidden @xl:table-header-group">
           <tr className="border-b border-border-subtlest-tertiary">
             {/* The publish date sits under each title, so the post column
                 sorts by it rather than spending a column of its own. */}
@@ -345,7 +345,7 @@ export const CreatorPostPerformanceTable = ({
             ))}
           </tr>
         </thead>
-        <tbody className="block laptop:table-row-group">
+        <tbody className="block @xl:table-row-group">
           {isPending && <SkeletonRows />}
           {!isPending &&
             posts.map((row) => {
@@ -354,7 +354,7 @@ export const CreatorPostPerformanceTable = ({
               return (
                 <tr
                   key={row.id}
-                  className="grid grid-cols-4 border-b border-border-subtlest-tertiary last:border-b-0 laptop:table-row"
+                  className="grid grid-cols-4 border-b border-border-subtlest-tertiary last:border-b-0 @xl:table-row"
                 >
                   {/* `max-w-0` with `w-full` lets the title column take the
                       spare width and wrap, instead of a long title
@@ -362,7 +362,7 @@ export const CreatorPostPerformanceTable = ({
                   <td
                     className={classNames(
                       cellClassName,
-                      'col-span-4 min-w-0 pb-2 pt-3 laptop:w-full laptop:max-w-0',
+                      'col-span-4 min-w-0 pb-2 pt-3 @xl:w-full @xl:max-w-0',
                     )}
                   >
                     <Link href={getRowHref(row.post, audience)}>

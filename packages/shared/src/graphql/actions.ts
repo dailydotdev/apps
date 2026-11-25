@@ -35,11 +35,17 @@ export enum ActionType {
   BookmarkPost = 'bookmark_post',
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
+  // Saw the "2 streak freezes, on us" copy in the milestone modal
+  StreakFreeFreezesGrant = 'streak_free_freezes_grant',
+  // Saw the "that was your last free freeze" upsell modal
+  StreakFreeFreezesUpsell = 'streak_free_freezes_upsell',
   FetchedSmartTitle = 'fetched_smart_title',
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
   HasSeenTags = 'has_seen_tags',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
+  // Declined the streak goal offer, so the day-2 prompt stays away for good
+  StreakGoalSkipped = 'streak_goal_skipped',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',
@@ -66,14 +72,23 @@ export enum ActionType {
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
   SidebarTourSeen = 'sidebar_tour_seen',
-  InterestAgentIntroSeen = 'interest_agent_intro_seen',
-  InterestAgentSidebarClick = 'interest_agent_sidebar_click',
   MarketplaceSidebarClick = 'marketplace_sidebar_click',
   DismissPluginShareTooltip = 'dismiss_plugin_share_tooltip',
   ReferralLadderGiftShake = 'referral_ladder_gift_shake',
   // Agreed to Looking for group's house rules before a first post.
   LfgHouseRules = 'lfg_house_rules',
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
+  // Hides every daily.dev for Startups promotion, the squad page one included
+  DismissStartupsPromo = 'dismiss_startups_promo',
+  // Closed the company page checklist: it stays away on every page
+  DismissCompanyPageChecklist = 'dismiss_company_page_checklist',
+  DismissComposerAiWarning = 'dismiss_composer_ai_warning',
+  // Copied a skill's prompt from the company page checklist
+  TriedSkillStrategy = 'tried_skill_strategy',
+  TriedSkillIdeas = 'tried_skill_ideas',
+  TriedSkillReview = 'tried_skill_review',
+  TriedSkillRoutine = 'tried_skill_routine',
+  FirstCores = 'first_cores',
 }
 
 export const cvActions = [

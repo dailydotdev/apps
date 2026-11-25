@@ -26,7 +26,7 @@ import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { PlusUserBadge } from '../PlusUserBadge';
 import { fallbackImages } from '../../lib/config';
-import { hasSquadFeature } from '../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../features/squads/lib/features';
 import { VerifiedSquadBadge } from '../../features/squads/components/VerifiedSquad';
 
 interface PostAuthorProps {
@@ -201,7 +201,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
             >
               <TruncateText>{name}</TruncateText>
             </ProfileLink>
-            {'features' in user && hasSquadFeature(user, 'verified') && (
+            {'features' in user && showsVerifiedBadge(user) && (
               <VerifiedSquadBadge className="ml-1 self-center" />
             )}
             {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}

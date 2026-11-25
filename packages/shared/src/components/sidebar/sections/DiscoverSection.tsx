@@ -4,7 +4,6 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { CompassIcon, EarthIcon, HashtagIcon } from '../../icons';
 import { MedalIcon } from '../../icons/Medal';
-import { AgentIcon } from '../../icons/Agent';
 import { AppIcon } from '../../icons/App';
 import { Section } from '../Section';
 import { AlertColor, AlertDot } from '../../AlertDot';
@@ -12,8 +11,7 @@ import type { SidebarSectionProps } from './common';
 import { MARKETPLACE_DOT_ACCOUNTS_BEFORE } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions, useConditionalFeature } from '../../../hooks';
-import { featureInterestAgent } from '../../../lib/featureManagement';
+import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -34,12 +32,8 @@ export const DiscoverSection = ({
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const { user, isLoggedIn } = useAuthContext();
+  const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { value: showAgent } = useConditionalFeature({
-    feature: featureInterestAgent,
-    shouldEvaluate: isLoggedIn,
-  });
   const showMarketplaceDot =
     !!user?.createdAt &&
     new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
@@ -103,22 +97,12 @@ export const DiscoverSection = ({
         path: `${webappUrl}users`,
         isForcedLink: true,
       },
-      showAgent && {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <AgentIcon secondary={active} />} />
-        ),
-        title: 'Agents',
-        path: `${webappUrl}agent`,
-        isForcedLink: true,
-        requiresLogin: true,
-      },
-    ].filter(Boolean) as SidebarMenuItem[];
+    ] as SidebarMenuItem[];
   }, [
     completeAction,
     logEvent,
     onNavTabClick,
     itemsAfterExplore,
-    showAgent,
     showMarketplaceDot,
   ]);
 

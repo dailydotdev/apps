@@ -6,14 +6,12 @@ import { EarthIcon } from '../../components/icons/Earth';
 import { BriefGradientIcon } from '../../components/icons/BriefGradient';
 import { BellIcon } from '../../components/icons/Bell';
 import { MailIcon } from '../../components/icons/Mail';
-import { DiscussIcon } from '../../components/icons/Discuss';
 import { SquadIcon } from '../../components/icons/Squad';
 import { BookmarkIcon } from '../../components/icons/Bookmark';
 import { HashtagIcon } from '../../components/icons/Hashtag';
 import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
-import { ShortcutsIcon } from '../../components/icons/Shortcuts';
 import { ChecklistBIcon } from '../../components/icons/ChecklistB';
 import {
   settingsUrl,
@@ -27,7 +25,7 @@ export type FeedWidgetComponentProps<
   K extends FeedWidgetKind = FeedWidgetKind,
 > = {
   widget: FeedWidget<K>;
-  /** The size being rendered; a phone clamps Large to Tall. */
+  /** The size being rendered. */
   size: FeedWidgetSize;
   isEditing: boolean;
   /**
@@ -50,10 +48,9 @@ export type FeedWidgetAvailability = {
   isLoggedIn: boolean;
   hasSquads: boolean;
   isReadingStreakOn: boolean;
+  isQuestSystemOn: boolean;
   /** Direct messages are on for this reader and this build has chat. */
   hasMessages: boolean;
-  /** Live chat rooms are on for this reader. */
-  hasLiveChat: boolean;
 };
 
 /** The gallery's sections, in the order it lists them. */
@@ -168,17 +165,6 @@ export const feedWidgetRegistry: {
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: ({ isLoggedIn, hasMessages }) => isLoggedIn && hasMessages,
   },
-  [FeedWidgetKind.LiveChat]: {
-    kind: FeedWidgetKind.LiveChat,
-    name: 'Live chat',
-    description:
-      'The live chats the daily.dev team opens on posts worth talking about.',
-    icon: DiscussIcon,
-    category: FeedWidgetCategory.Community,
-    tone: 'bun',
-    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
-    isAvailable: ({ isLoggedIn, hasLiveChat }) => isLoggedIn && hasLiveChat,
-  },
   [FeedWidgetKind.SquadUpdates]: {
     kind: FeedWidgetKind.SquadUpdates,
     name: 'Squad updates',
@@ -256,16 +242,6 @@ export const feedWidgetRegistry: {
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
     isAvailable: needsAccount,
   },
-  [FeedWidgetKind.Shortcuts]: {
-    kind: FeedWidgetKind.Shortcuts,
-    name: 'Shortcuts',
-    description:
-      'The sites you pinned and, in the extension, your most visited ones.',
-    icon: ShortcutsIcon,
-    category: FeedWidgetCategory.Tools,
-    tone: 'onion',
-    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
-  },
   [FeedWidgetKind.GettingStarted]: {
     kind: FeedWidgetKind.GettingStarted,
     name: 'Getting started',
@@ -276,6 +252,12 @@ export const feedWidgetRegistry: {
     tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
+    disabledReason: ({ isQuestSystemOn }) =>
+      isQuestSystemOn ? undefined : 'Quests are off in your settings.',
+    disabledFix: {
+      label: 'Turn on quests',
+      href: `${settingsUrl}/customization/gamification`,
+    },
   },
 };
 

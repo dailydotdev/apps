@@ -21,8 +21,8 @@ type UseDmSettings = {
 
 type DmSettings = { enabled: boolean };
 
-// Callers outside the messages screen (the privacy page) must pass the flag,
-// so users outside the rollout never query the setting.
+// Callers outside the messages screen (the privacy page) must pass whether
+// messages are enabled, so signed-out visitors never query the setting.
 type UseDmSettingsProps = { enabled?: boolean };
 
 // Receiving direct messages is on by default; daily-api owns and enforces it.

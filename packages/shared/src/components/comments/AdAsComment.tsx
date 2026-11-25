@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
+import classNames from 'classnames';
 import { TruncateText } from '../utilities';
 import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
@@ -10,6 +11,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
+import { AdSlot } from '../cards/ad/common/AdSlot';
 import { AdViewability } from '../cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../features/monetization/viewability';
@@ -17,7 +19,6 @@ import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
 import type { Post } from '../../graphql/posts';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { RemoveAd } from '../cards/ad/common/RemoveAd';
-import { AdRefresh } from '../cards/ad/common/AdRefresh';
 import { ButtonVariant } from '../buttons/common';
 import { MiniCloseIcon } from '../icons';
 import { useAdQuery } from '../../features/monetization/useAdQuery';
@@ -31,10 +32,13 @@ interface AdAsCommentProps {
   postId: string;
   /** The post's source; an ad-free squad gets no ad and no ad request. */
   source: Post['source'];
+  /** No top margin, for hosts that space their children. */
+  isCompact?: boolean;
 }
 export const AdAsComment = ({
   postId,
   source: postSource,
+  isCompact = false,
 }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
@@ -43,7 +47,6 @@ export const AdAsComment = ({
 
   const {
     data: ad,
-    refetch,
     isFetching,
     isRefetching,
   } = useAdQuery({
@@ -81,11 +84,6 @@ export const AdAsComment = ({
     !ad ? undefined : `Promoted by ${ad.source}`,
   );
 
-  const onRefreshClick = useCallback(async () => {
-    onAdAction(AdActions.Refresh);
-    await refetch();
-  }, [onAdAction, refetch]);
-
   useEffect(() => {
     if (!ad || ad?.impressionStatus === ImpressionStatus.LOGGED) {
       return;
@@ -97,7 +95,12 @@ export const AdAsComment = ({
 
   if (isFetching && !isRefetching) {
     return (
-      <div className="mt-6 min-h-48 rounded-16 border border-border-subtlest-tertiary p-4">
+      <div
+        className={classNames(
+          'min-h-48 rounded-16 border border-border-subtlest-tertiary p-4',
+          !isCompact && 'mt-6',
+        )}
+      >
         <PlaceholderCommentList placeholderAmount={1} className="!mt-0" />
       </div>
     );
@@ -107,7 +110,7 @@ export const AdAsComment = ({
     return <></>;
   }
 
-  const { providerId, source, description, pixel, tagLine } = ad;
+  const { providerId, source, description, tagLine } = ad;
   // Direct ads send no `company`; `source` is the advertiser's name.
   const advertiserName = ad.company?.trim() || source;
   // `image` is the creative's banner, not a logo: prefer the company logo, then
@@ -118,53 +121,58 @@ export const AdAsComment = ({
       : ad.image;
 
   return (
-    <div className="relative mt-6 flex flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
-      <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
-      <ProfilePicture
-        nativeLazyLoading
-        className="!inline-block"
-        size={ProfileImageSize.Large}
-        user={{ id: providerId, username: source, image: avatar }}
-        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-        style={{ backgroundColor: ad?.backgroundColor }}
-      />
-      <div className="ml-3">
-        <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
-          {advertiserName}
-        </TruncateText>
-        <TruncateText className="text-text-quaternary typo-callout">
-          {promotedText}
-        </TruncateText>
-      </div>
-      <div className="z-1 ml-auto flex gap-1">
-        <AdRefresh
-          variant={ButtonVariant.Tertiary}
-          onClick={onRefreshClick}
-          loading={isRefetching}
-        />
-        {!isPlus && (
-          <RemoveAd
-            iconOnly
-            variant={ButtonVariant.Tertiary}
-            icon={<MiniCloseIcon />}
+    <AdSlot ad={ad}>
+      {(slotProps) => (
+        <div
+          {...slotProps}
+          className={classNames(
+            'relative flex flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline',
+            !isCompact && 'mt-6',
+          )}
+        >
+          <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
+          <ProfilePicture
+            nativeLazyLoading
+            className="!inline-block"
+            size={ProfileImageSize.Large}
+            user={{ id: providerId, username: source, image: avatar }}
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+            style={{ backgroundColor: ad?.backgroundColor }}
           />
-        )}
-      </div>
-      <p className="mt-3 w-full text-text-primary typo-body">
-        {tagLine && (
-          <>
-            <b>{tagLine}</b>
-            <br />
-          </>
-        )}
-        {description}
-      </p>
-      <AdvertiseLink
-        targetId={TargetId.AdComment}
-        className="mt-2 w-fit whitespace-nowrap typo-caption2"
-      />
-      <AdPixel pixel={pixel} />
-      <AdViewability ad={ad} onViewable={onViewable} />
-    </div>
+          <div className="ml-3">
+            <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
+              {advertiserName}
+            </TruncateText>
+            <TruncateText className="text-text-quaternary typo-callout">
+              {promotedText}
+            </TruncateText>
+          </div>
+          {!isPlus && (
+            <div className="z-1 ml-auto flex gap-1">
+              <RemoveAd
+                iconOnly
+                variant={ButtonVariant.Tertiary}
+                icon={<MiniCloseIcon />}
+              />
+            </div>
+          )}
+          <p className="mt-3 w-full text-text-primary typo-body">
+            {tagLine && (
+              <>
+                <b>{tagLine}</b>
+                <br />
+              </>
+            )}
+            {description}
+          </p>
+          <AdvertiseLink
+            targetId={TargetId.AdComment}
+            className="mt-2 w-fit whitespace-nowrap typo-caption2"
+          />
+          <AdPixel ad={ad} />
+          <AdViewability ad={ad} onViewable={onViewable} />
+        </div>
+      )}
+    </AdSlot>
   );
 };

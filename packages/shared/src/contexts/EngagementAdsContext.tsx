@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type {
   EngagementCreative,
   ResolvedCreative,
@@ -15,9 +16,11 @@ import { useIsPlusAdFree } from '../hooks/useIsPlusAdFree';
 import { isProduction } from '../lib/constants';
 import { isSourceAdFree } from '../lib/ads';
 import { useActivePostContext } from './ActivePostContext';
+import { useAuthContext } from './AuthContext';
+import { engagementCreativesQueryOptions } from '../graphql/engagementAds';
 
 interface EngagementAdsContextValue {
-  /** All creatives from boot, theme-resolved */
+  /** All creatives, theme-resolved */
   creatives: ResolvedCreative[];
 
   /** Find a creative matching specific tags (stateless lookup) */
@@ -61,23 +64,37 @@ export const NoEngagementAdsProvider = ({
 
 interface EngagementAdsProviderProps {
   children: ReactNode;
+  /** Inline boot creatives, absent when boot deferred them */
   rawCreatives?: EngagementCreative[];
+  /**
+   * The network boot landed, so a first visit has its tracking cookie, and its
+   * user reached the auth context, so the query key does not change under it
+   */
+  isRemoteBootApplied?: boolean;
 }
 
 export const EngagementAdsProvider = ({
   children,
   rawCreatives,
+  isRemoteBootApplied = false,
 }: EngagementAdsProviderProps): ReactElement => {
   const isLight = useIsLightTheme();
   const isPlusAdFree = useIsPlusAdFree();
+  const { user } = useAuthContext();
+  const isAdFree = isProduction && isPlusAdFree;
+  const { data: fetchedCreatives } = useQuery({
+    ...engagementCreativesQueryOptions(user),
+    enabled: isRemoteBootApplied && rawCreatives === undefined && !isAdFree,
+  });
+  const creatives = rawCreatives ?? fetchedCreatives;
 
   const resolvedCreatives = useMemo(() => {
-    if (isProduction && isPlusAdFree) {
+    if (isAdFree) {
       return [];
     }
 
-    return parseCreatives(rawCreatives).map((c) => resolveCreative(c, isLight));
-  }, [rawCreatives, isLight, isPlusAdFree]);
+    return parseCreatives(creatives).map((c) => resolveCreative(c, isLight));
+  }, [creatives, isLight, isAdFree]);
 
   const getCreativeForTags = useCallback(
     (tags: string[]) => findCreativeForTags(resolvedCreatives, tags),

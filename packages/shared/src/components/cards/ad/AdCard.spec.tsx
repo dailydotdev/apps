@@ -23,6 +23,7 @@ import { useFeature } from '../../GrowthBookProvider';
 import {
   AdLabelVariant,
   featureAdLabel,
+  featureAdRemoveCopy,
   featureGridCardTldr,
 } from '../../../lib/featureManagement';
 import { gridCardTldrCoverClassName } from '../common/GridCardTldr';
@@ -57,10 +58,11 @@ beforeEach(() => {
 
 const renderListComponent = (
   props: Partial<AdCardProps> = {},
+  boot: Partial<React.ComponentProps<typeof TestBootProvider>> = {},
 ): RenderResult => {
   const client = new QueryClient();
   return render(
-    <TestBootProvider client={client}>
+    <TestBootProvider client={client} {...boot}>
       <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <AdList {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
@@ -278,6 +280,54 @@ it('should move the compact grid ad controls under a menu', () => {
   );
 });
 
+it.each([
+  { layout: 'list', enabled: true },
+  { layout: 'list', enabled: false },
+  { layout: 'compact grid', enabled: true },
+  { layout: 'compact grid', enabled: false },
+])(
+  'gates click tracking for macro-bearing links in the $layout ad with lifecycle=$enabled',
+  ({ layout, enabled }) => {
+    const boot = {
+      gb: new GrowthBook({
+        features: { ad_slot_lifecycle: { defaultValue: enabled } },
+      }),
+    };
+    const src = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
+    const configured = {
+      ...ad,
+      link: 'https://advertiser.example?cb=${CACHEBUSTER}',
+      callToAction: 'Try it',
+      lifecycle: {
+        version: 1 as const,
+        on: {
+          click: [
+            { type: 'pixel' as const, url: 'https://tracker.example/click' },
+          ],
+        },
+      },
+    };
+    if (layout === 'list') {
+      renderListComponent({ ad: configured }, boot);
+      fireEvent.click(
+        within(screen.getByTestId('postItem')).getAllByRole('link')[0],
+      );
+    } else {
+      renderGridComponent({ ad: configured, isCompact: true }, boot);
+      fireEvent.keyDown(screen.getByRole('button', { name: 'Options' }), {
+        key: 'Enter',
+      });
+      fireEvent.click(
+        within(screen.getByRole('menu')).getByRole('link', { name: 'Try it' }),
+      );
+    }
+    expect(
+      src.mock.calls.filter(([url]) => url === 'https://tracker.example/click'),
+    ).toHaveLength(enabled ? 1 : 0);
+    src.mockRestore();
+  },
+);
+
 const promotedMatcher = (_: string, element?: Element | null): boolean =>
   getAttributionText(element) === 'Promoted' ||
   getAttributionText(element).startsWith('Promoted by ');
@@ -439,6 +489,18 @@ it('should keep the grid creative cover in the grid_card_tldr control', async ()
   expect(await screen.findByAltText('Ad image')).not.toHaveClass(
     gridCardTldrCoverClassName,
   );
+});
+
+it('should show the ad_remove_copy flag copy on the remove link', async () => {
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureAdRemoveCopy.id]: { defaultValue: 'Go ad-free' },
+  });
+  renderGridComponent({}, { gb });
+
+  expect(
+    await screen.findByRole('link', { name: 'Go ad-free' }),
+  ).toHaveAttribute('href', plusUrl);
 });
 
 it('should render advertise link on list ad', () => {

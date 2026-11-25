@@ -3,6 +3,9 @@ import type { Boot } from '../../lib/boot';
 export const SOCIAL_AUTH_RETRY_MESSAGE =
   "We couldn't complete your social sign-in. Please try again.";
 
+export const IN_APP_BROWSER_AUTH_MESSAGE =
+  "Sign-in doesn't work inside this app. Tap the menu and choose Open in browser to continue.";
+
 export const GITHUB_EMAIL_NOT_VERIFIED_ERROR = 'github_email_not_verified';
 
 export const SOCIAL_AUTH_POPUP_CLOSED_ERROR =

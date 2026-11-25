@@ -98,4 +98,32 @@ describe('usePaddlePayment', () => {
       },
     ]);
   });
+
+  it('should add the caller extra to every checkout event', () => {
+    renderHook(
+      () =>
+        usePaddlePayment({
+          priceType: PurchaseType.Startups,
+          logExtra: { plan: 'starter', source_id: 'squad-1' },
+          successCallback: jest.fn(),
+        }),
+      { wrapper },
+    );
+
+    fireCheckoutEvent({
+      name: CheckoutEventNames.CHECKOUT_LOADED,
+      data: { payment },
+    });
+    fireCheckoutEvent({
+      name: CheckoutEventNames.CHECKOUT_PAYMENT_FAILED,
+      data: { payment },
+    });
+
+    expect(
+      logEvent.mock.calls.map(([event]) => JSON.parse(event.extra)),
+    ).toEqual([
+      expect.objectContaining({ plan: 'starter', source_id: 'squad-1' }),
+      expect.objectContaining({ plan: 'starter', source_id: 'squad-1' }),
+    ]);
+  });
 });

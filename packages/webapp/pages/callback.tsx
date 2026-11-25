@@ -19,6 +19,7 @@ import {
   AUTH_REDIRECT_KEY,
   shouldRedirectAuth,
 } from '@dailydotdev/shared/src/features/onboarding/shared';
+import { AUTH_RETURN_PATH_KEY } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { noindexSeoProps } from '../next-seo';
 
 const seo: NextSeoProps = { ...noindexSeoProps };
@@ -48,19 +49,29 @@ const checkShouldSendBroadcast = () => {
   return conditions.some(Boolean);
 };
 
-const handleRedirectAuth = (params: URLSearchParams) => {
+const handleRedirectAuth = (params: URLSearchParams): boolean => {
   const href = window.sessionStorage.getItem(AUTH_REDIRECT_KEY);
 
-  if (href) {
-    const [redirect, hrefParams] = href.split('?');
-    const redirectParams = new URLSearchParams(hrefParams);
-
-    Object.entries(redirectParams).forEach(([key, value]) =>
-      params.set(key, value),
-    );
-
-    window.location.replace(`${redirect}?${params}`);
+  if (!href) {
+    return false;
   }
+
+  const [redirect, hrefParams] = href.split('?');
+  const redirectParams = new URLSearchParams(hrefParams);
+
+  Object.entries(redirectParams).forEach(([key, value]) =>
+    params.set(key, value),
+  );
+
+  window.location.replace(`${redirect}?${params}`);
+  return true;
+};
+
+const getAuthReturnPath = (): string => {
+  const path = window.sessionStorage.getItem(AUTH_RETURN_PATH_KEY);
+  window.sessionStorage.removeItem(AUTH_RETURN_PATH_KEY);
+
+  return path?.startsWith('/') && !path.startsWith('//') ? path : '/onboarding';
 };
 
 function CallbackPage(): ReactElement | null {
@@ -84,8 +95,7 @@ function CallbackPage(): ReactElement | null {
         return;
       }
 
-      if (shouldRedirectAuth()) {
-        handleRedirectAuth(urlSearchParams);
+      if (shouldRedirectAuth() && handleRedirectAuth(urlSearchParams)) {
         return;
       }
 
@@ -114,7 +124,7 @@ function CallbackPage(): ReactElement | null {
       }
 
       setTimeout(() => {
-        window.location.replace('/onboarding');
+        window.location.replace(getAuthReturnPath());
       }, 300);
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;

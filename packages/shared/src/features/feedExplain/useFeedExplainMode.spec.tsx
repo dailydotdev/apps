@@ -27,19 +27,16 @@ beforeEach(() => {
 
 const renderMode = ({
   version,
-  isFlagOn,
   feedName = SharedFeedPage.MyFeed,
   isRecommended = true,
 }: {
   version: number;
-  isFlagOn: boolean;
   feedName?: SharedFeedPage;
   isRecommended?: boolean;
 }) => {
   const gb = new GrowthBook({
     features: {
       feed_version: { defaultValue: version },
-      feed_explain: { defaultValue: isFlagOn },
     },
   });
   const client = new QueryClient();
@@ -61,29 +58,19 @@ const renderMode = ({
 };
 
 describe('useFeedExplainMode', () => {
-  it.each([116, 15])(
-    'should turn on with the flag on, on feed version %i',
-    async (version) => {
-      const { result } = renderMode({ version, isFlagOn: true });
+  it.each([116, 15])('should turn on, on feed version %i', async (version) => {
+    const { result } = renderMode({ version });
 
-      expect(result.current.isAvailable).toBe(true);
-      expect(result.current.isExplaining).toBe(false);
-      act(() => result.current.setIsExplaining(true));
-      await waitFor(() => expect(result.current.isExplaining).toBe(true));
-      expect(result.current.version).toBe(version);
-    },
-  );
+    expect(result.current.isAvailable).toBe(true);
+    expect(result.current.isExplaining).toBe(false);
+    act(() => result.current.setIsExplaining(true));
+    await waitFor(() => expect(result.current.isExplaining).toBe(true));
+    expect(result.current.version).toBe(version);
+  });
 
   it.each([
-    ['the flag off', { version: 116, isFlagOn: false }],
-    [
-      'the By date sort',
-      { version: 116, isFlagOn: true, isRecommended: false },
-    ],
-    [
-      'another feed',
-      { version: 116, isFlagOn: true, feedName: SharedFeedPage.Popular },
-    ],
+    ['the By date sort', { version: 116, isRecommended: false }],
+    ['another feed', { version: 116, feedName: SharedFeedPage.Popular }],
   ])('should stay off with %s', (_, props) => {
     const { result } = renderMode(props);
 
@@ -93,11 +80,7 @@ describe('useFeedExplainMode', () => {
   });
 
   it('should keep offering it on the By date sort, for the phone sheet', () => {
-    const { result } = renderMode({
-      version: 116,
-      isFlagOn: true,
-      isRecommended: false,
-    });
+    const { result } = renderMode({ version: 116, isRecommended: false });
 
     expect(result.current.isOffered).toBe(true);
     expect(result.current.isAvailable).toBe(false);

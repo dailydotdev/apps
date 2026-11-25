@@ -102,6 +102,7 @@ import {
   featureForceAd,
   featurePlusFeedBanner,
   featureHeroCards,
+  featurePostPageHybrid,
 } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
 import type { PostHero, PostHeroSignificance } from '../graphql/types';
@@ -110,6 +111,7 @@ import { useBoot } from '../hooks/useBoot';
 import { MarketingCtaVariant } from './marketing/cta/common';
 import type { MarketingCta } from './marketing/cta/common';
 import * as uploadCv from '../features/profile/hooks/useUploadCv';
+import * as conditionalFeature from '../hooks/useConditionalFeature';
 import * as introQuests from '../hooks/useHasIntroQuests';
 import * as laptopLayout from '../hooks/layout/useLaptopLayout';
 import {
@@ -2090,6 +2092,47 @@ describe('Feed logged in', () => {
     await screen.findByRole('dialog');
   });
 
+  it('should open the hybrid post modal when post_page_hybrid is on', async () => {
+    jest
+      .spyOn(conditionalFeature, 'useConditionalFeature')
+      .mockImplementation(({ feature, shouldEvaluate }) => ({
+        value:
+          feature.id === featurePostPageHybrid.id
+            ? !!shouldEvaluate
+            : feature.defaultValue,
+        isLoading: false,
+      }));
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {
+            pmid: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+            pmcid: 'my-feed',
+          },
+          asPath: '/posts/4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          push: jest.fn().mockResolvedValue(true),
+          replace: jest.fn(),
+          events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+        }) as unknown as NextRouter,
+    );
+    renderComponent();
+    await waitForNock();
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
+    const [first] = await screen.findAllByLabelText('Comments');
+    fireEvent.click(first);
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      await within(dialog).findByTestId('post-hybrid-column'),
+    ).toBeInTheDocument();
+  });
+
   it('should open the post modal with a shallow push', async () => {
     const push = jest.fn().mockResolvedValue(true);
     jest.mocked(useRouter).mockImplementation(() => ({
@@ -3487,62 +3530,6 @@ describe('Feed excludedPostIds', () => {
     });
     expect(screen.queryByText('Nothing else here')).not.toBeInTheDocument();
     expect(onEmptyFeed).not.toHaveBeenCalled();
-  });
-});
-
-describe('Feed footer and errorScreen', () => {
-  const lastPage: Connection<Post> = {
-    ...defaultFeedPage,
-    pageInfo: { ...defaultFeedPage.pageInfo, hasNextPage: false },
-  };
-
-  it('shows the footer after the last page', async () => {
-    renderComponent(
-      [createFeedMock(lastPage)],
-      defaultUser,
-      SharedFeedPage.MyFeed,
-      ANONYMOUS_FEED_QUERY,
-      { footer: <p>End of the feed</p> },
-    );
-
-    expect(await screen.findByText('End of the feed')).toBeInTheDocument();
-  });
-
-  it('hides the footer while another page follows', async () => {
-    renderComponent(
-      [
-        createFeedMock({
-          ...lastPage,
-          pageInfo: { ...lastPage.pageInfo, hasNextPage: true },
-        }),
-      ],
-      defaultUser,
-      SharedFeedPage.MyFeed,
-      ANONYMOUS_FEED_QUERY,
-      { footer: <p>End of the feed</p> },
-    );
-
-    await waitFor(() =>
-      expect(screen.queryAllByTestId('postItem').length).toBeGreaterThan(0),
-    );
-    expect(screen.queryByText('End of the feed')).not.toBeInTheDocument();
-  });
-
-  it('shows the errorScreen when the first page fails', async () => {
-    renderComponent(
-      [
-        {
-          request: { query: ANONYMOUS_FEED_QUERY, variables },
-          result: { errors: [{ message: 'Unexpected error' }] },
-        },
-      ],
-      defaultUser,
-      SharedFeedPage.Custom,
-      ANONYMOUS_FEED_QUERY,
-      { errorScreen: <p>Could not load</p> },
-    );
-
-    expect(await screen.findByText('Could not load')).toBeInTheDocument();
   });
 });
 

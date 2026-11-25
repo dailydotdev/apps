@@ -36,9 +36,11 @@ import { SQUAD_LINK_MAX_LENGTH } from '../../lib/limits';
 import { SquadManageSection } from '../../lib/routes';
 import { hasSquadFeature } from '../../lib/features';
 import { SquadEnterpriseGate } from './SquadEnterpriseGate';
+import { SquadEnterpriseSettings } from './SquadEnterpriseSettings';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
+  useSquadManageEmbed,
 } from './SquadManageLayout';
 
 const formId = 'squad-manage-branding';
@@ -268,6 +270,7 @@ const SquadManageBrandingForm = ({
     data: saved,
   } = useUpdateSquadBranding(squad);
   const { displayToast } = useToastNotification();
+  const embed = useSquadManageEmbed();
   const [color, setColor] = useState(branding?.color ?? '');
   const [isButtonOn, setIsButtonOn] = useState(!!branding?.button?.enabled);
   const [label, setLabel] = useState(
@@ -295,12 +298,15 @@ const SquadManageBrandingForm = ({
     // Turned off: keep the saved button so turning it back on restores it
     const kept = draft ?? branding?.button ?? null;
 
-    onSave({
-      color: canSetColor && color ? color.toUpperCase() : null,
-      button: isButtonOn
-        ? { ...(draft as { label: string; url: string }), enabled: true }
-        : kept && { label: kept.label, url: kept.url, enabled: false },
-    });
+    onSave(
+      {
+        color: canSetColor && color ? color.toUpperCase() : null,
+        button: isButtonOn
+          ? { ...(draft as { label: string; url: string }), enabled: true }
+          : kept && { label: kept.label, url: kept.url, enabled: false },
+      },
+      { onSuccess: () => embed?.onSaved() },
+    );
   };
 
   return (
@@ -399,6 +405,8 @@ const SquadManageBrandingForm = ({
             </>
           )}
         </div>
+        <HorizontalSeparator />
+        <SquadEnterpriseSettings />
       </form>
     </SquadManageSectionPanel>
   );

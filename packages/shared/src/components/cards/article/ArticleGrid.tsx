@@ -75,7 +75,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           className: getPostClassNames(post, className, 'min-h-card'),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, postId: post.id }}
+        flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -105,7 +105,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, postId: post.id }}
+      flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked && !showFeedback}
       bookmarkNote={showFeedback ? undefined : post.bookmark?.note}
     >

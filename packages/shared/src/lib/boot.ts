@@ -13,7 +13,7 @@ import type {
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
 import type { EngagementCreative } from './engagementAds';
-import { getStoredTcString } from './tcf';
+import { getStoredConsentHeaders } from './tcf';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -83,6 +83,7 @@ export type Boot = {
     region?: string;
     continent?: Continent;
   };
+  /** Absent when the API honored `engagement=lazy` */
   engagementCreatives?: EngagementCreative[];
 };
 
@@ -135,6 +136,8 @@ const getBootURL = (
   if (referrer) {
     params.append('referrer', referrer);
   }
+  // EngagementAdsProvider fetches the creatives once boot lands
+  params.append('engagement', 'lazy');
 
   return `${apiUrl}/boot${appRoute}?${params}`;
 };
@@ -170,14 +173,13 @@ const fetchBoot = async (
   // Persisted by the CMP in the euconsent-v2 cookie on a previous page view —
   // the CMP script loads after boot fires, so the live __tcfapi is never
   // available here.
-  const tcString = getStoredTcString();
   const res = await fetch(bootURL, {
     method: 'GET',
     credentials: 'include',
     headers: {
       app,
       'Content-Type': 'application/json',
-      ...(tcString && { 'x-gdpr-consent': tcString }),
+      ...getStoredConsentHeaders(),
       ...(cookies && { Cookie: cookies }),
     },
   });

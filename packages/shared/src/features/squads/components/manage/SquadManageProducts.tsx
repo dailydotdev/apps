@@ -33,6 +33,7 @@ import { SquadProductForm } from '../products/SquadProductForm';
 import {
   SquadManagePanel,
   SquadManageSaveButton,
+  useSquadManageEmbed,
   SquadManageSectionPanel,
 } from './SquadManageLayout';
 
@@ -174,6 +175,7 @@ export const SquadManageProductForm = ({
   productId?: string;
 }): ReactElement | null => {
   const router = useRouter();
+  const embed = useSquadManageEmbed();
   const { squad } = useSquadPageContext();
   const { products, isPending } = useSquadProducts(squad);
   const [isSaving, setIsSaving] = useState(false);
@@ -201,6 +203,28 @@ export const SquadManageProductForm = ({
     );
   }
 
+  if (
+    !productId &&
+    !isPending &&
+    products.length >= getSquadProductsMax(squad)
+  ) {
+    return (
+      <SquadManagePanel
+        title="Add product"
+        backUrl={listUrl}
+        backLabel="Back to Products"
+        hasLaptopBack
+      >
+        <div className="px-4 py-6 tablet:px-6">
+          <SquadEnterpriseGate
+            title="More products"
+            description={`Show up to ${SQUAD_PRODUCTS_MAX} products on your page.`}
+          />
+        </div>
+      </SquadManagePanel>
+    );
+  }
+
   return (
     <SquadManagePanel
       title={product ? 'Edit product' : 'Add product'}
@@ -216,7 +240,7 @@ export const SquadManageProductForm = ({
         squad={squad}
         formId={productFormId}
         product={product}
-        onDone={() => router.push(listUrl)}
+        onDone={() => (embed ? embed.onSaved() : router.push(listUrl))}
         onSavingChange={setIsSaving}
       />
     </SquadManagePanel>

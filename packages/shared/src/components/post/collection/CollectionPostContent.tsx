@@ -13,7 +13,7 @@ import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSn
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import type { PostContentProps, PostNavigationProps } from '../common';
-import { PostContainer, getPostWidgetsClassName } from '../common';
+import { PostContainer } from '../common';
 import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
 import { webappUrl } from '../../../lib/constants';
@@ -53,7 +53,6 @@ export const CollectionPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
-  belowComments,
   shouldTrackView,
 }: CollectionPostContentRawProps): ReactElement => {
   const { subject } = useToastNotification();
@@ -133,7 +132,6 @@ export const CollectionPostContentRaw = ({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -203,7 +201,7 @@ export const CollectionPostContentRaw = ({
       <CollectionPostWidgets
         onCopyPostLink={onCopyPostLink}
         post={post}
-        className={getPostWidgetsClassName('pb-8 pt-6', !!belowComments)}
+        className="pb-8 pt-6"
         onClose={onClose}
         origin={origin}
       />

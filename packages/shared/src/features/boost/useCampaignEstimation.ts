@@ -41,6 +41,7 @@ export const useCampaignEstimation = ({
         type,
         value: referenceId,
         budget: query.budget,
+        audience: query.audience,
       }),
     enabled,
     placeholderData,

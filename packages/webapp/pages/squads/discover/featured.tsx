@@ -13,8 +13,10 @@ import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/
 import { SquadDiscoverListPage } from '@dailydotdev/shared/src/features/squads/components/discover/SquadDiscoverListPage';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { defaultOpenGraph } from '../../../next-seo';
-import { getLayout } from '../../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../../components/layouts/FeedLayout';
 
 export type Props = {
   initialData?: InfiniteData<SourcesQueryData<Squad>>;

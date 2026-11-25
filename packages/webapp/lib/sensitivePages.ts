@@ -1,6 +1,7 @@
 const SQUAD_INVITE_PAGE = '/squads/[handle]/[token]';
 
 export const SENSITIVE_PAGES = [
+  '/agents/claim',
   '/callback',
   '/join/organization',
   '/oauth/consent',

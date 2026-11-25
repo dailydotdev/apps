@@ -11,6 +11,7 @@ import type {
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import { TAG_TITLES_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { QueryClient } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -120,7 +121,10 @@ const renderComponent = (
 };
 
 it('should show the top reading tags of the user', async () => {
-  renderComponent();
+  renderComponent([
+    createReadingHistoryMock(),
+    { request: { query: TAG_TITLES_QUERY }, result: { data: { tags: [] } } },
+  ]);
   await waitForNock();
   await screen.findByText('Top tags by reading days');
   // No keyword title available: the raw tag value is rendered as-is

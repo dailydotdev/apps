@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { gqlClient } from './common';
 import type { SortCommentsBy } from './comments';
 import type { WriteFormTab } from '../components/fields/form/common';
 import type {
@@ -88,6 +89,11 @@ export enum SidebarSettingsFlags {
   Highlights = 'highlightsPlacement',
 }
 
+// The goals the picker offers, in days. The API accepts any whole number of
+// days, so a goal set by another build (a later option) is still a goal here.
+export const STREAK_GOAL_OPTIONS = [7, 14, 30] as const;
+export type StreakGoal = number;
+
 export type RemoteSettings = {
   openNewTab: boolean;
   theme: RemoteTheme;
@@ -99,6 +105,8 @@ export type RemoteSettings = {
   sortingEnabled: boolean;
   optOutReadingStreak: boolean;
   optOutStreakFreeze: boolean;
+  // Personal streak goal in days, null when none is set
+  streakGoal?: StreakGoal | null;
   optOutLevelSystem: boolean;
   optOutQuestSystem: boolean;
   optOutAchievements: boolean;
@@ -118,3 +126,15 @@ export const UPDATE_USER_SETTINGS_MUTATION = gql`
     }
   }
 `;
+
+// Founders signing up for a company page come for distribution, not for
+// streaks and quests. They can turn it all back on in their settings.
+export const optOutGamification = (): Promise<unknown> =>
+  gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
+    data: {
+      optOutReadingStreak: true,
+      optOutLevelSystem: true,
+      optOutQuestSystem: true,
+      optOutAchievements: true,
+    },
+  });

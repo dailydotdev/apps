@@ -78,6 +78,10 @@ const strictSkipList = new Set([
   // string handling / null returns) and should be addressed separately.
   'packages/extension/src/newtab/DndModal.tsx',
   'packages/webapp/pages/jobs/[id]/questions.tsx',
+  // Emoji-free post titles: touched only to wire the title guard. The strict
+  // violations are pre-existing (untyped form ref, optional updateDraft, and
+  // onSubmitForm's `string & File` image prop from WritePostContext).
+  'packages/shared/src/components/post/freeform/write/WriteFreeformContent.tsx',
   // Marketing folder consolidation — these files were touched only to swap
   // the import path from `marketingCta/common` to `marketing/cta/common`.
   // Pre-existing strict violations (boot data optionality, MarketingCta
@@ -242,6 +246,10 @@ const strictSkipList = new Set([
   'packages/shared/src/features/boost/BoostSourceButton.tsx',
   'packages/shared/src/features/boost/BoostSquadModal.tsx',
   'packages/shared/src/features/boost/useCampaignMutation.ts',
+  // Slim app chunk: touched only to swap zod's default import for the named
+  // `z` export. Pre-existing strict violations (optional preview, squad and
+  // post fields) live on unrelated lines.
+  'packages/shared/src/components/post/write/ShareLink.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

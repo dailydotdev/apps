@@ -293,7 +293,7 @@ describe('picks subject', () => {
     renderPicksModal({});
 
     expect(screen.getByPlaceholderText('Add a message (optional)')).toHaveValue(
-      "Here's what I read this week",
+      'My top reads this week 👇',
     );
     fireEvent.click(screen.getByRole('button', { name: '#general' }));
 
@@ -304,7 +304,7 @@ describe('picks subject', () => {
       integrationId: 'slack-1',
       channelId: channel.id,
       picksId: 'picks-1',
-      message: "Here's what I read this week",
+      message: 'My top reads this week 👇',
     });
     expect(mockPicksLogEvent).toHaveBeenCalledWith({
       event_name: LogEvent.SharePicks,

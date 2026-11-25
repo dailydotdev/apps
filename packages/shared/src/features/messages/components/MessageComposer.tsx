@@ -8,8 +8,8 @@ import type {
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import { composerFrame } from '../../interests/components/AgentComposer';
-import { AgentSendButton } from '../../interests/components/AgentSendButton';
+import { composerFrame } from './composerFrame';
+import { ComposerSendButton } from './ComposerSendButton';
 import {
   Button,
   ButtonSize,
@@ -48,6 +48,7 @@ const altFromFilename = (filename: string): string =>
 
 export const MessageComposer = ({
   username,
+  placeholder = `Message @${username}`,
   attachment,
   onSend,
   onSendGif,
@@ -55,6 +56,8 @@ export const MessageComposer = ({
   onEditLast,
 }: {
   username: string;
+  // Replaces "Message @username", e.g. for a group chat.
+  placeholder?: string;
   attachment?: ReactNode;
   onSend: (body: string) => void;
   onSendGif: (body: string) => void;
@@ -298,8 +301,8 @@ export const MessageComposer = ({
             id="dm-composer"
             name="dm-composer"
             rows={1}
-            aria-label={`Message @${username}`}
-            placeholder={`Message @${username}`}
+            aria-label={placeholder}
+            placeholder={placeholder}
             maxLength={DM_MAX_LENGTH}
             value={value}
             className="block min-h-8 w-full min-w-0 flex-1 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-body placeholder:text-text-quaternary tablet:typo-callout"
@@ -366,7 +369,7 @@ export const MessageComposer = ({
               </Button>
             )}
           />
-          <AgentSendButton
+          <ComposerSendButton
             label="Send message"
             className="shrink-0"
             disabled={!canSend}

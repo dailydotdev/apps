@@ -5,18 +5,19 @@ import { DangerZone } from '../../widgets/DangerZone';
 import { useDeleteSquad } from '../../../hooks/useDeleteSquad';
 import type { Squad } from '../../../graphql/sources';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { isCompanyPage } from '../../../features/squads/lib/companyPage';
 
 interface SquadDangerZoneProps {
   squad: Squad;
 }
 
-const Important = () => (
+const Important = ({ noun }: { noun: string }) => (
   <>
-    Important: deleting your Squad is unrecoverable and cannot be undone. Feel
+    Important: deleting your {noun} is unrecoverable and cannot be undone. Feel
     free to contact{' '}
     <a
       className="text-text-link"
-      href="mailto:support@daily.dev?subject=I have a question about deleting my Squad"
+      href={`mailto:support@daily.dev?subject=I have a question about deleting my ${noun}`}
       target="_blank"
       rel={anchorDefaultRel}
     >
@@ -33,17 +34,22 @@ export function SquadDangerZone({ squad }: SquadDangerZoneProps): ReactElement {
     callback: () => router.replace('/'),
   });
 
+  const isCompany = isCompanyPage(squad);
+  const noun = isCompany ? 'page' : 'Squad';
+
   return (
     <DangerZone
       onClick={onDeleteSquad}
-      cta="Delete Squad"
-      title="Deleting your Squad will:"
+      cta={isCompany ? 'Delete page' : 'Delete Squad'}
+      title={`Deleting your ${noun} will:`}
       notes={[
-        'Permanently delete your Squad.',
-        'Permanently delete all Squad’s content, including your posts and others, comments, upvotes, etc',
-        'Allow your Squad name to become available to anyone.',
+        `Permanently delete your ${noun}.`,
+        isCompany
+          ? 'Permanently delete all the page’s content, including posts, comments, upvotes, etc'
+          : 'Permanently delete all Squad’s content, including your posts and others, comments, upvotes, etc',
+        `Allow your ${noun} handle to become available to anyone.`,
       ]}
-      important={<Important />}
+      important={<Important noun={noun} />}
       buttonDisabled={isPending}
       buttonLoading={isPending}
     />

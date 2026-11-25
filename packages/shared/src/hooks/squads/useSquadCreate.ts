@@ -40,9 +40,12 @@ export const useSquadCreate: CustomHook = ({
 
   const { mutateAsync: onCreateSquad, isPending: isLoading } = useMutation({
     mutationFn: createSquad,
-    onSuccess: (squad) => {
+    onSuccess: (squad, variables) => {
       logEvent({
         event_name: LogEvent.CompleteSquadCreation,
+        ...(variables.company && {
+          extra: JSON.stringify({ company: true }),
+        }),
       });
 
       addSquad(squad);
@@ -71,7 +74,11 @@ export const useSquadCreate: CustomHook = ({
         return;
       }
 
-      displayToast(typeof result === 'object' ? result.handle : DEFAULT_ERROR);
+      displayToast(
+        typeof result === 'object' && result.handle
+          ? result.handle
+          : DEFAULT_ERROR,
+      );
     },
   });
 

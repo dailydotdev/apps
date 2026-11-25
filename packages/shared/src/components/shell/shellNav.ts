@@ -27,7 +27,6 @@ const exploreViews = [
   '/tags',
   '/sources',
   '/users',
-  '/agent',
 ];
 const exploreSortPrefixes = [
   '/posts/upvoted',
@@ -104,6 +103,8 @@ const noClusterPrefixes = [
   // You is a menu, not a place to browse from; back is its one way out.
   '/you',
   '/settings',
+  // The wallet opens from You and leaves the same way.
+  '/wallet',
   '/feeds/new',
   '/feeds/[slugOrId]/edit',
   '/squads/new',

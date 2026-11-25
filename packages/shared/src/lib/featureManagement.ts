@@ -44,7 +44,23 @@ export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureJobsUI = new Feature('jobs_ui', false);
 
+// Off by default, turned on in GrowthBook. Gates the App Store review asks on
+// iOS: the profile menu row, the streak milestone card and the sheet behind
+// the `app_store_review` marketing CTA.
+export const featureAppStoreReview = new Feature('app_store_review', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+
+export const featureAdSlotLifecycle = new Feature('ad_slot_lifecycle', false);
+
+export enum AdRefreshEngineVersion {
+  V1 = 'v1',
+  V2 = 'v2',
+}
+export const featureAdRefreshEngine = new Feature<AdRefreshEngineVersion>(
+  'ad_refresh_engine_config',
+  AdRefreshEngineVersion.V1,
+);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
@@ -88,6 +104,26 @@ export const featureCores = new Feature('cores', isDevelopment);
 
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
+// A/B: the streak improvements that change what a homepage reader sees,
+// grouped as one experiment:
+// - soft break: after a reset, the popup, the sidebar panel and the restore
+//   modal lead with the reader's best and a way back instead of a bare 0
+// - the "that was your last free freeze" upsell that opens on its own once the
+//   free streak freezes are used up
+// - a daily "streak extended" toast on the first counted read of a local day
+// - a personal streak goal (7, 14 or 30 days) offered at day 2 and after a
+//   break, with progress under the count and a celebration when it is hit
+// Each surface only evaluates it when it would render, so readers who never
+// reach one never enter the experiment early.
+export const featureStreakImprovements = new Feature(
+  'streak_improvements',
+  false,
+);
+
+// Patchy, the streak companion: his face in the rail Streak tab reacts to what
+// you do, he offers small suggestions in a bubble, and his menu sits in the
+// Streak panel (laptop rail only)
+export const featurePatchyCompanion = new Feature('patchy_companion', false);
 
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
@@ -139,6 +175,8 @@ export const featureAdLabel = new Feature<AdLabelVariant>(
   'ad_label',
   AdLabelVariant.Control,
 );
+
+export const featureAdRemoveCopy = new Feature('ad_remove_copy', 'Remove');
 
 export const featureYearInReview = new Feature('year_in_review_2025', false);
 
@@ -248,15 +286,6 @@ export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
-// Experiment: list cards (the phone and tablet feed, and the desktop list
-// layout) get the grid bar: 32px buttons, 19px icons and the number 4px from
-// its icon. The bookmark stays in the bar and the row grows to fit, so the card
-// is 8px taller. Only list bars evaluate it, for logged-in users.
-export const featureListCardLargeActions = new Feature(
-  'list_card_large_actions',
-  false,
-);
-
 // Experiment: grid cards show the post's TLDR under the title, clamped, with
 // "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
 // it, so only readers on the grid layout are enrolled.
@@ -286,32 +315,43 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-// Experiment: the hero as a rail of widgets the reader arranges, with the ad
-// slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
-// only; relaunched from `feed_widgets` once phones were taken out of it.
-export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
+// Experiment: widgets the reader places in the feed itself, each taking the
+// place of a feed card (never an ad's), from a Customize mode over the grid.
+// Supersedes `feed_hero` where it is on. Laptop grid only; relaunched from
+// `feed_widgets_v3`, the header rail, so readers enrolled in the rail start
+// fresh.
+export const featureFeedWidgets = new Feature('feed_widgets_v4', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
-// Experiment: a feed after the post page's comments (For you, the post's
-// tags, its source), for signed-in readers. Control ends at the comments.
-export const featurePostPageFeed = new Feature('post_page_feed', false);
+// Experiment: the post page and modal with the redesign's reading column and
+// discussion beside the classic right sidebar, against the classic layout.
+export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
 
-// Gates every agent surface; control hides all of them. Keep the default
-// `false`, GrowthBook ramps it.
-export const featureInterestAgent = new Feature('interest_agent', false);
-
-// Gates every direct message surface; control hides all of them. Keep the
-// default `false`, GrowthBook ramps it.
-export const featureDirectMessages = new Feature('direct_messages', false);
-export const featureLiveChat = new Feature('live_chat', false);
+// Experiments: logged-out post pages show the first three comments,
+// skeleton comments for the rest and a pinned "See all the comments" footer,
+// after X's logged-out post page. Two tests, because the ask they replace
+// differs: phones get the app footer's new title and X's app card; tablet and
+// laptop get a pinned sign-up footer instead of the full-width banner or
+// strip. A reader is only ever evaluated for their device's flag. False is
+// today's full thread.
+export const featurePostCommentsTeaserMobile = new Feature(
+  'post_comments_teaser_mobile',
+  false,
+);
+export const featurePostCommentsTeaserDesktop = new Feature(
+  'post_comments_teaser_desktop',
+  false,
+);
 
 // Who can use Looking for group at all: the board, posts, reach-outs and the
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
+
+export type PlusSaleTheme = 'summer' | 'blackFriday';
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -323,6 +363,8 @@ export type PlusSaleConfig = {
   description: string;
   /** ISO date. The sale expires here even if the flag is left on. */
   endDate: string;
+  /** Look of the /plus banner and price label; summer when unset. */
+  theme?: PlusSaleTheme;
 };
 
 // The advertised discount, code and expiry travel with the id they describe, so
@@ -340,20 +382,20 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// Emergency kill switch for the /read template's ads — NOT an experiment, so
-// the true default is deliberate: the surface ships always-on (it is only
-// reachable through paid placements), and the flag exists solely so a policy
-// warning, bad creative or revenue anomaly can be stopped without a deploy
-// and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAds = new Feature('read_ads', true);
-
-// Kill switch for the post page's programmatic (Content Ignite) slots, off for now.
-// Turning it on in GrowthBook brings them back without a deploy.
+// Kill switches for the programmatic slots, NOT experiments: never ramp or
+// target with them. Both are off while no ad partner's tag fills the slots;
+// turning one on in GrowthBook brings that surface's anchors back without
+// a deploy once a tag is wired up again.
+// The /read template's slots.
+export const featureReadAds = new Feature('read_ads', false);
+// The organic post page's slots.
 export const featureOrganicAds = new Feature('organic_ads', false);
 
 // Shows ads to a Plus member wherever a free reader would get them, so the
 // team can see ads without leaving Plus. Off is the default: Plus stays ad-free.
 export const featureForceAd = new Feature('force_ad', false);
+
+export const featureAdEntityParams = new Feature('ad_entity_params', false);
 
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
@@ -367,28 +409,49 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
 });
 
-// Explain mode on For You: why each card is on the feed, with the For You
-// controls. On whatever feed version the reader has.
-export const featureFeedExplain = new Feature('feed_explain', false);
-
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
-// The widget rail a reader who never customized gets. A flag rather than a
-// constant, so the default composition can be tested without a deploy and
-// older extension builds stop carrying a stale one. `id` is recorded on the
-// reader's rail when they first change it, so they can be offered what a
-// newer default adds.
+// The widgets a reader who never customized gets in the feed, each on a
+// `slot` (the index of the feed card it takes). None by default: the feed
+// reads as it always did until the reader places a widget. Rotated from
+// `feed_widgets_default`, whose rail widgets have no slot.
 export const featureFeedWidgetsDefault = new Feature<{
   id: string;
-  widgets: { id: string; kind: string; size: string }[];
-}>('feed_widgets_default', {
-  id: 'default-1',
-  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+  widgets: { id: string; kind: string; size: string; slot: number }[];
+}>('feed_widgets_in_feed_default', {
+  id: 'none',
+  widgets: [],
 });
 
-// Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
-// and the share sheet. The public page /picks/:id is never gated so shared
-// links keep working.
-export const featureWeeklyPicks = new Feature('weekly_picks', false);
+// Weekly picks: gates the home card, the /bookmarks button and /picks/new.
+// Only evaluated once the home card would show, so the experiment enrolls
+// just the readers it can reach; the other entry points follow that
+// enrollment. The public page /picks/:id is never gated so shared links keep
+// working.
+export const featureWeeklyPicks = new Feature('weekly_picks_v2', false);
+
+// The home card's background checks: this week's picks and reading signals,
+// fetched on every signed-in home load. A plain rollout flag with no
+// experiment rule, so evaluating it enrolls nobody: it is the kill switch
+// for the checks and keeps them to the experiment's traffic share.
+export const featureWeeklyPicksChecks = new Feature(
+  'weekly_picks_checks',
+  false,
+);
+
+// Experiment: a link from the sign-up screen into agent onboarding.
+export const featureAgentOnboardingEntry = new Feature(
+  'agent_onboarding_entry',
+  false,
+);
+
+// How loudly a 2x bonus-reward quest and its Swap button stand out in the
+// sidebar quest list and the quest dropdown (desktop popover and mobile
+// drawer). `control` is the current look; each `vN` is one treatment, so new
+// ones can be added without touching the flag.
+export const featureQuestBonusHighlight = new Feature(
+  'quest_bonus_highlight',
+  'control',
+);

@@ -8,14 +8,11 @@ import {
   TrendingIcon,
   OrganizationIcon,
 } from '../../icons';
-import { settingsUrl } from '../../../lib/constants';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
+import { boostManagerUrl, settingsUrl } from '../../../lib/constants';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import type { ProfileSectionItemProps } from '../ProfileSectionItem';
 
 export const AccountSection = (): ReactElement => {
-  const { openModal } = useLazyModal();
   const canBuy = useCanPurchaseCores();
 
   const items: ProfileSectionItemProps[] = [
@@ -43,11 +40,9 @@ export const AccountSection = (): ReactElement => {
 
   if (canBuy) {
     items.push({
-      title: 'Ads dashboard',
+      title: 'Boost manager',
       icon: TrendingIcon,
-      onClick: () => {
-        openModal({ type: LazyModal.AdsDashboard });
-      },
+      href: boostManagerUrl,
     });
   }
 

@@ -1,5 +1,5 @@
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -8,16 +8,60 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
+import type { SettingsContextData } from '../../contexts/SettingsContext';
+import type { StreakRingInfo } from '../../hooks/streaks/useStreakRingState';
+
+let mockStreakRing: Partial<StreakRingInfo> | null = null;
+jest.mock('../../hooks/streaks/useStreakRingState', () => {
+  const actual = jest.requireActual('../../hooks/streaks/useStreakRingState');
+  return {
+    ...actual,
+    useStreakRingState: () => {
+      const ring = actual.useStreakRingState();
+      return mockStreakRing ? { ...ring, ...mockStreakRing } : ring;
+    },
+  };
+});
 
 jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
 }));
 
-const renderRail = (activePage: string): RenderResult =>
+const mockMessagesEnabled = jest.fn(() => false);
+jest.mock('../../features/messages/hooks/useMessagesEnabled', () => ({
+  useMessagesEnabled: () => ({
+    isEnabled: mockMessagesEnabled(),
+    isGatedOut: false,
+  }),
+}));
+
+let mockDmAvailable = false;
+jest.mock('../../features/messages/transport', () => ({
+  ...jest.requireActual('../../features/messages/transport'),
+  get isDmAvailable() {
+    return mockDmAvailable;
+  },
+}));
+
+jest.mock('../../features/messages/hooks/useUnreadMessagesCount', () => ({
+  useUnreadMessagesCount: () => ({ unread: 2, requests: 3, total: 5 }),
+}));
+
+let mockPatchyEnabled = false;
+jest.mock('../../features/patchy/usePatchyEnabled', () => ({
+  ...jest.requireActual('../../features/patchy/usePatchyEnabled'),
+  usePatchyEnabled: () => mockPatchyEnabled,
+}));
+
+const renderRail = (
+  activePage: string,
+  settings: Partial<SettingsContextData> = {},
+): RenderResult =>
   render(
     <TestBootProvider
       client={new QueryClient()}
       auth={{ user: defaultUser, isLoggedIn: true }}
+      settings={settings}
     >
       <SpotlightProvider>
         <SidebarDesktopV2 activePage={activePage} />
@@ -28,7 +72,19 @@ const renderRail = (activePage: string): RenderResult =>
 const selectedTabs = () =>
   Array.from(document.querySelectorAll('[role="tab"][aria-selected="true"]'));
 
+const railTabIds = () =>
+  Array.from(
+    screen
+      .getByRole('tablist', { name: 'Sidebar categories' })
+      .querySelectorAll('[role="tab"]'),
+  ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
+
 beforeEach(() => {
+  mockStreakRing = null;
+  mockPatchyEnabled = false;
+  localStorage.clear();
+  mockMessagesEnabled.mockReturnValue(false);
+  mockDmAvailable = false;
   jest.mocked(useRouter).mockReturnValue({
     query: {},
     pathname: '/',
@@ -76,16 +132,59 @@ describe('SidebarDesktopV2 rail order', () => {
   it('puts Notifications right under Explore, above Squads', () => {
     renderRail('/');
 
-    const tabs = Array.from(
-      screen
-        .getByRole('tablist', { name: 'Sidebar categories' })
-        .querySelectorAll('[role="tab"]'),
-    ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
-
-    expect(tabs.slice(0, 3)).toEqual([
+    expect(railTabIds().slice(0, 3)).toEqual([
       'sidebar-category-main',
       'Notifications',
       'sidebar-category-squads',
+    ]);
+  });
+});
+
+describe('SidebarDesktopV2 Messages tab', () => {
+  beforeEach(() => {
+    mockMessagesEnabled.mockReturnValue(true);
+    mockDmAvailable = true;
+  });
+
+  it('paints with the cached session, before boot lands', () => {
+    // useMessagesEnabled waits for boot; the tab must not, or it pops in
+    // after the rest of the rail and pushes everything below it down.
+    mockMessagesEnabled.mockReturnValue(false);
+    renderRail('/');
+
+    expect(railTabIds().slice(2, 4)).toEqual([
+      'sidebar-category-squads',
+      'sidebar-category-messages',
+    ]);
+  });
+
+  it('stays off on a build without chat', () => {
+    mockDmAvailable = false;
+    renderRail('/');
+
+    expect(railTabIds()).not.toContain('sidebar-category-messages');
+  });
+
+  it('sits after Squads with the unread count, in place of Looking for group', () => {
+    renderRail('/');
+
+    const tabs = railTabIds();
+    expect(tabs.slice(2, 4)).toEqual([
+      'sidebar-category-squads',
+      'sidebar-category-messages',
+    ]);
+    expect(tabs).not.toContain('sidebar-category-lfg');
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access
+      document.getElementById('sidebar-category-messages'),
+    ).toHaveTextContent('5');
+  });
+
+  it('is selected on Looking for group pages', () => {
+    renderRail('/lfg/post-id');
+
+    expect(selectedTabs().map((tab) => tab.getAttribute('id'))).toEqual([
+      'sidebar-category-messages',
     ]);
   });
 });
@@ -160,5 +259,58 @@ describe('SidebarDesktopV2 for a visitor', () => {
       document.getElementById('sidebar-category-gameCenter'),
     ).not.toBeNull();
     expect(screen.getByLabelText('Invite friends')).toBeInTheDocument();
+  });
+});
+
+describe('SidebarDesktopV2 streak goal', () => {
+  it('draws the goal arc on the Streak badge and names it in the label', () => {
+    mockStreakRing = {
+      isEnabled: true,
+      state: 'pending',
+      count: 3,
+      copy: "You haven't read today — keep your 3-day streak going.",
+      goalProgress: { current: 3, goal: 7, ratio: 3 / 7 },
+    };
+    renderRail('/posts', { optOutReadingStreak: false });
+
+    const tab = screen.getByRole('tab', { name: /3\/7 to your goal/ });
+    expect(tab).toHaveAttribute('id', 'sidebar-category-gameCenter');
+    expect(tab).toHaveAttribute(
+      'aria-label',
+      "You haven't read today — keep your 3-day streak going. 3/7 to your goal",
+    );
+    expect(
+      tab.querySelector('[data-testid="streak-goal-arc"] circle'),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('SidebarDesktopV2 Patchy', () => {
+  it('gives him his own spot above Invite, with his panel and a free bone', () => {
+    mockPatchyEnabled = true;
+    renderRail('/posts', {
+      optOutReadingStreak: false,
+      sidebarExpanded: true,
+    });
+
+    const patchy = screen.getByRole('button', { name: /^Patchy is/ });
+    const invite = screen.getByLabelText('Invite friends');
+    expect(
+      // eslint-disable-next-line no-bitwise
+      patchy.compareDocumentPosition(invite) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    fireEvent.click(patchy);
+    expect(screen.getByText('One free bone a day')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Give a bone' }));
+    expect(
+      screen.getByRole('button', { name: 'Next free bone tomorrow' }),
+    ).toBeDisabled();
+  });
+
+  it('stays off the rail with the flag off', () => {
+    renderRail('/posts');
+
+    expect(document.getElementById('sidebar-patchy')).toBeNull();
   });
 });
