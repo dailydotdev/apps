@@ -214,15 +214,56 @@ export const ProfileHeaderChip = ({ onVerify }: PlaceProps): ReactElement => (
 );
 
 /**
+ * Tsahi's next step for the "CV uploaded" modal: a row in the modal's `body`
+ * slot, between the copy and Close, with the company's logo when we have it.
+ */
+const NextStepRow = ({
+  company: { name, image },
+  onVerify,
+}: PlaceProps & { company: { name: string; image?: string } }): ReactElement => (
+  <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3">
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float">
+      <Image
+        className="size-6 rounded-max object-cover"
+        type={ImageType.Organization}
+        src={image}
+        alt={`${name} logo`}
+      />
+    </span>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <Typography type={TypographyType.Callout} bold>
+        Next: show where you work
+      </Typography>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {image
+          ? `Verify your work email to put the ${name} logo next to your name.`
+          : `Verify your work email to show you work at ${name}.`}
+      </Typography>
+    </div>
+    <Button
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Small}
+      onClick={onVerify}
+    >
+      Verify
+    </Button>
+  </div>
+);
+
+/**
  * 4. After a CV upload, the production "CV uploaded" modal
- * (ActionSuccessModal); the ask is its own `cta`, a prop it already has.
+ * (ActionSuccessModal); the ask is a row in its `body` slot, a prop it
+ * already has.
  * The modal mounts in this box instead of over the page, so the other places
  * stay in view.
  */
 export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
   const [host, setHost] = useState<HTMLDivElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const { name } = useCurrentCompany();
+  const company = useCurrentCompany();
 
   return (
     <div
@@ -249,13 +290,15 @@ export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
             ...uploadCvProfileSuccessContent,
             cover: uploadCvModalSuccess,
             coverDrawer: uploadCvModalSuccessMobile,
-          }}
-          cta={{
-            copy: `Verify your job at ${name}`,
-            onClick: () => {
-              setIsModalOpen(false);
-              onVerify();
-            },
+            body: (
+              <NextStepRow
+                company={company}
+                onVerify={() => {
+                  setIsModalOpen(false);
+                  onVerify();
+                }}
+              />
+            ),
           }}
         />
       )}

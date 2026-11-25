@@ -44,7 +44,7 @@ export const entryPoints: Array<{
     id: 'after-cv-upload',
     title: '4. Next step after a CV upload',
     where:
-      'The “CV uploaded” ActionSuccessModal, with the ask as its cta button.',
+      'The “CV uploaded” ActionSuccessModal, with a “Next: show where you work” row in its body slot.',
     status: 'New',
     Surface: AfterCvUpload,
   },
