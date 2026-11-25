@@ -41,11 +41,9 @@ const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
 
-export const feedV2SupportedTypes = [
-  ...baseFeedSupportedTypes,
-  'highlight',
-  'survey',
-];
+export const feedV2SupportedTypes = [...baseFeedSupportedTypes, 'highlight'];
+// Asked for only by users in the feed survey experiment
+export const feedV2SurveyType = 'survey';
 
 export interface FeedData {
   page: Connection<Post>;
@@ -475,6 +473,7 @@ export const FEED_V2_QUERY = gql`
                 id
                 text
                 order
+                key
               }
             }
           }

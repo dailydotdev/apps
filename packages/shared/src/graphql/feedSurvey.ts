@@ -2,7 +2,10 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { PollOption } from './posts';
 
-export type FeedSurveyOption = Pick<PollOption, 'id' | 'text' | 'order'>;
+export type FeedSurveyOption = Pick<PollOption, 'id' | 'text' | 'order'> & {
+  /** A stable name for what the option means, independent of the wording. */
+  key?: string | null;
+};
 
 /** A single-choice question asked in the feed. */
 export type FeedSurvey = {

@@ -24,7 +24,6 @@ describe('normalizeFeedPage', () => {
     expect(feedV2SupportedTypes).toEqual([
       ...baseFeedSupportedTypes,
       'highlight',
-      'survey',
     ]);
   });
 

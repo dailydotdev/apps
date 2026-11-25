@@ -11,12 +11,12 @@ import { FeedSurveyGrid } from './FeedSurveyGrid';
 
 const survey = {
   id: 'survey-1',
-  question: 'Did you find something new worth reading?',
+  question: 'Did you discover something worth reading?',
   options: [
-    { id: 'o1', text: 'Yes', order: 0 },
-    { id: 'o2', text: 'Nothing new', order: 1 },
-    { id: 'o3', text: 'Not relevant to me', order: 2 },
-    { id: 'o4', text: 'Low quality', order: 3 },
+    { id: 'o1', text: 'Yes', order: 0, key: 'yes' },
+    { id: 'o2', text: 'No, only repeats', order: 1, key: 'repeats' },
+    { id: 'o3', text: 'No, wrong topics', order: 2, key: 'wrong_topics' },
+    { id: 'o4', text: 'No, not useful', order: 3, key: 'not_useful' },
   ],
 };
 
@@ -66,14 +66,23 @@ describe('FeedSurveyGrid', () => {
     renderComponent();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Not relevant to me' }),
+      screen.getByRole('button', { name: 'No, wrong topics' }),
     );
 
     expect(
-      await screen.findByText('Thanks for your feedback'),
+      await screen.findByText("Thanks, let's fix that."),
     ).toBeInTheDocument();
     expect(answered).toBe(true);
     expect(screen.queryByText(survey.question)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Edit my topics →' }),
+    ).toHaveAttribute('href', expect.stringMatching(/settings\/feed\/tags$/));
+    expect(
+      screen.getByRole('link', { name: 'Block a topic →' }),
+    ).toHaveAttribute(
+      'href',
+      expect.stringMatching(/settings\/feed\/filters$/),
+    );
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.AnswerFeedSurvey,
@@ -99,7 +108,7 @@ describe('FeedSurveyGrid', () => {
     await waitFor(() => expect(nock.isDone()).toBe(true));
     expect(screen.getByText(survey.question)).toBeInTheDocument();
     expect(
-      screen.queryByText('Thanks for your feedback'),
+      screen.queryByText('Glad to hear it. Thanks!'),
     ).not.toBeInTheDocument();
   });
 });
