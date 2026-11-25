@@ -4,6 +4,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { VerifyBadgeModal } from './modal';
 import { Labeled, Page } from './kit';
 import { entryPoints } from './entryPoints';
+import { Providers } from './providers';
+import { knownCompanyHandlers } from './mocks';
 
 const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,27 +14,29 @@ const EntryPointsPage = ({ only }: { only?: string }): ReactElement => {
     : entryPoints;
 
   return (
-    <Page
-      eyebrow="Verify work email · proposal"
-      title="Five places to ask, one modal"
-      intro="We ask only after someone tells us where they work. Click any ask to open the modal."
-    >
-      <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-3">
-        {shown.map(({ id, title, where, status, Surface }) => (
-          <Labeled key={id} status={status} title={title} where={where}>
-            <Surface onVerify={() => setIsOpen(true)} />
-          </Labeled>
-        ))}
-      </div>
-      {isOpen && <VerifyBadgeModal onRequestClose={() => setIsOpen(false)} />}
-    </Page>
+    <Providers>
+      <Page
+        eyebrow="Verify work email · proposal"
+        title="Five places to ask, one modal"
+        intro="We ask only after someone tells us where they work. Click any ask to open the modal."
+      >
+        <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-3">
+          {shown.map(({ id, title, where, status, Surface }) => (
+            <Labeled key={id} status={status} title={title} where={where}>
+              <Surface onVerify={() => setIsOpen(true)} />
+            </Labeled>
+          ))}
+        </div>
+        {isOpen && <VerifyBadgeModal onRequestClose={() => setIsOpen(false)} />}
+      </Page>
+    </Providers>
   );
 };
 
 const meta: Meta<typeof EntryPointsPage> = {
   title: 'Verify Work Email/2. Entry points',
   component: EntryPointsPage,
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'fullscreen', msw: { handlers: knownCompanyHandlers } },
 };
 
 export default meta;

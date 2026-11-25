@@ -7,62 +7,62 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { VerifyStep } from './modal';
 import { VerifyBadgeModal } from './modal';
+import { Providers } from './providers';
+import { knownCompanyHandlers, newCompanyHandlers } from './mocks';
 
-// The one modal all five entry points open. Each story starts on a step and
-// the buttons walk the rest of the flow. Copy is a placeholder.
+// The one modal all five entry points open: the benefits, then the
+// production VerifyExperienceModal as it is today. Type any email and any
+// 6-digit code.
 
-type Args = { initialStep: VerifyStep; isKnownCompany: boolean };
+type Args = { initialStep: VerifyStep };
 
-const Demo = ({ initialStep, isKnownCompany }: Args): ReactElement => {
+const Demo = ({ initialStep }: Args): ReactElement => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-default">
-      <Button variant={ButtonVariant.Secondary} onClick={() => setIsOpen(true)}>
-        Open the modal
-      </Button>
-      {isOpen && (
-        <VerifyBadgeModal
-          key={initialStep}
-          initialStep={initialStep}
-          isKnownCompany={isKnownCompany}
-          onRequestClose={() => setIsOpen(false)}
-        />
-      )}
-    </div>
+    <Providers>
+      <div className="flex min-h-screen items-center justify-center bg-background-default">
+        <Button
+          variant={ButtonVariant.Secondary}
+          onClick={() => setIsOpen(true)}
+        >
+          Open the modal
+        </Button>
+        {isOpen && (
+          <VerifyBadgeModal
+            initialStep={initialStep}
+            onRequestClose={() => setIsOpen(false)}
+          />
+        )}
+      </div>
+    </Providers>
   );
 };
 
 const meta: Meta<Args> = {
   title: 'Verify Work Email/1. Modal',
   component: Demo,
-  parameters: { layout: 'fullscreen' },
-  args: { initialStep: 'benefits', isKnownCompany: true },
+  parameters: { layout: 'fullscreen', msw: { handlers: knownCompanyHandlers } },
+  args: { initialStep: 'benefits' },
   argTypes: {
-    initialStep: {
-      control: 'select',
-      options: ['benefits', 'email', 'code', 'verified', 'pending'],
-    },
-    isKnownCompany: {
-      name: 'Company already registered',
-      control: 'boolean',
-    },
+    initialStep: { control: 'select', options: ['benefits', 'form'] },
   },
 };
 
 export default meta;
 type Story = StoryObj<Args>;
 
-/** Leads with what the badge gets you, before asking for anything. */
+/** New: leads with what the badge gets you, before asking for anything. */
 export const Benefits: Story = {};
 
-export const WorkEmail: Story = { args: { initialStep: 'email' } };
+/**
+ * Production, unchanged: VerifyExperienceModal. A known company ends in a
+ * "Verification successful" toast.
+ */
+export const VerifyForm: Story = { args: { initialStep: 'form' } };
 
-/** Type any 6 digits to continue. */
-export const Code: Story = { args: { initialStep: 'code' } };
-
-/** Replaces the job of campaign 27's "Successful verification" popover. */
-export const Verified: Story = { args: { initialStep: 'verified' } };
-
-/** A company we don't know yet: same message the current modal gives. */
-export const PendingReview: Story = { args: { initialStep: 'pending' } };
+/** Production: a company we don't know yet ends in "Verification initiated". */
+export const NewCompany: Story = {
+  args: { initialStep: 'form' },
+  parameters: { msw: { handlers: newCompanyHandlers } },
+};

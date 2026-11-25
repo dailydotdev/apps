@@ -105,13 +105,14 @@ export const ReadMe: StoryObj = {
               className="flex h-full flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 hover:bg-surface-hover"
             >
               <span className="font-bold text-text-tertiary typo-caption1">
-                Restyle
+                New
               </span>
               <span className="font-bold typo-callout">The modal</span>
               <span className="text-text-secondary typo-footnote">
-                Benefits first (logo next to your name, Verified tag, visible
-                to recruiters), then the same email and code steps as
-                VerifyExperienceModal.
+                New: a benefits screen first (logo next to your name, Verified
+                tag, visible to recruiters). Then the production
+                VerifyExperienceModal, unchanged: one form for the email and
+                the code, and a toast for the result.
               </span>
             </a>
           </li>
@@ -129,9 +130,9 @@ export const ReadMe: StoryObj = {
             open this modal too, so there is one way to verify.
           </Item>
           <Item title="Campaign 27: after verification">
-            The “Successful verification” email and popover still run. The
-            modal’s Verified step covers the popover’s job; decide whether the
-            email stays.
+            The “Successful verification” email and popover still run after
+            someone verifies. Nothing here changes them; they keep working
+            with the new entry points.
           </Item>
           <Item title="Turning off campaign 46">
             Done in Customer.io, not in code. Nobody has changed it since
