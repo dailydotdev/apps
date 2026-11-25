@@ -192,22 +192,13 @@ const NamePreview = ({
 
   return (
     <FeedWidgetSurface>
-      <div className="relative isolate flex flex-col gap-3">
+      <div className="relative isolate flex flex-col">
         <span
           aria-hidden
           // Up to the card's top edge, so the glow starts at the corner.
           className="pointer-events-none absolute -inset-x-4 -bottom-3 -top-3 -z-1"
           style={verifiedGlow}
         />
-        <header className="flex h-6 min-w-0 items-center gap-1.5 px-4">
-          <ShieldCheckIcon
-            size={IconSize.Size16}
-            className="text-accent-avocado-default"
-          />
-          <span className="truncate font-bold text-text-primary typo-caption1">
-            How others will see you
-          </span>
-        </header>
         <div className="flex items-center gap-3 px-4">
           {user && <ProfilePicture user={user} size={ProfileImageSize.Large} />}
           <div className="flex min-w-0 flex-col gap-0.5">
