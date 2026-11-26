@@ -31,19 +31,20 @@ export const SquadWidgets = (): ReactElement => {
   return (
     <>
       <SquadPreviewToggle />
-      <SquadSupportWidget />
+      {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
+      {squad.flags?.featured && <FeaturedSquadCard />}
+      {isStaff && !isBeforeFirstPost && <SquadShareWidget squad={squad} />}
       <div className="hidden laptop:contents">
         <SquadSetupWidget shouldRefresh />
-        <SquadPlanWidget />
         <SquadIntelWidget />
+        <SquadPlanWidget />
       </div>
-      {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
       <SquadAgentWidget />
-      {squad.flags?.featured && <FeaturedSquadCard />}
+      <SquadSupportWidget />
       <SquadJobsWidget />
-      {isStaff && !isBeforeFirstPost && <SquadShareWidget squad={squad} />}
-      <SquadRulesWidget squad={squad} />
       <SquadTeamWidget squad={squad} />
+      <SquadRulesWidget squad={squad} />
+      <SquadLinksWidget squad={squad} />
       {!isBeforeFirstPost && <SquadStack squad={squad} />}
       {!isBeforeFirstPost && (
         <SimilarSquadsWidget key={squad.id} squad={squad} />
@@ -51,7 +52,6 @@ export const SquadWidgets = (): ReactElement => {
       {isStaff && !isCompanyPage(squad) && (
         <SquadAnalyticsWidget squad={squad} />
       )}
-      <SquadLinksWidget squad={squad} />
     </>
   );
 };
