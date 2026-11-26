@@ -19,7 +19,7 @@ export const IntelPostRow = ({
   children,
 }: {
   post: IntelPost;
-  rank: number;
+  rank?: number;
   /** What the post stands out for, as "38× the average reads" */
   stat?: string;
   children?: ReactNode;
@@ -31,9 +31,11 @@ export const IntelPostRow = ({
       rel="noopener"
       className="group -mx-2 flex items-center gap-3 rounded-12 p-2 hover:bg-surface-float"
     >
-      <span className="w-4 shrink-0 text-center tabular-nums text-text-tertiary typo-footnote">
-        {rank}
-      </span>
+      {rank !== undefined && (
+        <span className="w-4 shrink-0 text-center tabular-nums text-text-tertiary typo-footnote">
+          {rank}
+        </span>
+      )}
       {post.image ? (
         <img
           src={post.image}

@@ -528,6 +528,10 @@ export interface DeveloperTrends {
     comments: number;
     note: string | null;
     url: string | null;
+    /** The linked post, null when it is not linked or no longer exists */
+    title: string | null;
+    image: string | null;
+    source: string | null;
   }[];
 }
 
@@ -571,6 +575,9 @@ const DEVELOPER_TRENDS_QUERY = gql`
         comments
         note
         url
+        title
+        image
+        source
       }
     }
   }

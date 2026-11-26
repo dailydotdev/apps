@@ -1176,6 +1176,11 @@ export const realTrends = {
       comments: 5,
       note: "a plain list of what it doesn't charge for answered the obvious objections up front",
       url: 'https://app.daily.dev/posts/IYRguNIzr',
+      title:
+        'Record your screen, ship a demo. Free and open-source, GPU-accelerated, no watermarks, no subscriptions',
+      image:
+        'https://media.daily.dev/image/upload/s--sHeJ1PSL--/f_auto,pg_1/v1794969203/posts/czqfpn83z?_a=BAMAMiiw0',
+      source: 'Open Source',
     },
     {
       pattern:
@@ -1185,6 +1190,9 @@ export const realTrends = {
       comments: 1,
       note: 'a concrete failure mode many have hit, explained end to end, so it was worth keeping',
       url: 'https://app.daily.dev/posts/Oaz49SFj4',
+      title: null,
+      image: null,
+      source: 'DevOps Daily',
     },
     {
       pattern:
@@ -1194,6 +1202,10 @@ export const realTrends = {
       comments: 4,
       note: 'a reference list people keep for later, which drove Bookmarks as well as upvotes',
       url: 'https://app.daily.dev/posts/YYt5utrhH',
+      title: '590+ Verified Free Tools, Cloud Credits & Student Discounts',
+      image:
+        'https://media.daily.dev/image/upload/s--HbzznLp7--/f_auto,pg_1/v1795039177/posts/x8iCaWL5E?_a=BAMAMiiw0',
+      source: 'Dev Tools',
     },
     {
       pattern:
@@ -1203,6 +1215,9 @@ export const realTrends = {
       comments: 4,
       note: 'among the widest reach of any new post, almost no Bookmarks: a version number gave no reason to stop',
       url: 'https://app.daily.dev/posts/qvpmJiPKi',
+      title: null,
+      image: null,
+      source: 'Qwen',
     },
   ],
 };

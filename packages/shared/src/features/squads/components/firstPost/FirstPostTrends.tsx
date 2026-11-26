@@ -19,6 +19,7 @@ import {
 import { getIntelWeekLabel } from '../../lib/intel';
 import { StartupsFreeChip } from '../StartupsFreeChip';
 import { TagChips } from './FirstPostIntelSections';
+import { IntelPostRow } from './IntelPostRow';
 import { IntelTag, IntelText } from './IntelTag';
 import { formatMultiple, IntelBar, IntelSection } from './IntelSection';
 
@@ -36,9 +37,6 @@ const sentence = (text: string): string =>
 /** Two decimals below 1, where 0.16 and 0.24 tell apart */
 const supplyMultiple = (value: number): string =>
   value < 1 ? `${value.toFixed(2)}×` : formatMultiple(value);
-
-const plural = (count: number, noun: string): string =>
-  `${count.toLocaleString('en-US')} ${noun}${count === 1 ? '' : 's'}`;
 
 /** Rising topics with a bar by how far each rose, and what drove it */
 const RisingRows = ({
@@ -78,37 +76,32 @@ const RisingRows = ({
 
 const FORMAT_COLUMNS = ['bookmarks', 'upvotes', 'comments'] as const;
 
-const ExampleRow = ({ example }: { example: Example }): ReactElement => {
-  const result = `${plural(example.upvotes, 'upvote')}, ${plural(
-    example.comments,
-    'comment',
-  )}`;
-
-  return (
-    <div className="flex flex-col gap-1">
-      <p className="text-pretty typo-callout">
-        <IntelText text={sentence(example.pattern)} />
-      </p>
-      {example.url ? (
-        <a
-          href={example.url}
-          target="_blank"
-          rel="noopener"
-          className="self-start font-bold tabular-nums typo-footnote hover:underline"
-        >
-          {result}
-        </a>
-      ) : (
-        <span className="font-bold tabular-nums typo-footnote">{result}</span>
-      )}
-      {example.note && (
-        <p className="text-pretty text-text-tertiary typo-footnote">
-          <IntelText text={sentence(example.note)} />
-        </p>
-      )}
-    </div>
-  );
-};
+/** A post that worked, as the intel's post row, with why it got read */
+const ExampleRow = ({
+  example,
+  rank,
+}: {
+  example: Example;
+  rank?: number;
+}): ReactElement => (
+  <IntelPostRow
+    post={{
+      title: example.title || sentence(example.pattern),
+      source: example.source ?? '',
+      permalink: example.url ?? '',
+      image: example.image,
+      upvotes: example.upvotes,
+      comments: example.comments,
+    }}
+    rank={rank}
+  >
+    {example.note && (
+      <span className="text-pretty text-text-tertiary typo-footnote">
+        {sentence(example.note)}
+      </span>
+    )}
+  </IntelPostRow>
+);
 
 /**
  * What a company page without a plan reads once its one week of intel ends:
@@ -275,21 +268,25 @@ export const FirstPostTrends = ({
       {!!worked.length && (
         <IntelSection
           title="Posts that worked"
-          hint="What they were about, how they did, and why they got read."
+          hint="How they did, and why they got read."
         >
-          <ul className="flex flex-col gap-4">
-            {worked.map((example) => (
-              <li key={example.pattern}>
-                <ExampleRow example={example} />
-              </li>
+          <ol className="flex flex-col">
+            {worked.map((example, index) => (
+              <ExampleRow
+                key={example.pattern}
+                example={example}
+                rank={index + 1}
+              />
             ))}
-          </ul>
+          </ol>
           {counter && (
-            <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">
+            <div className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-4">
               <h4 className="font-bold text-text-tertiary typo-footnote">
                 One that didn&apos;t
               </h4>
-              <ExampleRow example={counter} />
+              <ul className="flex flex-col">
+                <ExampleRow example={counter} />
+              </ul>
             </div>
           )}
         </IntelSection>
