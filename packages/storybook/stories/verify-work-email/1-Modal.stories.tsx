@@ -8,11 +8,17 @@ import {
 import type { VerifyStep } from './modal';
 import { VerifyBadgeModal } from './modal';
 import { Providers } from './providers';
-import { verifyHandlers } from './mocks';
+import {
+  emailRejectedHandlers,
+  pendingReviewHandlers,
+  verifyHandlers,
+  wrongCodeHandlers,
+} from './mocks';
 
 // The one modal all five entry points open: the benefits, then the
 // production VerifyExperienceModal as it is today. Type any email and any
-// 6-digit code.
+// 6-digit code. The error stories answer with an error, and production shows
+// its generic error toast.
 
 type Args = { initialStep: VerifyStep };
 
@@ -52,12 +58,42 @@ const meta: Meta<Args> = {
 export default meta;
 type Story = StoryObj<Args>;
 
+const phone = { viewport: { value: 'mobile1', isRotated: false } };
+
 /** New: leads with what the badge gets you, before asking for anything. */
 export const Benefits: Story = {};
 
+/** On a phone the modal opens as a bottom sheet, as every shared modal does. */
+export const BenefitsOnPhone: Story = { globals: phone };
+
 /**
  * Production, unchanged: VerifyExperienceModal. It ends in a "Verification
- * successful" toast, or "Verification initiated" for a company we don't know
- * yet.
+ * successful" toast.
  */
 export const VerifyForm: Story = { args: { initialStep: 'form' } };
+
+export const VerifyFormOnPhone: Story = {
+  args: { initialStep: 'form' },
+  globals: phone,
+};
+
+/** The email is refused (a personal address, say): the generic error toast. */
+export const EmailRejected: Story = {
+  args: { initialStep: 'form' },
+  parameters: { msw: { handlers: emailRejectedHandlers } },
+};
+
+/** The code is wrong or expired: the generic error toast. */
+export const WrongCode: Story = {
+  args: { initialStep: 'form' },
+  parameters: { msw: { handlers: wrongCodeHandlers } },
+};
+
+/**
+ * A company we don't have yet: production toasts "Verification initiated"
+ * while the team reviews it.
+ */
+export const PendingReview: Story = {
+  args: { initialStep: 'form' },
+  parameters: { msw: { handlers: pendingReviewHandlers } },
+};

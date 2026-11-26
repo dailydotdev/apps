@@ -57,6 +57,45 @@ export const knownCompanyJob = {
   },
 } as unknown as UserExperienceWork;
 
+/** A typed-in company with a long name, to check wrapping. */
+export const longNameJob = {
+  ...job,
+  customCompanyName: 'Hewlett Packard Enterprise Financial Services Europe',
+} as unknown as UserExperienceWork;
+
+/** The known-company job, already verified. */
+export const verifiedJob = {
+  ...knownCompanyJob,
+  verified: true,
+} as unknown as UserExperienceWork;
+
+/** The member's current job, as each story sets it. */
+export type JobState =
+  | 'known'
+  | 'typed'
+  | 'long'
+  | 'verified'
+  | 'none'
+  | 'loading';
+
+export const jobStates: Record<JobState, string> = {
+  known: 'A company we have (Google)',
+  typed: 'A typed-in company (Acme)',
+  long: 'A long company name',
+  verified: 'Already verified',
+  none: 'No current job',
+  loading: 'Still loading',
+};
+
+const jobByState: Record<JobState, UserExperienceWork | null> = {
+  known: knownCompanyJob,
+  typed: job,
+  long: longNameJob,
+  verified: verifiedJob,
+  none: null,
+  loading: null,
+};
+
 const settings = {
   insaneMode: false,
   spaciness: 'roomy',
@@ -71,12 +110,12 @@ const settings = {
  * shared components' toasts show.
  */
 export const Providers = ({
-  currentJob = job,
+  jobState = 'typed',
   seed,
   children,
 }: {
   /** The member's current Work job. */
-  currentJob?: UserExperienceWork;
+  jobState?: JobState;
   /** Query data the page reads, so it renders without the API. */
   seed?: (client: QueryClient) => void;
   children: ReactNode;
@@ -93,30 +132,37 @@ export const Providers = ({
       generateQueryKey(RequestKey.Profile, member as never, { id: member.id }),
       member,
     );
-    // The viewer hasn't verified a company, and has no completed actions.
+    const currentJob = jobByState[jobState];
+    // Verified companies, and no completed actions.
     client.setQueryData(
       generateQueryKey(RequestKey.UserCompanies, member as never),
-      [],
+      currentJob?.verified ? [{ company: currentJob.company }] : [],
     );
     client.setQueryData(generateQueryKey(RequestKey.Actions, member as never), {
       actions: [],
       serverLoaded: true,
     });
-    client.setQueryData(
-      generateQueryKey(
-        RequestKey.UserExperience,
-        member as never,
-        UserExperienceType.Work,
-        'settings',
-      ),
-      {
-        edges: [{ node: currentJob }],
-        pageInfo: { hasNextPage: false, endCursor: null },
-      },
+    const experiencesKey = generateQueryKey(
+      RequestKey.UserExperience,
+      member as never,
+      UserExperienceType.Work,
+      'settings',
     );
+    if (jobState === 'loading') {
+      // A request that never answers: the page stays on its loading state.
+      client.prefetchQuery({
+        queryKey: experiencesKey,
+        queryFn: () => new Promise(noop),
+      });
+    } else {
+      client.setQueryData(experiencesKey, {
+        edges: currentJob ? [{ node: currentJob }] : [],
+        pageInfo: { hasNextPage: false, endCursor: null },
+      });
+    }
     seed?.(client);
     return client;
-  }, [currentJob, seed]);
+  }, [jobState, seed]);
 
   return (
     <QueryClientProvider client={queryClient}>

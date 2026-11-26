@@ -4,16 +4,17 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { VerifyBadgeModal } from './modal';
 import { Labeled, Page } from './kit';
 import { entryPoints } from './entryPoints';
-import { job, knownCompanyJob, Providers } from './providers';
+import type { JobState } from './providers';
+import { jobStates, Providers } from './providers';
 import { verifyHandlers } from './mocks';
 
 const EntryPointsPage = ({
   only,
-  isKnownCompany = true,
+  jobState = 'known',
 }: {
   only?: string;
-  /** Whether the member's job links a company we already have. */
-  isKnownCompany?: boolean;
+  /** The member's current job: drives the logo, the copy and whether we ask. */
+  jobState?: JobState;
 }): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const shown = only
@@ -21,7 +22,7 @@ const EntryPointsPage = ({
     : entryPoints;
 
   return (
-    <Providers currentJob={isKnownCompany ? knownCompanyJob : job}>
+    <Providers jobState={jobState}>
       <Page
         eyebrow="Verify work email · proposal"
         title="Five places to ask, one modal"
@@ -44,11 +45,12 @@ const meta: Meta<typeof EntryPointsPage> = {
   title: 'Verify Work Email/2. Entry points',
   component: EntryPointsPage,
   parameters: { layout: 'fullscreen', msw: { handlers: verifyHandlers } },
-  args: { isKnownCompany: true },
+  args: { jobState: 'known' },
   argTypes: {
-    isKnownCompany: {
-      name: 'Company already in our system',
-      control: 'boolean',
+    jobState: {
+      name: 'Member’s current job',
+      control: { type: 'select', labels: jobStates },
+      options: Object.keys(jobStates),
     },
     only: { table: { disable: true } },
   },
@@ -68,3 +70,27 @@ export const ProfileHeader: Story = { args: { only: 'profile-header-chip' } };
 export const AfterCVUpload: Story = { args: { only: 'after-cv-upload' } };
 
 export const SomeoneElsesBadge: Story = { args: { only: 'others-badge' } };
+
+const phone = { viewport: { value: 'mobile1', isRotated: false } };
+const tablet = { viewport: { value: 'tablet', isRotated: false } };
+
+/** All five on a phone. */
+export const AllFiveOnPhone: Story = { globals: phone };
+
+/** All five on a tablet, where settings shows its own menu. */
+export const AllFiveOnTablet: Story = { globals: tablet };
+
+/** While the job loads, each ask holds its place with a skeleton. */
+export const Loading: Story = { args: { jobState: 'loading' } };
+
+/** No current job: nothing to verify, so no ask anywhere. */
+export const NoCurrentJob: Story = { args: { jobState: 'none' } };
+
+/**
+ * Already verified: the asks are gone, and someone else's badge keeps
+ * today's behaviour.
+ */
+export const AlreadyVerified: Story = { args: { jobState: 'verified' } };
+
+/** A long typed-in company name wraps without pushing the button out. */
+export const LongCompanyName: Story = { args: { jobState: 'long' } };

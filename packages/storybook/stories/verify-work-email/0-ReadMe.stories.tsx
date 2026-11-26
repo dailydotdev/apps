@@ -120,6 +120,71 @@ export const ReadMe: StoryObj = {
       </Section>
 
       <Section
+        title="States in Storybook"
+        note="Each one is a story, or a value of the “Member’s current job” control on the entry points."
+      >
+        <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+          <Item title="The member’s job">
+            A company we have (its logo), a typed-in company (the logos take
+            turns), a long name, still loading (a skeleton the same height, so
+            nothing jumps), no current job and already verified (no ask
+            anywhere).
+          </Item>
+          <Item title="The verify form">
+            Success, a company we don’t have yet (“Verification initiated”),
+            the email refused and a wrong code. All four use the production
+            form and toasts.
+          </Item>
+          <Item title="Screen sizes and themes">
+            Desktop, tablet and phone, where every modal is a bottom sheet.
+            Light and dark from the toolbar.
+          </Item>
+          <Item title="Small things">
+            A logo that fails to load falls back to the building icon. The
+            logos hold still for people who turn off motion.
+          </Item>
+        </ul>
+      </Section>
+
+      <Section
+        title="Before we ship"
+        note="Not something Storybook can show; each needs a decision or code in the app."
+      >
+        <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+          <Item title="When to ask">
+            How often each place shows, whether “Not now” hides it everywhere
+            and for how long, and no more than one ask per visit. Don’t ask
+            while a verification is waiting for review.
+          </Item>
+          <Item title="Which job">
+            With more than one current job, ask about the most recent one.
+          </Item>
+          <Item title="Tracking">
+            Impression, click and “Not now” for each place, and verification
+            started and finished, tagged with the place it came from.
+          </Item>
+          <Item title="Rollout">
+            Behind a flag, tested against today’s popover, with campaign 46
+            turned off for the test group only.
+          </Item>
+          <Item title="Keyboard and screen readers">
+            Someone else’s badge becomes a real button with a label, so it can
+            be reached by keyboard. Focus goes back to where it was when a
+            modal closes.
+          </Item>
+          <Item title="One sheet opening another">
+            On a phone, the tap that closes the “CV uploaded” sheet also closed
+            the next sheet. The demo waits for the tap to finish; the app needs
+            the same.
+          </Item>
+          <Item title="Other surfaces">
+            Check the extension’s new tab and the mobile app’s web view,
+            where the sheet and the logos must work too.
+          </Item>
+        </ul>
+      </Section>
+
+      <Section
         title="Clashes to settle"
         note="Other places that ask people to verify, and the campaigns around them."
       >

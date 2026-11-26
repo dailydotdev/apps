@@ -1,5 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import {
   Button,
   ButtonSize,
@@ -22,6 +24,7 @@ import { UserShortInfo } from '@dailydotdev/shared/src/components/profile/UserSh
 import { Image, ImageType } from '@dailydotdev/shared/src/components/image/Image';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { AccountPageContainer } from '../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { SettingsFrame } from './production';
 import { CyclingCompanyLogo } from './modal';
@@ -57,23 +60,78 @@ const NewAsk = ({
   </div>
 );
 
+type AskStatus = 'loading' | 'noJob' | 'verified' | 'ready';
+
 /**
  * The member's current job, as Settings › Work Experience loads it. A job
  * picked from the company search links a company we already have, with its
- * logo; a typed-in name has none.
+ * logo; a typed-in name has none. We ask only once the job has loaded, is
+ * current and isn't verified yet.
  */
-const useCurrentCompany = (): { name: string; image?: string } => {
+const useCurrentCompany = (): {
+  status: AskStatus;
+  name: string;
+  image?: string;
+} => {
   const { user } = useAuthContext();
-  const { experiences } = useUserExperiencesByType(
+  const { experiences, isPending } = useUserExperiencesByType(
     UserExperienceType.Work,
     user?.id ?? '',
   );
   const current = experiences?.find(({ endedAt }) => !endedAt);
+  const getStatus = (): AskStatus => {
+    if (isPending) {
+      return 'loading';
+    }
+    if (!current) {
+      return 'noJob';
+    }
+    return current.verified ? 'verified' : 'ready';
+  };
 
   return {
+    status: getStatus(),
     name: current?.company?.name ?? current?.customCompanyName ?? '',
     image: current?.company?.image,
   };
+};
+
+const hiddenBecause: Record<Exclude<AskStatus, 'loading' | 'ready'>, string> =
+  {
+    noJob: 'Not shown: there’s no current job to verify.',
+    verified: 'Not shown: this job is already verified.',
+  };
+
+/**
+ * Shows the ask only when there's a job to verify: a skeleton of the same
+ * height while the job loads, so nothing jumps, and a note on why it's
+ * hidden otherwise.
+ */
+const AskGate = ({
+  skeletonClassName = 'h-12 rounded-12',
+  children,
+}: {
+  skeletonClassName?: string;
+  children: ReactNode;
+}): ReactElement => {
+  const { status } = useCurrentCompany();
+
+  if (status === 'loading') {
+    return <ElementPlaceholder className={skeletonClassName} />;
+  }
+
+  if (status !== 'ready') {
+    return (
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Quaternary}
+      >
+        {hiddenBecause[status]}
+      </Typography>
+    );
+  }
+
+  return <>{children}</>;
 };
 
 /**
@@ -160,13 +218,15 @@ export const AfterSavingJob = ({ onVerify }: PlaceProps): ReactElement => (
       }
     >
       <NewAsk where="Shown once, on the list the save takes you to.">
-        <AskRow onVerify={onVerify}>
-          {({ name, hasLogo }) =>
-            hasLogo
-              ? `Put the ${name} logo next to your name.`
-              : `Show you work at ${name}, next to your name.`
-          }
-        </AskRow>
+        <AskGate>
+          <AskRow onVerify={onVerify}>
+            {({ name, hasLogo }) =>
+              hasLogo
+                ? `Put the ${name} logo next to your name.`
+                : `Show you work at ${name}, next to your name.`
+            }
+          </AskRow>
+        </AskGate>
       </NewAsk>
       <ExperienceSettings
         experienceType={UserExperienceType.Work}
@@ -198,9 +258,11 @@ export const UnverifiedJob = ({ onVerify }: PlaceProps): ReactElement => {
           displayLimit={3}
         />
         <NewAsk where="A row under the unverified job, replacing the “Verify company” chip.">
-          <AskRow onVerify={onVerify}>
-            {() => 'Not verified yet. Add a Verified tag to this job.'}
-          </AskRow>
+          <AskGate>
+            <AskRow onVerify={onVerify}>
+              {() => 'Not verified yet. Add a Verified tag to this job.'}
+            </AskRow>
+          </AskGate>
         </NewAsk>
       </div>
     </PageCard>
@@ -216,14 +278,16 @@ export const ProfileHeaderChip = ({ onVerify }: PlaceProps): ReactElement => (
     <ProfileHeader user={member as never} isSameUser />
     <div className="px-6 pb-6">
       <NewAsk where="On the row under the bio, where the company badge shows once verified.">
-        <button
-          type="button"
-          onClick={onVerify}
-          className="flex items-center gap-1 self-start rounded-8 border border-dashed border-border-subtlest-secondary px-2 py-0.5 text-text-secondary typo-footnote hover:border-text-link hover:text-text-link"
-        >
-          <PlusIcon size={IconSize.Size16} />
-          Add badge
-        </button>
+        <AskGate skeletonClassName="h-6 w-24 rounded-8">
+          <button
+            type="button"
+            onClick={onVerify}
+            className="flex items-center gap-1 self-start rounded-8 border border-dashed border-border-subtlest-secondary px-2 py-0.5 text-text-secondary typo-footnote hover:border-text-link hover:text-text-link focus-visible:border-text-link focus-visible:text-text-link"
+          >
+            <PlusIcon size={IconSize.Size16} />
+            Add badge
+          </button>
+        </AskGate>
       </NewAsk>
     </div>
   </PageCard>
@@ -269,17 +333,23 @@ const NextStepRow = ({
  * (ActionSuccessModal); the ask is a row in its `body` slot, a prop it
  * already has.
  * The modal mounts in this box instead of over the page, so the other places
- * stay in view.
+ * stay in view. On a phone it's a bottom sheet over the whole page, so there
+ * it waits for the button.
  */
 export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
   const [host, setHost] = useState<HTMLDivElement | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const isSheet = useViewSize(ViewSize.MobileL);
+  const [isOpenChoice, setIsModalOpen] = useState<boolean>();
+  const isModalOpen = isOpenChoice ?? !isSheet;
   const company = useCurrentCompany();
 
   return (
     <div
       ref={setHost}
-      className="relative flex min-h-[38rem] items-center justify-center overflow-hidden rounded-24 border border-border-subtlest-quaternary bg-background-default"
+      className={classNames(
+        'relative flex items-center justify-center overflow-hidden rounded-24 border border-border-subtlest-quaternary bg-background-default',
+        isSheet ? 'min-h-32' : 'min-h-[38rem]',
+      )}
     >
       {!isModalOpen && (
         <Button
@@ -287,7 +357,7 @@ export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
           size={ButtonSize.Small}
           onClick={() => setIsModalOpen(true)}
         >
-          Show the modal again
+          Show the “CV uploaded” modal
         </Button>
       )}
       {host && isModalOpen && (
@@ -303,12 +373,16 @@ export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
             ...uploadCvProfileSuccessContent,
             cover: cvUploadedCover,
             coverDrawer: cvUploadedCover,
-            body: (
+            // No row without a job to verify: the modal is then as it is
+            // today.
+            body: company.status === 'ready' && (
               <NextStepRow
                 company={company}
                 onVerify={() => {
                   setIsModalOpen(false);
-                  onVerify();
+                  // After this click is done: on a phone the same click
+                  // would land outside the new sheet and close it.
+                  setTimeout(onVerify);
                 }}
               />
             ),
@@ -347,32 +421,45 @@ const dana = {
  * company logo; the reputation badge beside it is one too, but holds no
  * image, so the story catches clicks on the trigger with the logo.
  */
-export const OthersBadge = ({ onVerify }: PlaceProps): ReactElement => (
-  <PageCard>
-    <div className="p-4">
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div
-        className="[&_[data-state]:has(img)]:cursor-pointer"
-        onClickCapture={(event) => {
-          const trigger = (event.target as HTMLElement).closest(
-            '[data-state]',
-          );
-          if (trigger?.querySelector('img')) {
-            onVerify();
-          }
-        }}
-      >
-        <UserShortInfo user={dana as never} tag="div" disableTooltip />
-      </div>
-      <NewAsk where="Click Dana’s company logo: it opens the modal. Today the badge has no click action, only the hover tooltip.">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
+export const OthersBadge = ({ onVerify }: PlaceProps): ReactElement => {
+  // A viewer who's verified already keeps today's badge: no click action.
+  const isViewerVerified = useCurrentCompany().status === 'verified';
+
+  return (
+    <PageCard>
+      <div className="p-4">
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+        <div
+          className={classNames(
+            !isViewerVerified && '[&_[data-state]:has(img)]:cursor-pointer',
+          )}
+          onClickCapture={(event) => {
+            const trigger = (event.target as HTMLElement).closest(
+              '[data-state]',
+            );
+            if (!isViewerVerified && trigger?.querySelector('img')) {
+              onVerify();
+            }
+          }}
         >
-          The same goes for the badge everywhere it shows: comments, posts,
-          profile headers and user cards.
-        </Typography>
-      </NewAsk>
-    </div>
-  </PageCard>
-);
+          <UserShortInfo user={dana as never} tag="div" disableTooltip />
+        </div>
+        <NewAsk
+          where={
+            isViewerVerified
+              ? 'You’re verified, so Dana’s badge stays as it is today: no click action.'
+              : 'Click Dana’s company logo: it opens the modal. Today the badge has no click action, only the hover tooltip.'
+          }
+        >
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+          >
+            The same goes for the badge everywhere it shows: comments, posts,
+            profile headers and user cards.
+          </Typography>
+        </NewAsk>
+      </div>
+    </PageCard>
+  );
+};

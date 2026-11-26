@@ -33,6 +33,7 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
+import { Image, ImageType } from '@dailydotdev/shared/src/components/image/Image';
 import { FeedWidgetSurface } from '@dailydotdev/shared/src/features/feedWidgets/FeedWidgetFrame';
 
 // react-modal hides the app root from screen readers while open, and the
@@ -151,6 +152,7 @@ const fade = (isShown: boolean): string =>
     isShown ? 'opacity-100' : 'opacity-0',
   );
 
+/** Falls back to the building placeholder if a logo fails to load. */
 const CompanyImage = ({
   company,
   className,
@@ -158,7 +160,8 @@ const CompanyImage = ({
   company: Company;
   className: string;
 }): ReactElement => (
-  <img
+  <Image
+    type={ImageType.Organization}
     src={company.image}
     alt=""
     className={classNames('shrink-0 rounded-full bg-white object-cover', className)}
