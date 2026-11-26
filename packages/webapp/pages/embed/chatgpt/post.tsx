@@ -297,6 +297,7 @@ export default function ChatGptPostEmbed(): ReactElement {
   useEffect(() => {
     if (theme) {
       applyTheme(theme === 'light' ? ThemeMode.Light : ThemeMode.Dark);
+      document.documentElement.style.colorScheme = theme;
     }
   }, [theme]);
 
