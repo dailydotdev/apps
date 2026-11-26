@@ -29,13 +29,15 @@ import { AccountPageContainer } from '../../../webapp/components/layouts/Setting
 import { SettingsFrame } from './production';
 import { CyclingCompanyLogo } from './modal';
 import { member } from './providers';
-// A proposed cover from Smith: Patchy and friends reading the new CV.
-import cvUploadedCover from './cv-uploaded-cover.png';
 
 // The five places, each drawn by the production components that render it
 // today. The new ask sits under a line saying where it would go: it isn't
 // inside the components, so where a component can't take it, the line says
 // where it belongs.
+
+// A proposed cover from Smith: Patchy and friends reading the new CV.
+const cvUploadedCover =
+  'https://media.daily.dev/image/upload/s--gZzIz3LN--/f_auto,q_auto/v1795686283/public/cv-uploaded-cover';
 
 type PlaceProps = { onVerify: () => void };
 
