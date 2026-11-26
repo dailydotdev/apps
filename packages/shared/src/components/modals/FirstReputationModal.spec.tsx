@@ -5,8 +5,7 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import {
-  REPUTATION_EVENTS_QUERY,
-  ReputationEventFilter,
+  FIRST_REPUTATION_GAIN_QUERY,
   ReputationReason,
   ReputationTargetType,
 } from '../../graphql/reputation';
@@ -36,27 +35,17 @@ const commentUpvote: ReputationEvent = {
   },
 };
 
-const mockLatestGain = (event: ReputationEvent | null) =>
+const mockFirstGain = (event: ReputationEvent | null) =>
   mockGraphQL({
-    request: {
-      query: REPUTATION_EVENTS_QUERY,
-      variables: { first: 1, filter: ReputationEventFilter.Gains },
-    },
-    result: {
-      data: {
-        reputationEvents: {
-          pageInfo: { hasNextPage: false, endCursor: null },
-          edges: event ? [{ node: event }] : [],
-        },
-      },
-    },
+    request: { query: FIRST_REPUTATION_GAIN_QUERY },
+    result: { data: { firstReputationGain: event } },
   });
 
-const renderModal = () =>
+const renderModal = (client = new QueryClient()) =>
   render(
     <TestBootProvider
       auth={{ user: { ...loggedUser, reputation: 60 } }}
-      client={new QueryClient()}
+      client={client}
     >
       <FirstReputationModal
         ariaHideApp={false}
@@ -77,7 +66,7 @@ beforeEach(() => {
 });
 
 it('says what earned the first reputation and where it leads', async () => {
-  mockLatestGain(commentUpvote);
+  mockFirstGain(commentUpvote);
   renderModal();
 
   expect(
@@ -105,10 +94,23 @@ it('says what earned the first reputation and where it leads', async () => {
 });
 
 it('closes without showing anything when the gain is gone', async () => {
-  mockLatestGain(null);
+  mockFirstGain(null);
   renderModal();
 
   await waitFor(() => expect(closeModal).toHaveBeenCalled());
   expect(onAfterClose).toHaveBeenCalled();
   expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+});
+
+it('keeps the alert when the request fails', async () => {
+  mockGraphQL({
+    request: { query: FIRST_REPUTATION_GAIN_QUERY },
+    result: { errors: [{ message: 'Unexpected error' }] },
+  });
+  renderModal(
+    new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+  );
+
+  await waitFor(() => expect(closeModal).toHaveBeenCalled());
+  expect(onAfterClose).not.toHaveBeenCalled();
 });

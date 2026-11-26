@@ -76,3 +76,11 @@ it('shows what came since the count last seen here', async () => {
 
   expect(await screen.findByText('+50')).toBeInTheDocument();
 });
+
+it('saves the current count right away, not when the menu closes', async () => {
+  await setCache(`seen_reputation_${user.id}`, 10);
+  renderStats();
+
+  await screen.findByText('+50');
+  expect(setCache).toHaveBeenLastCalledWith(`seen_reputation_${user.id}`, 60);
+});

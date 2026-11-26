@@ -19,7 +19,7 @@ import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetType } from '../../lib/log';
 import type { ReputationEvent } from '../../graphql/reputation';
 import {
-  latestReputationGainQueryOptions,
+  firstReputationGainQueryOptions,
   ReputationReason,
 } from '../../graphql/reputation';
 import {
@@ -169,9 +169,11 @@ export const FirstReputationModal = ({
 }: ModalProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { data: event, isFetched } = useQuery(
-    latestReputationGainQueryOptions({ user }),
-  );
+  const {
+    data: event,
+    isSuccess,
+    isError,
+  } = useQuery(firstReputationGainQueryOptions({ user }));
   const loggedImpression = useRef(false);
 
   const { closeModal } = useLazyModal();
@@ -182,11 +184,17 @@ export const FirstReputationModal = ({
 
   useEffect(() => {
     // The gain was revoked before the moment opened: nothing to show
-    if (isFetched && !event) {
+    if (isSuccess && event === null) {
       onAfterClose?.();
       closeModal();
+      return;
     }
-  }, [closeModal, event, isFetched, onAfterClose]);
+
+    // Keep the alert so the moment comes back on the next load
+    if (isError) {
+      closeModal();
+    }
+  }, [closeModal, event, isError, isSuccess, onAfterClose]);
 
   useEffect(() => {
     if (!event || loggedImpression.current) {
@@ -225,6 +233,7 @@ export const FirstReputationModal = ({
       onAfterClose={onAfterClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
+      className="overflow-y-auto tablet:!max-h-[calc(100vh-5rem)]"
       onRequestClose={onClose}
       isDrawerOnMobile
     >

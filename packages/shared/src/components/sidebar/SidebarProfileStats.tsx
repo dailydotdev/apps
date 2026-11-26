@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -31,8 +31,10 @@ export const SidebarProfileStats = (): ReactElement | null => {
   const [seenReputation, setSeenReputation, isSeenLoaded] = usePersistentState<
     number | null
   >(`seen_reputation_${user?.id}`, null);
-  const hasNoSeenReputation =
-    !optOutLevelSystem && isSeenLoaded && seenReputation === null;
+  // Taken once per mount, so the chip stays while the menu is open even
+  // though the new count is saved straight away
+  const [baseline, setBaseline] = useState<number | null>();
+  const hasNoSeenReputation = !optOutLevelSystem && baseline === null;
   // Nothing seen on this device yet: show the last week's gains instead
   const { data: recentGains = 0 } = useQuery(
     recentReputationGainsQueryOptions({
@@ -40,18 +42,14 @@ export const SidebarProfileStats = (): ReactElement | null => {
       enabled: hasNoSeenReputation,
     }),
   );
-  const latestReputation = useRef(reputation);
-  latestReputation.current = reputation;
 
   useEffect(() => {
-    if (!user || !isSeenLoaded) {
-      return undefined;
+    if (!user || !isSeenLoaded || baseline !== undefined) {
+      return;
     }
 
-    return () => {
-      setSeenReputation(latestReputation.current);
-    };
-    // Saved once the menu closes, so the chip stays while it is open
+    setBaseline(seenReputation);
+    setSeenReputation(reputation);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSeenLoaded, user?.id]);
 
@@ -62,8 +60,8 @@ export const SidebarProfileStats = (): ReactElement | null => {
   let earned = 0;
   if (hasNoSeenReputation) {
     earned = recentGains;
-  } else if (!optOutLevelSystem && isSeenLoaded && seenReputation !== null) {
-    earned = reputation - seenReputation;
+  } else if (!optOutLevelSystem && typeof baseline === 'number') {
+    earned = Math.max(reputation - baseline, 0);
   }
   const balance = user.balance?.amount ?? 0;
   const preciseBalance = formatCurrency(balance, { minimumFractionDigits: 0 });

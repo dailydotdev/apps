@@ -165,6 +165,7 @@ export const BootPopups = (): ReactElement => {
     feature: featureFirstReputation,
     shouldEvaluate: isFirstReputationDue,
   });
+  const hasFirstReputationThisBoot = useRef(false);
 
   /**
    * Immediate popup for the first reputation gain. At 250 the privileges
@@ -174,7 +175,8 @@ export const BootPopups = (): ReactElement => {
     if (
       !isFirstReputationDue ||
       isFirstReputationLoading ||
-      !isFirstReputationEnabled
+      !isFirstReputationEnabled ||
+      hasFirstReputationThisBoot.current
     ) {
       return;
     }
@@ -184,6 +186,7 @@ export const BootPopups = (): ReactElement => {
       return;
     }
 
+    hasFirstReputationThisBoot.current = true;
     addImmediatePopup({
       type: LazyModal.FirstReputation,
       persistOnRouteChange: true,
