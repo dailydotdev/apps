@@ -101,7 +101,7 @@ const Shell = ({ children }: { children: ReactNode }): ReactElement => (
 
 export enum ProfileLfg {
   None = 'none',
-  // Today's LFG badge: its own ring and the ribbon on the avatar.
+  // Today's LFG badge alone: its own ring and the ribbon on the avatar.
   Today = 'today',
   // The suggestion: a chip in the name row, beside the Plus mark.
   NameRow = 'nameRow',
@@ -195,7 +195,7 @@ export const ProfilePage = ({
                   <LfgBadgeMark size={LfgBadgeSize.Ribbon} />
                 </span>
               )}
-              <ProgressRing hasChip={lfg !== ProfileLfg.Today} />
+              {lfg !== ProfileLfg.Today && <ProgressRing />}
             </>
           }
         />

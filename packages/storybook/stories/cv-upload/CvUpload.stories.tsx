@@ -71,7 +71,7 @@ export const Review: Story = {
             </Cell>
             <Cell
               label="Clash: today's LFG badge"
-              note="An open LFG post draws its own green ring and the ribbon on the same avatar."
+              note="Production today: an open LFG post draws its own green ring and the ribbon on the avatar, the same spot the progress ring needs."
             >
               <PhoneFrame story="profile-lfg-today" theme={theme} />
             </Cell>
