@@ -76,6 +76,7 @@ import {
   LfgChip,
   ProgressRing,
 } from './screens';
+import type { RingColor } from './screens';
 
 // The production pages with the proposal's pieces added, each at the width
 // its iframe gives it, so the phone and laptop layouts are the real ones.
@@ -161,9 +162,11 @@ const EditMenu = ({
 export const ProfilePage = ({
   lfg = ProfileLfg.None,
   isEditMenuOpen,
+  ringColor,
 }: {
   lfg?: ProfileLfg;
   isEditMenuOpen?: boolean;
+  ringColor?: RingColor;
 }): ReactElement => {
   const isTablet = useViewSize(ViewSize.Tablet);
   const pageRef = useRef<HTMLDivElement>(null);
@@ -195,7 +198,7 @@ export const ProfilePage = ({
                   <LfgBadgeMark size={LfgBadgeSize.Ribbon} />
                 </span>
               )}
-              {lfg !== ProfileLfg.Today && <ProgressRing />}
+              {lfg !== ProfileLfg.Today && <ProgressRing color={ringColor} />}
             </>
           }
         />

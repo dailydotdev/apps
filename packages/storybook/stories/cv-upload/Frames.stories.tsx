@@ -9,6 +9,7 @@ import {
   SettingsEducation as SettingsEducationFrame,
   SettingsWork as SettingsWorkFrame,
 } from './frames';
+import type { RingColor } from './screens';
 
 // The production frames the review embeds, one story each so an iframe can
 // load them at a phone's or a laptop's width.
@@ -30,6 +31,12 @@ export default meta;
 type Story = StoryObj;
 
 export const Profile: Story = { render: () => <ProfilePage /> };
+
+// One profile per ring color, picked with the ringColor arg.
+export const ProfileRingColor: StoryObj<{ ringColor: RingColor }> = {
+  args: { ringColor: 'brand' },
+  render: ({ ringColor }) => <ProfilePage ringColor={ringColor} />,
+};
 
 export const ProfileEditMenu: Story = {
   render: () => <ProfilePage isEditMenuOpen />,

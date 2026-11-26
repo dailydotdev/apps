@@ -12,6 +12,8 @@ import {
 } from '../open-links-in/kit';
 import { CvProviders } from './providers';
 import { LaptopFrame, MenuCrop, PhoneFrame } from './embed';
+import { ringColors } from './screens';
+import type { RingColor } from './screens';
 
 const meta: Meta = {
   title: 'Growth/CV upload/1. Review',
@@ -92,6 +94,24 @@ export const Review: Story = {
             the full profile header shows it. Small avatars in comments and
             posts keep today&apos;s corner mark.
           </Callout>
+        </Section>
+
+        <Section
+          title="Ring colors"
+          description="Eight colors the ring and its chip could take on their own. Brand is cabbage; green stays LFG's."
+        >
+          <PhoneRow>
+            {(Object.keys(ringColors) as RingColor[]).map((color) => (
+              <Cell key={color} label={color}>
+                <PhoneFrame
+                  story="profile-ring-color"
+                  theme={theme}
+                  args={`ringColor:${color}`}
+                  height={440}
+                />
+              </Cell>
+            ))}
+          </PhoneRow>
         </Section>
 
         <Section
