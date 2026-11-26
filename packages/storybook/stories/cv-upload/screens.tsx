@@ -137,9 +137,6 @@ export const CvRow = ({
 
   return (
     <div className="flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-secondary p-3">
-      <span className="flex size-10 shrink-0 items-center justify-center self-start rounded-10 bg-surface-float text-accent-onion-default">
-        <UploadIcon />
-      </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <Typography type={TypographyType.Callout} bold>
           {title}
