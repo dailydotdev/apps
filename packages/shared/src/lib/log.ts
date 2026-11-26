@@ -475,7 +475,6 @@ export enum LogEvent {
   CopyStartupsSetup = 'copy startups setup',
   ClickStartupsSetupStep = 'click startups setup step',
   UpdateSquadIntel = 'update squad intel',
-  CopySquadIntel = 'copy squad intel',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
   SetOrgSize = 'set org size',

@@ -59,3 +59,17 @@ export const getIntelWeekLabel = ({
 
   return `${format(new Date(weekStart))} to ${format(lastDay)}`;
 };
+
+/** The topic with the most reads per post that few new posts compete for */
+export const getIntelOpening = <
+  T extends { competition: string | null; readsPerPost: number },
+>(
+  topics: T[],
+): T | undefined =>
+  [...topics]
+    .filter(({ competition }) => !!competition && competition !== 'crowded')
+    .sort((a, b) => b.readsPerPost - a.readsPerPost)[0];
+
+/** An index where 100 is the average post, as "2.3x" */
+export const formatIntelIndex = (index: number): string =>
+  `${(index / 100).toFixed(1).replace(/\.0$/, '')}x`;

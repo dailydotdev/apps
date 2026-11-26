@@ -26,6 +26,8 @@ import { SquadPageLayout } from './SquadPageLayout';
 import { SquadProfileHeader } from './header/SquadProfileHeader';
 import { SquadComposer } from './feed/SquadComposer';
 import { SquadCompanyValue } from './valuePanel/SquadCompanyValue';
+import { SquadSetupWidget } from './widgets/SquadSetupWidget';
+import { SquadPlanWidget } from './widgets/SquadPlanWidget';
 import { SquadPinnedPosts } from './feed/SquadPinnedPosts';
 import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
@@ -187,6 +189,11 @@ export const SquadHome = ({
     >
       <div className="flex flex-col gap-4 border-border-subtlest-tertiary pt-4 tablet:px-6 tablet:pt-6 laptop:border-t">
         <SquadCompanyValue />
+        {/* The side column is the About tab below laptop */}
+        <div className="mx-4 flex flex-col gap-4 empty:hidden tablet:mx-0 laptop:hidden">
+          <SquadSetupWidget />
+          <SquadPlanWidget />
+        </div>
         <SquadComposer />
         <SquadPinnedPosts />
       </div>

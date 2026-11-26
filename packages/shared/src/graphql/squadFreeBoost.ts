@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { gqlClient } from './common';
+import { gqlBatchRequest } from './batch';
 import type { LoggedUser } from '../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
@@ -74,7 +74,7 @@ export const squadFreeBoostQueryOptions = ({
 }) => ({
   queryKey: generateQueryKey(RequestKey.SquadFreeBoost, user, sourceId),
   queryFn: async (): Promise<SquadFreeBoost> => {
-    const res = await gqlClient.request<{ squadFreeBoost: SquadFreeBoost }>(
+    const res = await gqlBatchRequest<{ squadFreeBoost: SquadFreeBoost }>(
       SQUAD_FREE_BOOST_QUERY,
       { sourceId },
     );

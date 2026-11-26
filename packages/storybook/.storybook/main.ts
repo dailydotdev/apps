@@ -88,6 +88,7 @@ const config: StorybookConfig = {
       define: {
         'process.env': {
           NEXT_PUBLIC_WEBAPP_URL: 'https://app.daily.dev',
+          NEXT_PUBLIC_CHAT_MOCK: 'true',
         },
         browser,
       },

@@ -1,0 +1,436 @@
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useQueryClient } from '@tanstack/react-query';
+import { graphql, HttpResponse } from 'msw';
+import { addDays, subDays } from 'date-fns';
+import { fn } from 'storybook/test';
+import { useRouter } from 'next/router';
+import type {
+  SourceMember,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMemberRole,
+  SourcePermissions,
+  SourceType,
+} from '@dailydotdev/shared/src/graphql/sources';
+import { squadMembersPreviewQueryOptions } from '@dailydotdev/shared/src/graphql/squads';
+import { squadBrandingQueryOptions } from '@dailydotdev/shared/src/graphql/squadBranding';
+import { squadProductsQueryOptions } from '@dailydotdev/shared/src/graphql/squadProducts';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
+import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
+import { SquadIntelPage } from '@dailydotdev/shared/src/features/squads/components/SquadIntelPage';
+import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import ExtensionProviders from '../../../extension/_providers';
+import { defaultBootData, getBootMock } from '../../../../mock/boot';
+import { squad as data, team } from '../data';
+import type { Scenario, ScenarioName } from './scenarios';
+import { scenarioPosts, scenarios, sumStats } from './scenarios';
+import { realIntel, realTrends } from './realIntel';
+
+// The company page as it ships, on the production components: the real
+// SquadHome (header, composer, feed and right column) inside the app's
+// layout, with the API answered per scenario. The free boost card and the
+// value panel sit at the top of the feed column for the page's admins.
+// squadFreeBoost does not exist in the API yet: its answers here are the
+// proposed shape (graphql/squadFreeBoost.ts).
+
+const planFeatures: Record<SquadPlan, Squad['features']> = {
+  [SquadPlan.Starter]: {
+    indexing: true,
+    apiPosting: true,
+    links: true,
+    products: true,
+    agentAnalytics: true,
+  } as Squad['features'],
+  [SquadPlan.Team]: {
+    indexing: true,
+    apiPosting: true,
+    links: true,
+    products: true,
+    agentAnalytics: true,
+    cta: true,
+  } as Squad['features'],
+};
+
+const founder = team[0];
+
+const member = (role: SourceMemberRole, user = founder): SourceMember =>
+  ({
+    role,
+    referralToken: 'token',
+    permissions:
+      role === SourceMemberRole.Admin
+        ? Object.values(SourcePermissions)
+        : [SourcePermissions.View],
+    user: {
+      id: role === SourceMemberRole.Admin ? defaultUser.id : user.id,
+      name: user.name,
+      username: user.username,
+      image: user.image,
+      permalink: `https://app.daily.dev/${user.username}`,
+      reputation: user.reputation,
+    },
+  }) as unknown as SourceMember;
+
+const toSquad = (scenario: Scenario, isFinished = false): Squad => {
+  const totals = sumStats(scenario);
+  const admin = member(SourceMemberRole.Admin);
+  const page =
+    isFinished || !scenario.page
+      ? { logo: true, website: true, cover: true }
+      : scenario.page;
+
+  return {
+    id: 'coderabbit',
+    handle: data.handle,
+    name: data.name,
+    image: page.logo ? data.image : '/squad-page/squad_placeholder.svg',
+    headerImage: page.cover ? data.headerImage : undefined,
+    permalink: data.permalink,
+    description: data.description,
+    type: SourceType.Squad,
+    public: true,
+    active: true,
+    // The founder, then everyone the posts brought in
+    membersCount: 1 + totals.squadJoins,
+    memberPostingRole: SourceMemberRole.Moderator,
+    memberInviteRole: SourceMemberRole.Member,
+    moderationRequired: false,
+    moderationPostCount: 0,
+    createdAt: subDays(new Date(), scenario.pageAgeDays),
+    category: { id: 'devtools', title: 'Developer tools', slug: 'devtools' },
+    website: page.website ? 'https://www.coderabbit.ai' : undefined,
+    // Extra links are a plan feature
+    links: scenario.plan
+      ? ['https://github.com/coderabbitai', 'https://x.com/coderabbitai']
+      : [],
+    rules: [],
+    privilegedMembers: [admin],
+    currentMember: {
+      // An admin on a plan holds one of its seats
+      admin: { ...admin, seat: !!scenario.plan },
+      member: member(SourceMemberRole.Member, team[3]),
+      visitor: undefined,
+    }[scenario.viewer],
+    flags: {
+      featured: false,
+      company: true,
+      totalPosts: scenario.posts.length,
+      totalViews: totals.impressions,
+      totalUpvotes: totals.upvotes,
+      totalAwards: 0,
+    },
+    features: scenario.plan ? planFeatures[scenario.plan] : {},
+  } as unknown as Squad;
+};
+
+// The numbers the API keeps with an intel, in the shape it stores them
+const handlers = (scenario: Scenario) => {
+  const squad = toSquad(scenario);
+  const posts = scenarioPosts(scenario, squad);
+  const totals = sumStats(scenario);
+
+  return [
+    graphql.query('CompletedUserActions', () =>
+      HttpResponse.json({ data: { actions: [] } }),
+    ),
+    graphql.mutation('CompleteAction', () =>
+      HttpResponse.json({ data: { completeAction: { _: true } } }),
+    ),
+    graphql.query('SourceFeed', () =>
+      HttpResponse.json({
+        data: {
+          page: {
+            pageInfo: { hasNextPage: false, endCursor: null },
+            edges: posts.map((node) => ({ node })),
+          },
+        },
+      }),
+    ),
+    graphql.query('SquadFreeBoost', () =>
+      HttpResponse.json({ data: { squadFreeBoost: scenario.freeBoost } }),
+    ),
+    graphql.query('PostAnalytics', ({ variables }) => {
+      const index = posts.findIndex((post) => post.id === variables.id);
+      const stats = scenario.posts[index]?.stats;
+
+      return HttpResponse.json({
+        data: {
+          postAnalytics: {
+            id: variables.id,
+            impressions: stats?.impressions ?? 0,
+            reach: stats?.reach ?? 0,
+            bookmarks: stats?.bookmarks ?? 0,
+            clicks: stats?.clicks ?? 0,
+            squadJoins: stats?.squadJoins ?? 0,
+            upvotes: stats?.upvotes ?? 0,
+            comments: stats?.comments ?? 0,
+            impressionsAds: 0,
+            reachAds: 0,
+          },
+        },
+      });
+    }),
+    graphql.query('SquadAnalytics', () =>
+      HttpResponse.json({
+        data: {
+          squadAnalytics: {
+            id: squad.id,
+            impressions: totals.impressions,
+            reach: totals.reach,
+            upvotes: totals.upvotes,
+            downvotes: 0,
+            comments: totals.comments,
+            bookmarks: totals.bookmarks,
+            awards: 0,
+            shares: 0,
+            clicks: totals.clicks,
+            upvotesRatio: totals.upvotes ? 100 : 0,
+            agentViews: scenario.plan ? 212 : null,
+            agentViewsBot: scenario.plan ? 1340 : null,
+          },
+        },
+      }),
+    ),
+    graphql.query('SquadAnalyticsHistory', () =>
+      HttpResponse.json({ data: { squadAnalyticsHistory: [] } }),
+    ),
+    graphql.query('SquadSubscription', () =>
+      HttpResponse.json({
+        data: {
+          squadSubscription: {
+            plan: scenario.plan,
+            status: scenario.plan ? 'active' : 'none',
+            seatLimit: 1,
+            seatsUsed: 1,
+            ownerId: defaultUser.id,
+            cashbackPercentage: scenario.plan ? 500 : 0,
+            cashbackPromoEndsAt: null,
+            renewsAt: null,
+            scheduledPlan: null,
+            downgradeAvailableAt: null,
+          },
+        },
+      }),
+    ),
+    graphql.query('StartupsCashbackPromo', () =>
+      HttpResponse.json({
+        data: { startupsCashbackPromo: { percentage: 500, months: 12 } },
+      }),
+    ),
+    graphql.query('SquadIntelHighlights', () =>
+      HttpResponse.json({
+        data: {
+          squadIntel: scenario.trialEnded
+            ? null
+            : {
+                weekStart: realIntel.weekStart,
+                weekEnd: realIntel.weekEnd,
+                trial: scenario.plan
+                  ? null
+                  : {
+                      endsAt: addDays(new Date(), 6).toISOString(),
+                      pickedFrom: 'coderabbit.ai',
+                    },
+                data: realIntel.data,
+              },
+        },
+      }),
+    ),
+    graphql.query('DeveloperTrends', () =>
+      HttpResponse.json({
+        data: { developerTrends: realTrends },
+      }),
+    ),
+  ];
+};
+
+/** Seeds what the squad route would have loaded before the page renders. */
+const Seeded = ({
+  squad,
+  children,
+}: {
+  squad: Squad;
+  children: ReactNode;
+}): ReactElement => {
+  const client = useQueryClient();
+  const { user } = useAuthContext();
+  const seed = () => {
+    client.setQueryData(
+      squadMembersPreviewQueryOptions({ squad }).queryKey,
+      [],
+    );
+    [undefined, user].forEach((who) => {
+      const squadKey = generateQueryKey(RequestKey.Squad, who, squad.handle);
+      client.setQueryData(squadKey, squad);
+      client.setQueryDefaults(squadKey, { staleTime: Infinity });
+      const brandingKey = squadBrandingQueryOptions({
+        squad,
+        user: who,
+      }).queryKey;
+      client.setQueryData(brandingKey, { color: null, button: null });
+      client.setQueryDefaults(brandingKey, { staleTime: Infinity });
+      const productsKey = squadProductsQueryOptions({
+        squad,
+        user: who,
+      }).queryKey;
+      client.setQueryData(productsKey, []);
+      client.setQueryDefaults(productsKey, { staleTime: Infinity });
+    });
+  };
+  useState(() => {
+    seed();
+    return true;
+  });
+  useEffect(seed, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <SquadPageContextProvider squad={squad} isViewerReady>
+      {children}
+    </SquadPageContextProvider>
+  );
+};
+
+const Page = ({
+  name,
+  isIntel = false,
+}: {
+  name: ScenarioName;
+  /** The page's /intel sub-page instead of its home */
+  isIntel?: boolean;
+}): ReactElement => {
+  const scenario: Scenario = scenarios[name];
+  const [isFinished, setFinished] = useState(false);
+  const squad = toSquad(scenario, isFinished);
+
+  useEffect(() => {
+    if (!scenario.finishSetupAfterMs) {
+      return undefined;
+    }
+
+    const timer = setTimeout(
+      () => setFinished(true),
+      scenario.finishSetupAfterMs,
+    );
+
+    return () => clearTimeout(timer);
+  }, [scenario.finishSetupAfterMs]);
+
+  return (
+    <MainLayout canGoBack="/squads">
+      <Seeded squad={squad}>
+        {isIntel ? (
+          <SquadIntelPage />
+        ) : (
+          <SquadHome searchQuery="" onClearSearch={() => undefined} />
+        )}
+      </Seeded>
+      <LazyModalElement />
+    </MainLayout>
+  );
+};
+
+const meta: Meta = {
+  title: 'Features/Squads/Company page first post',
+  parameters: { layout: 'fullscreen' },
+  beforeEach: () => {
+    // The squad page's own route, which the layout and the page read
+    (useRouter as unknown as ReturnType<typeof fn>).mockReturnValue({
+      replace: fn(),
+      push: fn(),
+      route: '/squads/[handle]',
+      pathname: '/squads/[handle]',
+      asPath: `/squads/${data.handle}`,
+      query: { handle: data.handle },
+      isReady: true,
+      events: { on: fn(), off: fn() },
+    });
+  },
+  decorators: [
+    (Story) => (
+      <ExtensionProviders>
+        {/* react-modal mounts the composer next to the app root */}
+        <div id="__next">
+          <Story />
+        </div>
+      </ExtensionProviders>
+    ),
+  ],
+};
+
+export default meta;
+
+type Story = StoryObj;
+
+const profileCompletion = (scenario: Scenario) => {
+  const profile = {
+    photo: true,
+    headline: true,
+    job: true,
+    ...scenario.profile,
+  };
+
+  return {
+    percentage: 60,
+    hasProfileImage: profile.photo,
+    hasHeadline: profile.headline,
+    hasExperienceLevel: true,
+    hasWork: profile.job,
+    hasEducation: false,
+  };
+};
+
+const story = (name: ScenarioName): Story => ({
+  beforeEach: () => {
+    getBootMock.mockReturnValue({
+      ...defaultBootData,
+      user: {
+        ...defaultBootData.user,
+        profileCompletion: profileCompletion(scenarios[name]),
+      },
+      accessToken: { token: '1', expiresIn: '1' },
+      visit: { sessionId: '1', visitId: '1' },
+      feeds: [],
+    } as ReturnType<typeof getBootMock>);
+  },
+  render: () => <Page name={name} />,
+  parameters: { msw: { handlers: handlers(scenarios[name]) } },
+});
+
+/** 1. Minutes after sign-up: no logo or website yet, nothing posted. */
+export const NewPage = story('newPage');
+/** 2. The page is ready for its boost, nothing posted yet. */
+export const ReadyNoPost = story('readyNoPost');
+/** 2b. "Find a topic" opens /intel: the intel that helps pick a topic. */
+export const CreateSomethingNew: Story = {
+  ...story('readyNoPost'),
+  render: () => <Page name="readyNoPost" isIntel />,
+};
+/** 2c. A free page after its one trial intel: the general trends. */
+export const TrendsAfterTrial: Story = {
+  ...story('trialEnded'),
+  render: () => <Page name="trialEnded" isIntel />,
+};
+/** 2d. A page on a plan, nothing posted yet: its weekly intel, no trial. */
+export const PaidIntel: Story = {
+  ...story('paidNoPost'),
+  render: () => <Page name="paidNoPost" isIntel />,
+};
+/** 3. The admin finishes the last setup rows while the page is open. */
+export const SetupDone = story('setupDone');
+/** 4. Boosting: from the first post until the day-long boost ends. */
+export const Boosting = story('boostLive');
+/** 5. Free page after the boost: the value panel with the one upgrade offer. */
+export const FreeAfterBoost = story('afterBoost');
+/** 6. Paid page: the value panel, no offer. */
+export const PaidPage = story('paidPage');

@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { gqlBatchRequest } from './batch';
 import { gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
@@ -123,7 +124,7 @@ export const squadSubscriptionQueryOptions = ({
 }) => ({
   queryKey: generateQueryKey(RequestKey.SquadSubscription, user, sourceId),
   queryFn: async (): Promise<SquadSubscription> => {
-    const res = await gqlClient.request<{
+    const res = await gqlBatchRequest<{
       squadSubscription: SquadSubscription;
     }>(SQUAD_SUBSCRIPTION_QUERY, { sourceId });
 
@@ -137,7 +138,7 @@ export const squadSubscriptionQueryOptions = ({
 export const startupsCashbackPromoQueryOptions = () => ({
   queryKey: [RequestKey.StartupsCashbackPromo],
   queryFn: async (): Promise<StartupsCashbackPromo | null> => {
-    const res = await gqlClient.request<{
+    const res = await gqlBatchRequest<{
       startupsCashbackPromo: StartupsCashbackPromo | null;
     }>(STARTUPS_CASHBACK_PROMO_QUERY);
 
@@ -162,7 +163,7 @@ export const squadSubscriptionBalanceQueryOptions = ({
     'balance',
   ),
   queryFn: async (): Promise<number> => {
-    const res = await gqlClient.request<{
+    const res = await gqlBatchRequest<{
       squadSubscription: { coresBalance: number };
     }>(SQUAD_SUBSCRIPTION_BALANCE_QUERY, { sourceId });
 

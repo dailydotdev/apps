@@ -21,6 +21,26 @@ const shownAgents = [
   agentMarks.cursor,
 ];
 
+/** The agents a copied prompt works in, as an overlapping row of logos */
+export const AgentMarks = ({
+  className,
+  glyphClassName,
+}: {
+  className: string;
+  glyphClassName: string;
+}): ReactElement => (
+  <span className="flex -space-x-1.5" aria-hidden>
+    {shownAgents.map((mark) => (
+      <AgentMark
+        key={mark.name}
+        mark={mark}
+        className={classNames(className, 'ring-2 ring-background-default')}
+        glyphClassName={glyphClassName}
+      />
+    ))}
+  </span>
+);
+
 interface AgentPromptButtonProps {
   /** Built on click, so it carries the latest state */
   getPrompt: () => string;
@@ -54,15 +74,8 @@ export const AgentPromptButton = ({
           onCopy?.();
         }}
       >
-        <span className="mr-2 flex -space-x-1.5" aria-hidden>
-          {shownAgents.map((mark) => (
-            <AgentMark
-              key={mark.name}
-              mark={mark}
-              className="size-6 rounded-8 ring-2 ring-background-default"
-              glyphClassName="size-4"
-            />
-          ))}
+        <span className="mr-2">
+          <AgentMarks className="size-6 rounded-8" glyphClassName="size-4" />
         </span>
         {isCopying ? 'Prompt copied' : label}
       </Button>

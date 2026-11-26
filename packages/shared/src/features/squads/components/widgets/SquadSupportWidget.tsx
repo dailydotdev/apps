@@ -1,41 +1,33 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../../components/buttons/Button';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../../../components/typography/Typography';
+import { MoveToIcon } from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
+import { Loader } from '../../../../components/Loader';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId } from '../../lib/features';
 import { isCompanyPage } from '../../lib/companyPage';
 import { SquadViewer } from '../../lib/viewer';
 import { isDmAvailable } from '../../../messages/transport';
 import { useOpenSupportChat } from '../../../messages/hooks/useOpenSupportChat';
-import { SquadWidget } from './SquadWidget';
 import {
   ProfileImageSize,
   ProfilePicture,
 } from '../../../../components/ProfilePicture';
 import { FOUNDERS } from '../../../../lib/team';
 
-const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
+const SupportStrip = ({ sourceId }: { sourceId: string }): ReactElement => {
   const { openSupportChat, isPending } = useOpenSupportChat(sourceId);
 
   return (
-    <Button
-      variant={ButtonVariant.Secondary}
-      size={ButtonSize.Small}
-      className="mt-3 w-full"
-      loading={isPending}
+    <button
+      type="button"
+      title="A private group chat with the daily.dev founders and your page's admins"
+      disabled={isPending}
       onClick={openSupportChat}
+      className="flex min-h-[3.125rem] w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-3 text-left hover:bg-surface-hover"
     >
-      <span className="mr-2 flex shrink-0" aria-hidden>
+      <span className="flex shrink-0" aria-hidden>
         {FOUNDERS.map((founder, index) => (
           <ProfilePicture
             key={founder.username}
@@ -48,8 +40,18 @@ const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
           />
         ))}
       </span>
-      Send a message
-    </Button>
+      <span className="min-w-0 flex-1 font-bold text-text-primary typo-callout">
+        Talk to the founders
+      </span>
+      {isPending ? (
+        <Loader className="shrink-0" />
+      ) : (
+        <MoveToIcon
+          size={IconSize.Size16}
+          className="shrink-0 text-text-tertiary"
+        />
+      )}
+    </button>
   );
 };
 
@@ -68,17 +70,5 @@ export const SquadSupportWidget = (): ReactElement | null => {
     return null;
   }
 
-  return (
-    <SquadWidget title="Talk to the founders">
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-        className="mt-2"
-      >
-        Questions about your company page? Chat with the daily.dev founders in a
-        private group with your page&apos;s admins.
-      </Typography>
-      <SupportButton sourceId={getSquadId(squad)} />
-    </SquadWidget>
-  );
+  return <SupportStrip sourceId={getSquadId(squad)} />;
 };

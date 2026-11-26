@@ -19,6 +19,8 @@ interface SquadSubPageHeaderProps {
   title: string;
   backUrl: string;
   backLabel: string;
+  /** For a sub-page that swaps in without leaving the page's address */
+  onBack?: () => void;
   action?: ReactNode;
   // The phone's top block takes the action unless the page has its own.
   phoneActions?: ReactNode;
@@ -31,6 +33,7 @@ export const SquadSubPageHeader = ({
   title,
   backUrl,
   backLabel,
+  onBack,
   action,
   phoneActions,
   className,
@@ -43,15 +46,26 @@ export const SquadSubPageHeader = ({
         className,
       )}
     >
-      <Link href={backUrl} passHref>
+      {onBack ? (
         <Button
-          tag="a"
+          type="button"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<MoveToIcon className="rotate-180" />}
           aria-label={backLabel}
+          onClick={onBack}
         />
-      </Link>
+      ) : (
+        <Link href={backUrl} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<MoveToIcon className="rotate-180" />}
+            aria-label={backLabel}
+          />
+        </Link>
+      )}
       <Typography
         tag={TypographyTag.H1}
         type={TypographyType.Body}

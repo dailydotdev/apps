@@ -132,3 +132,18 @@ export const squadRailFadeMask = ({
 
   return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
 };
+
+// daily.dev for Startups: the lavender of its checklists and offers, softer
+// than the cabbage accent.
+export const startupsLavender = '#D8B4FE';
+
+// Text and glyphs on a lavender or green fill, in both themes
+export const startupsLavenderInk = '#111827';
+
+export const startupsLavenderTint = `color-mix(in srgb, ${startupsLavender} 10%, transparent)`;
+
+export const startupsLavenderBorder = `color-mix(in srgb, ${startupsLavender} 32%, transparent)`;
+
+export const startupsLavenderWash = `linear-gradient(100deg, color-mix(in srgb, ${startupsLavender} 20%, transparent), color-mix(in srgb, ${startupsLavender} 6%, transparent))`;
+
+export const startupsLavenderGlow = `linear-gradient(180deg, color-mix(in srgb, ${startupsLavender} 9%, transparent), transparent 160px)`;

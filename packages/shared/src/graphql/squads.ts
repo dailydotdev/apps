@@ -989,7 +989,7 @@ export const squadAnalyticsQueryOptions = ({
   return {
     queryKey: [RequestKey.SquadAnalytics, sourceId],
     queryFn: async () => {
-      const result = await gqlClient.request<{
+      const result = await gqlBatchRequest<{
         squadAnalytics: SquadAnalytics;
       }>(SQUAD_ANALYTICS_QUERY, { sourceId });
 
