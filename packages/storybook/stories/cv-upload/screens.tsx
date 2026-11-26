@@ -187,7 +187,7 @@ export const ExperienceSection = ({
         Add
       </Button>
     </div>
-    <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-3">
+    <div className="flex flex-col gap-3 rounded-12 border border-dashed border-border-subtlest-secondary p-3">
       <Typography type={TypographyType.Callout} bold>
         Profile {progress}% done
       </Typography>
@@ -450,7 +450,7 @@ const ProfileMenuPanel = (): ReactElement => (
         </Typography>
       </div>
     </div>
-    <div className="flex flex-col gap-2 rounded-14 bg-surface-float p-3">
+    <div className="flex flex-col gap-2 rounded-12 border border-dashed border-border-subtlest-secondary p-3">
       <div className="flex flex-col">
         <Typography type={TypographyType.Callout} bold>
           Profile {progress}% done
