@@ -46,50 +46,50 @@ const LABELS: Record<string, IntelLabel> = {
   Poll: { hint: 'A question readers vote on.' },
 
   // What the post is like
-  'Intent: teaches': {
-    name: 'Teaches a skill',
-    hint: 'The reader learns something they did not know before.',
+  'Teaches a skill': {
+    hint: "Teaches a concept or skill the reader didn't know before.",
   },
-  'Intent: opens a discussion': {
-    name: 'Starts a discussion',
-    hint: 'An argument, an experience or a question that gets people talking.',
+  'Starts a discussion': {
+    hint: 'An argument, an experience or a focused question that invites replies.',
   },
-  'Intent: promotes': {
-    name: 'Sells a product',
-    hint: 'Its main goal is to sell or push a product, service or tool.',
+  'Sells a product': {
+    hint: 'Its main goal is to sell or advocate for a product, service or tool.',
   },
-  'Intent: informs': {
-    name: 'Shares news',
-    hint: 'Keeps the reader up to date, with nothing for them to do.',
+  'Shares news': {
+    hint: 'News or updates that keep the reader current, with nothing for them to do.',
   },
-  'Intent: solves a specific problem': {
-    name: 'Fixes one problem',
-    hint: 'Answers a concrete issue or error the reader has right now.',
+  'Fixes one problem': {
+    hint: 'Solves a concrete problem or error the reader has right now.',
   },
-  'Intent: helps decide': {
-    name: 'Helps pick an option',
-    hint: 'Compares options or weighs pros and cons.',
+  'Helps pick an option': {
+    hint: 'Compares options, evaluates them or weighs pros and cons.',
   },
-  'Broad overview': {
-    name: 'An overview for newcomers',
+  'An overview for newcomers': {
     hint: 'Covers a topic from the top, like "What is Kubernetes?"',
   },
-  'Focused on one topic': {
-    name: 'One part of a topic',
+  'One part of a topic': {
     hint: 'Goes into one part of a topic, like "GraphQL pagination patterns".',
   },
-  'Highly specific': {
-    name: 'A deep dive for experts',
+  'A deep dive for experts': {
     hint: 'A narrow topic that needs prior knowledge, like tuning etcd in large clusters.',
   },
-  'Self-promotion: lowest quarter': {
-    name: 'Barely mentions its own product',
+  'Barely mentions its own product': {
     hint: 'The quarter of posts that promote the author or company least.',
   },
-  'Self-promotion: highest quarter': {
-    name: 'Mostly about its own product',
+  'Mostly about its own product': {
     hint: 'The quarter of posts that promote the author or company most.',
   },
+  // Labels of intel built before the names above
+  'Intent: teaches': { name: 'Teaches a skill' },
+  'Intent: opens a discussion': { name: 'Starts a discussion' },
+  'Intent: promotes': { name: 'Sells a product' },
+  'Intent: informs': { name: 'Shares news' },
+  'Intent: solves a specific problem': { name: 'Fixes one problem' },
+  'Intent: helps decide': { name: 'Helps pick an option' },
+  'Focused on one topic': { name: 'One part of a topic' },
+  'Highly specific': { name: 'A deep dive for experts' },
+  'Self-promotion: lowest quarter': { name: 'Barely mentions its own product' },
+  'Self-promotion: highest quarter': { name: 'Mostly about its own product' },
   'Title oversells the content': { hidden: true },
   "Doesn't deliver what it promises": { hidden: true },
   'Likely clickbait': { hidden: true },
@@ -109,8 +109,9 @@ export interface NamedIntelRow extends IntelIndexRow {
 export const nameIntelRows = (rows: IntelIndexRow[]): NamedIntelRow[] =>
   rows.flatMap((row) => {
     const label = LABELS[row.label];
+    const name = label?.name ?? row.label;
 
     return label?.hidden
       ? []
-      : [{ ...row, name: label?.name ?? row.label, hint: label?.hint }];
+      : [{ ...row, name, hint: label?.hint ?? LABELS[name]?.hint }];
   });
