@@ -18,10 +18,6 @@ import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/com
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import { ActionSuccessModal } from '@dailydotdev/shared/src/components/modals/utils/ActionSuccessModal';
 import { uploadCvProfileSuccessContent } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
-import {
-  uploadCvModalSuccess,
-  uploadCvModalSuccessMobile,
-} from '@dailydotdev/shared/src/lib/image';
 import { UserShortInfo } from '@dailydotdev/shared/src/components/profile/UserShortInfo';
 import { Image, ImageType } from '@dailydotdev/shared/src/components/image/Image';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -29,6 +25,8 @@ import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profi
 import { AccountPageContainer } from '../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { SettingsFrame } from './production';
 import { member } from './providers';
+// A proposed cover from Smith: Patchy and friends reading the new CV.
+import cvUploadedCover from './cv-uploaded-cover.png';
 
 // The five places, each drawn by the production components that render it
 // today. The new ask sits under a line saying where it would go: it isn't
@@ -288,8 +286,8 @@ export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
           withCloseOnTablet
           content={{
             ...uploadCvProfileSuccessContent,
-            cover: uploadCvModalSuccess,
-            coverDrawer: uploadCvModalSuccessMobile,
+            cover: cvUploadedCover,
+            coverDrawer: cvUploadedCover,
             body: (
               <NextStepRow
                 company={company}
