@@ -231,21 +231,109 @@ const FreeIssueLine = ({
   </div>
 );
 
+const HOUR_MS = 60 * 60 * 1000;
+// Any Monday, to turn a UTC day and hour into the reader's own
+const MONDAY_UTC = Date.UTC(2024, 0, 1);
+
+const hourOf = (date: Date): string =>
+  date.toLocaleTimeString('en-US', { hour: 'numeric' });
+
+/** Monday (0) at 15 UTC as "Monday, 5 to 8 PM" in Israel */
+const formatPublishSlot = (dayIndex: number, hour: number | null): string => {
+  const start = new Date(MONDAY_UTC + (dayIndex * 24 + (hour ?? 12)) * HOUR_MS);
+  const weekday = start.toLocaleDateString('en-US', { weekday: 'long' });
+  if (hour === null) {
+    return weekday;
+  }
+  const from = hourOf(start);
+  const to = hourOf(new Date(start.getTime() + 3 * HOUR_MS));
+  const sameHalf = from.slice(-2) === to.slice(-2);
+
+  return `${weekday}, ${sameHalf ? from.slice(0, -3) : from} to ${to}`;
+};
+
+const DayBars = ({
+  values,
+  highlight,
+  caption,
+  getLabel,
+  barsClassName = 'h-10',
+}: {
+  values: (number | null)[];
+  highlight: number;
+  caption: string;
+  getLabel: (index: number) => string;
+  barsClassName?: string;
+}): ReactElement => {
+  const max = Math.max(...values.map((value) => value ?? 0), 1);
+
+  return (
+    <figure className="flex w-full shrink-0 flex-col gap-1.5 tablet:w-56">
+      <div className="flex gap-1">
+        {values.map((value, index) => {
+          const isHighlighted = index === highlight;
+
+          return (
+            <span
+              key={DAYS[index]}
+              className="flex min-w-0 flex-1 flex-col items-center gap-1"
+            >
+              <span
+                className={classNames('flex w-full items-end', barsClassName)}
+              >
+                <span
+                  className="w-full rounded-6"
+                  style={{
+                    height: `${Math.max(((value ?? 0) / max) * 100, 10)}%`,
+                    background: isHighlighted
+                      ? startupsLavender
+                      : startupsLavenderBorder,
+                  }}
+                />
+              </span>
+              <span
+                className={classNames(
+                  'typo-caption2',
+                  isHighlighted ? 'font-bold' : 'text-text-tertiary',
+                )}
+              >
+                {getLabel(index)}
+              </span>
+            </span>
+          );
+        })}
+      </div>
+      <figcaption className="text-text-tertiary typo-caption2">
+        {caption}
+      </figcaption>
+    </figure>
+  );
+};
+
 /**
- * How the intel ends: their audience reads every day, so no day is worth
- * waiting for, and the last thing on the page starts the post.
+ * How the intel ends, with the last thing on the page starting the post.
+ * Paid intel names the best time to publish. Free intel comes before a
+ * page's first post, so it says today: their audience reads every day, and
+ * a founder told to wait for a day might not post at all.
  */
 const PublishNow = ({
-  days,
+  timing,
+  showBestTime,
   boostDollars,
   onWrite,
 }: {
-  /** Share of the week's reads by day, Monday first */
-  days: number[];
+  timing: SquadIntelHighlights['timing'];
+  showBestTime: boolean;
   boostDollars?: number;
   onWrite: () => void;
 }): ReactElement => {
   const today = (new Date().getDay() + 6) % 7;
+  const bestIndex = Math.max(...timing.publishDays.map((value) => value ?? 0));
+  const bestDay = bestIndex ? timing.publishDays.indexOf(bestIndex) : -1;
+  const isBestTime = showBestTime && bestDay >= 0;
+  const boostLine = boostDollars
+    ? ` Your first post gets a free $${boostDollars} boost.`
+    : '';
 
   return (
     <div
@@ -255,13 +343,17 @@ const PublishNow = ({
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h3 className="font-bold typo-body">
-            The best day to publish is today
+            {isBestTime
+              ? `The best time to publish is ${formatPublishSlot(
+                  bestDay,
+                  timing.bestHour,
+                )}`
+              : 'The best day to publish is today'}
           </h3>
           <p className="text-pretty text-text-secondary typo-footnote">
-            Developers read your topics every day of the week, so no day is
-            worth waiting for.
-            {!!boostDollars &&
-              ` Your first post gets a free $${boostDollars} boost.`}
+            {isBestTime
+              ? `Posts in your topics that went out then got the most reads in their first 24 hours, over the last 4 weeks. Times are in your time zone.${boostLine}`
+              : `Developers read your topics every day of the week, so no day is worth waiting for.${boostLine}`}
           </p>
         </div>
         <Button
@@ -275,41 +367,22 @@ const PublishNow = ({
           Write a post
         </Button>
       </div>
-      {!!days.length && (
-        <figure className="flex w-full shrink-0 flex-col gap-1.5 tablet:w-56">
-          <div className="flex gap-1">
-            {days.map((share, index) => {
-              const isToday = index === today;
-
-              return (
-                <span
-                  key={DAYS[index]}
-                  className="flex min-w-0 flex-1 flex-col items-center gap-1"
-                >
-                  <span
-                    className="h-6 w-full rounded-6"
-                    style={{
-                      background: isToday
-                        ? startupsLavender
-                        : startupsLavenderBorder,
-                    }}
-                  />
-                  <span
-                    className={classNames(
-                      'typo-caption2',
-                      isToday ? 'font-bold' : 'text-text-tertiary',
-                    )}
-                  >
-                    {isToday ? 'Today' : DAYS[index]}
-                  </span>
-                </span>
-              );
-            })}
-          </div>
-          <figcaption className="text-text-tertiary typo-caption2">
-            Your audience reads every day
-          </figcaption>
-        </figure>
+      {isBestTime && (
+        <DayBars
+          values={timing.publishDays}
+          highlight={bestDay}
+          caption="First-day reads by the day a post went out"
+          getLabel={(index) => DAYS[index]}
+        />
+      )}
+      {!isBestTime && !!timing.days.length && (
+        <DayBars
+          values={timing.days.map(() => 1)}
+          barsClassName="h-6"
+          highlight={today}
+          caption="Your audience reads every day"
+          getLabel={(index) => (index === today ? 'Today' : DAYS[index])}
+        />
       )}
     </div>
   );
@@ -539,7 +612,8 @@ export const FirstPostIntel = ({
       <IntelDecayChart intel={intel} />
 
       <PublishNow
-        days={timing.days}
+        timing={timing}
+        showBestTime={!intel.trial}
         boostDollars={boostDollars}
         onWrite={onWrite}
       />

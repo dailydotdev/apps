@@ -334,20 +334,25 @@ export interface SquadIntelHighlights {
   timing: {
     /** Share of the week's reads by day, Monday first, 0 to 100 */
     days: number[];
-    /** "Tuesday": posts published then get the strongest first day */
-    bestDay: string | null;
-    /** "14:00 to 17:00 UTC" */
-    bestHours: string | null;
-    weakestDay: string | null;
+    /**
+     * Reads in a post's first 24 hours by the UTC day it went out, Monday
+     * first, where 100 is the average. Null with too few posts.
+     */
+    publishDays: (number | null)[];
+    /** Start of the 3-hour UTC block whose posts get the most first-day reads */
+    bestHour: number | null;
   };
 }
 
-const byIndex = (rows: IntelPublishRow[]): IntelPublishRow[] =>
-  [...rows].sort((a, b) => b.index - a.index);
-
-/** "15:00-18:00" as "15:00 to 18:00 UTC" */
-const formatHours = (label: string): string =>
-  `${label.replace('-', ' to ')} UTC`;
+const WEEKDAYS = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
 
 export const toIntelHighlights = ({
   weekStart,
@@ -360,8 +365,7 @@ export const toIntelHighlights = ({
   data: StartupsIntelData;
   trial: SquadIntelTrial | null;
 }): SquadIntelHighlights => {
-  const publishDays = byIndex(data.publishDays);
-  const bestHours = byIndex(data.publishHours)[0];
+  const [bestHours] = [...data.publishHours].sort((a, b) => b.index - a.index);
 
   return {
     weekStart,
@@ -408,12 +412,12 @@ export const toIntelHighlights = ({
     decay: data.decay ?? [],
     timing: {
       days: data.readingDays.map(({ share }) => share),
-      bestDay: publishDays[0]?.label ?? null,
-      bestHours: bestHours ? formatHours(bestHours.label) : null,
-      weakestDay:
-        publishDays.length > 1
-          ? publishDays[publishDays.length - 1].label
-          : null,
+      publishDays: WEEKDAYS.map(
+        (label) =>
+          data.publishDays.find((row) => row.label === label)?.index ?? null,
+      ),
+      // "15:00-18:00" starts at 15
+      bestHour: bestHours ? parseInt(bestHours.label, 10) : null,
     },
   };
 };
