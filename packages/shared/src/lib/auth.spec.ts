@@ -75,13 +75,46 @@ describe('iosNativeAuth', () => {
     expect(onTimeout).toHaveBeenCalledTimes(1);
   });
 
-  it('ignores a reply that arrives after the timeout', async () => {
+  it('drops a reply that arrives after the timeout', async () => {
     const promise = iosNativeAuth('google', { timeoutMs: 1000 });
     jest.advanceTimersByTime(1000);
     await expect(promise).resolves.toBeUndefined();
 
-    const next = iosNativeAuth('apple', { timeoutMs: 5000 });
-    const reply = { provider: 'apple', token: 'apple-token', nonce: 'n' };
+    const listener = jest.fn();
+    globalThis.addEventListener('native-auth', listener);
+    dispatchNativeAuth({ provider: 'google', token: 'late', nonce: 'n' });
+    globalThis.removeEventListener('native-auth', listener);
+
+    // Only the spy heard it: no request was left waiting on the event.
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not let a late reply for another provider complete the next request', async () => {
+    const first = iosNativeAuth('google', { timeoutMs: 1000 });
+    jest.advanceTimersByTime(1000);
+    await expect(first).resolves.toBeUndefined();
+
+    const onFailure = jest.fn();
+    const next = iosNativeAuth('apple', { onFailure });
+    dispatchNativeAuth({
+      provider: 'google',
+      token: 'google-token',
+      nonce: 'n',
+    });
+
+    await expect(next).resolves.toBeUndefined();
+    expect(onFailure).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: 'google' }),
+    );
+  });
+
+  it('accepts a reply for the same provider after a timed-out request', async () => {
+    const first = iosNativeAuth('google', { timeoutMs: 1000 });
+    jest.advanceTimersByTime(1000);
+    await expect(first).resolves.toBeUndefined();
+
+    const next = iosNativeAuth('google');
+    const reply = { provider: 'google', token: 'google-token', nonce: 'n' };
     dispatchNativeAuth(reply);
 
     await expect(next).resolves.toEqual(reply);

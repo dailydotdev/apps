@@ -228,5 +228,17 @@ export const iosNativeAuth = async (
     onFailure?.(res);
     return undefined;
   }
-  return res && 'token' in res && res.token ? res : undefined;
+  if (!res || !('token' in res) || !res.token) {
+    return undefined;
+  }
+  // A sheet that outlived an earlier, timed-out request can answer this one.
+  // Its token belongs to that provider, so it cannot complete this sign-in.
+  if (res.provider && res.provider !== provider) {
+    onFailure?.({
+      provider: res.provider,
+      error: `Reply for ${res.provider} while waiting for ${provider}`,
+    });
+    return undefined;
+  }
+  return res;
 };
