@@ -97,7 +97,7 @@ export const RingAvatar = ({
       />
     </svg>
     {hasChip && !hasLfg && (
-      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-6 bg-accent-avocado-default px-1.5 font-bold text-black typo-caption2">
+      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-8 bg-accent-avocado-default px-2.5 py-1 font-bold text-black typo-caption2">
         {progress}%
       </span>
     )}
