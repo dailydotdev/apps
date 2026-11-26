@@ -134,7 +134,7 @@ export const FirstPostCard = ({
       <Path
         icon={<EditIcon />}
         title="Share your best content"
-        hint="A blog post, video, release notes or docs page developers would learn from."
+        hint="A story about something you built or broke, not a product announcement."
       >
         <ShareField onShare={onShare} />
       </Path>
