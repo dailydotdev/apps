@@ -1,20 +1,10 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
-import { useRouter } from '../../mock/next-router';
 import { CvProviders } from './providers';
 import {
-  FeedBanner as FeedBannerFrame,
-  Popover30d as Popover30dFrame,
-  Popover60d as Popover60dFrame,
-  ProfileExperienceProposed as ProfileExperienceProposedFrame,
-  ProfileExperienceToday as ProfileExperienceTodayFrame,
-  ProfileMenuOpen,
-  ProfileTop as ProfileTopFrame,
-  SettingsEducationProposed as SettingsEducationProposedFrame,
-  SettingsEducationToday as SettingsEducationTodayFrame,
-  SettingsWorkProposed as SettingsWorkProposedFrame,
-  SettingsWorkToday as SettingsWorkTodayFrame,
+  ProfileExperience as ProfileExperienceFrame,
+  SettingsEducation as SettingsEducationFrame,
+  SettingsWork as SettingsWorkFrame,
 } from './frames';
 
 // The production frames the review embeds, one story each so an iframe can
@@ -36,52 +26,12 @@ export default meta;
 
 type Story = StoryObj;
 
-// FeedNav reads My feed's route to light its segment.
-const routeTo = (route: string) => (): void => {
-  useRouter.mockImplementation(() => ({
-    replace: fn(),
-    push: fn(),
-    pathname: route,
-    route,
-    asPath: route,
-    query: {},
-    events: { on: fn(), off: fn() },
-  }));
+export const ProfileExperience: Story = {
+  render: () => <ProfileExperienceFrame />,
 };
 
-export const FeedBanner: Story = {
-  beforeEach: routeTo('/my-feed'),
-  render: () => <FeedBannerFrame />,
+export const SettingsWork: Story = { render: () => <SettingsWorkFrame /> };
+
+export const SettingsEducation: Story = {
+  render: () => <SettingsEducationFrame />,
 };
-
-export const Popover30d: Story = { render: () => <Popover30dFrame /> };
-
-export const Popover60d: Story = { render: () => <Popover60dFrame /> };
-
-export const ProfileTop: Story = { render: () => <ProfileTopFrame /> };
-
-export const ProfileExperienceToday: Story = {
-  render: () => <ProfileExperienceTodayFrame />,
-};
-
-export const ProfileExperienceProposed: Story = {
-  render: () => <ProfileExperienceProposedFrame />,
-};
-
-export const SettingsWorkToday: Story = {
-  render: () => <SettingsWorkTodayFrame />,
-};
-
-export const SettingsWorkProposed: Story = {
-  render: () => <SettingsWorkProposedFrame />,
-};
-
-export const SettingsEducationToday: Story = {
-  render: () => <SettingsEducationTodayFrame />,
-};
-
-export const SettingsEducationProposed: Story = {
-  render: () => <SettingsEducationProposedFrame />,
-};
-
-export const ProfileMenu: Story = { render: () => <ProfileMenuOpen /> };

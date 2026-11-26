@@ -4,7 +4,7 @@ import { BrowserChrome, Phone } from '../open-links-in/kit';
 
 // Each production frame loads in its own iframe so Tailwind's media queries
 // resolve against a phone's or a laptop's viewport, not the review page's.
-// Frames load one at a time: a dozen previews pulling the same module graph
+// Frames load one at a time: several previews pulling the same module graph
 // at once make the dev server's imports fail.
 
 const frameSrc = (story: string, theme: string): string =>
@@ -110,25 +110,6 @@ export const LaptopFrame = ({
       width={1280}
       height={800}
       className="absolute left-0 top-0 origin-top-left scale-75 border-0"
-    />
-  </div>
-);
-
-// The top right of a laptop viewport, where the header's profile menu opens.
-export const MenuCrop = ({
-  story,
-  theme,
-}: {
-  story: string;
-  theme: string;
-}): ReactElement => (
-  <div className="relative h-[45rem] w-[22rem] overflow-hidden rounded-16 border border-border-subtlest-secondary shadow-3">
-    <QueuedFrame
-      story={story}
-      theme={theme}
-      width={1280}
-      height={900}
-      className="absolute right-0 top-[-3rem] border-0"
     />
   </div>
 );

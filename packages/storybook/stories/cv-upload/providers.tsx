@@ -9,12 +9,9 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
 
-// A logged-in user 40% through their profile, with no network: enough for
-// the profile completion card and the CV banner to render. The cache says
-// they have no CV and no work or education, so the production components
-// take their empty, CV-asking paths.
+// A logged-in user 40% through their profile, with no network, no CV and no
+// work or education.
 
 const noop = (): void => undefined;
 
@@ -48,12 +45,6 @@ const seed = (client: QueryClient): void => {
     actions: [],
     serverLoaded: true,
   });
-  [UserExperienceType.Work, UserExperienceType.Education].forEach((type) =>
-    client.setQueryData(
-      generateQueryKey(RequestKey.UserExperience, user, type, 'settings'),
-      { edges: [], pageInfo: { hasNextPage: false } },
-    ),
-  );
 };
 
 export const CvProviders = ({
