@@ -44,6 +44,7 @@ const ProfileProgressBar = (): ReactElement => (
     className={{
       wrapper: 'h-1.5 rounded-14',
       bar: 'h-full rounded-14',
+      barColor: 'bg-accent-onion-default',
     }}
   />
 );
@@ -94,14 +95,14 @@ export const RingAvatar = ({
         height="96"
         rx="24"
         pathLength={100}
-        className="fill-none stroke-accent-cabbage-default"
+        className="fill-none stroke-accent-onion-default"
         strokeWidth={isLarge ? 3 : 6}
         strokeLinecap="round"
         strokeDasharray={`${progress} 100`}
       />
     </svg>
     {hasChip && !hasLfg && (
-      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-8 bg-accent-cabbage-default px-2.5 py-1 font-bold text-white typo-caption2">
+      <span className="absolute left-1/2 top-[98%] -translate-x-1/2 -translate-y-1/2 rounded-8 bg-accent-onion-default px-2.5 py-1 font-bold text-white typo-caption2">
         {progress}%
       </span>
     )}
@@ -137,7 +138,7 @@ export const CvRow = ({
 
   return (
     <div className="flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-secondary p-3">
-      <span className="flex size-10 shrink-0 items-center justify-center self-start rounded-10 bg-surface-float text-accent-cabbage-default">
+      <span className="flex size-10 shrink-0 items-center justify-center self-start rounded-10 bg-surface-float text-accent-onion-default">
         <UploadIcon />
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
