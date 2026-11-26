@@ -44,7 +44,9 @@ interface OpenAi extends HostGlobals {
 
 const MCP_APPS_PROTOCOL_VERSION = '2026-01-26';
 const INITIALIZE_REQUEST_ID = 1;
+const UTM_MEDIUM = 'mcp_app';
 let nextRequestId = INITIALIZE_REQUEST_ID + 1;
+let mcpHostName: string | undefined;
 
 const getOpenAi = (): OpenAi | undefined =>
   (globalThis as { openai?: OpenAi }).openai;
@@ -85,6 +87,7 @@ const useHostGlobals = (): HostGlobals => {
 
       const { id, method, params, result } = event.data;
       if (id === INITIALIZE_REQUEST_ID && result) {
+        mcpHostName = result.hostInfo?.name;
         merge({
           theme: result.hostContext?.theme,
           displayMode: result.hostContext?.displayMode,
@@ -156,8 +159,20 @@ const useHostSize = (): RefObject<HTMLDivElement> => {
   return ref;
 };
 
-const openLink = (href: string): void => {
+const withAttribution = (href: string): string => {
+  const url = new URL(href);
+  url.searchParams.set(
+    'utm_source',
+    getOpenAi() ? 'chatgpt' : (mcpHostName ?? UTM_MEDIUM),
+  );
+  url.searchParams.set('utm_medium', UTM_MEDIUM);
+
+  return url.toString();
+};
+
+const openLink = (link: string): void => {
   const openAi = getOpenAi();
+  const href = withAttribution(link);
 
   if (openAi?.openExternal) {
     openAi.openExternal({ href });
