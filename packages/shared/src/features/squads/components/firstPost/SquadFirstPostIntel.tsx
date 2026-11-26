@@ -37,19 +37,12 @@ const analysisSeen = new Set<string>();
 const prefersReducedMotion = (): boolean =>
   !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-interface SquadFirstPostIntelProps {
-  /** At its own address, /intel, rather than swapped into the page */
-  standalone?: boolean;
-}
-
 /**
- * The first post intel as a sub-page of the company page: it takes the
- * content area, with a way back, the way Members or Rules do.
+ * The page's intel as a sub-page of the company page, at /intel: it takes
+ * the content area, with a way back, the way Members or Rules do.
  */
-export const SquadFirstPostIntel = ({
-  standalone = false,
-}: SquadFirstPostIntelProps): ReactElement | null => {
-  const { squad, setIntelOpen } = useSquadPageContext();
+export const SquadFirstPostIntel = (): ReactElement | null => {
+  const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
   const sourceId = getSquadId(squad);
   const { openModal } = useLazyModal();
@@ -68,7 +61,7 @@ export const SquadFirstPostIntel = ({
   const { data: trends } = useQuery(developerTrendsQueryOptions({ user }));
   const boost = useSquadFreeBoost(squad);
   const [isAnalyzing, setAnalyzing] = useState(
-    () => !standalone && !analysisSeen.has(sourceId) && !prefersReducedMotion(),
+    () => !analysisSeen.has(sourceId) && !prefersReducedMotion(),
   );
 
   useEffect(() => {
@@ -81,14 +74,10 @@ export const SquadFirstPostIntel = ({
 
   const log = (event: LogEvent, targetId: string) =>
     logStartups(event, targetId, {
-      origin: standalone ? Origin.SquadIntel : Origin.SquadPage,
+      origin: Origin.SquadIntel,
       source_id: sourceId,
     });
-  const close = () => setIntelOpen(false);
   const write = () => {
-    if (!standalone) {
-      close();
-    }
     log(LogEvent.ClickStartupsSetupStep, 'first post write');
     openModal({
       type: LazyModal.SmartComposer,
@@ -111,7 +100,6 @@ export const SquadFirstPostIntel = ({
           }
           backUrl={getSquadUrl(squad.handle)}
           backLabel={`Back to ${squad.name}`}
-          onBack={standalone ? undefined : close}
           action={!isAnalyzingIntel && <FirstPostIntelWrite onWrite={write} />}
         />
       }

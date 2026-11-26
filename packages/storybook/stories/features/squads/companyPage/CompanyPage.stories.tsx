@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useQueryClient } from '@tanstack/react-query';
 import { graphql, HttpResponse } from 'msw';
 import { addDays, subDays } from 'date-fns';
-import { fn, within } from 'storybook/test';
+import { fn } from 'storybook/test';
 import { useRouter } from 'next/router';
 import type {
   SourceMember,
@@ -25,6 +25,7 @@ import {
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
+import { SquadIntelPage } from '@dailydotdev/shared/src/features/squads/components/SquadIntelPage';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
@@ -116,7 +117,8 @@ const toSquad = (scenario: Scenario, isFinished = false): Squad => {
     rules: [],
     privilegedMembers: [admin],
     currentMember: {
-      admin,
+      // An admin on a plan holds one of its seats
+      admin: { ...admin, seat: !!scenario.plan },
       member: member(SourceMemberRole.Member, team[3]),
       visitor: undefined,
     }[scenario.viewer],
@@ -299,7 +301,14 @@ const Seeded = ({
   );
 };
 
-const Page = ({ name }: { name: ScenarioName }): ReactElement => {
+const Page = ({
+  name,
+  isIntel = false,
+}: {
+  name: ScenarioName;
+  /** The page's /intel sub-page instead of its home */
+  isIntel?: boolean;
+}): ReactElement => {
   const scenario: Scenario = scenarios[name];
   const [isFinished, setFinished] = useState(false);
   const squad = toSquad(scenario, isFinished);
@@ -320,7 +329,11 @@ const Page = ({ name }: { name: ScenarioName }): ReactElement => {
   return (
     <MainLayout canGoBack="/squads">
       <Seeded squad={squad}>
-        <SquadHome searchQuery="" onClearSearch={() => undefined} />
+        {isIntel ? (
+          <SquadIntelPage />
+        ) : (
+          <SquadHome searchQuery="" onClearSearch={() => undefined} />
+        )}
       </Seeded>
       <LazyModalElement />
     </MainLayout>
@@ -398,27 +411,20 @@ const story = (name: ScenarioName): Story => ({
 export const NewPage = story('newPage');
 /** 2. The page is ready for its boost, nothing posted yet. */
 export const ReadyNoPost = story('readyNoPost');
-/** 2b. "Create something new" open: the intel that helps pick a topic. */
+/** 2b. "Find a topic" opens /intel: the intel that helps pick a topic. */
 export const CreateSomethingNew: Story = {
   ...story('readyNoPost'),
-  play: async ({ canvasElement }) => {
-    const button = await within(canvasElement).findByText(
-      'Find a topic',
-      {},
-      { timeout: 60_000 },
-    );
-    button.click();
-  },
+  render: () => <Page name="readyNoPost" isIntel />,
 };
 /** 2c. A free page after its one trial intel: the general trends. */
 export const TrendsAfterTrial: Story = {
   ...story('trialEnded'),
-  play: CreateSomethingNew.play,
+  render: () => <Page name="trialEnded" isIntel />,
 };
 /** 2d. A page on a plan, nothing posted yet: its weekly intel, no trial. */
 export const PaidIntel: Story = {
   ...story('paidNoPost'),
-  play: CreateSomethingNew.play,
+  render: () => <Page name="paidNoPost" isIntel />,
 };
 /** 3. The admin finishes the last setup rows while the page is open. */
 export const SetupDone = story('setupDone');

@@ -35,7 +35,7 @@ export const SquadIntelPage = (): ReactElement | null => {
   }
 
   if (isSeat || (isStaff && !subscription?.plan)) {
-    return <SquadFirstPostIntel standalone />;
+    return <SquadFirstPostIntel />;
   }
 
   return (

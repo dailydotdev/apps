@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import {
@@ -16,6 +17,7 @@ import { getSquadId } from '../../lib/features';
 import { isStaffViewer } from '../../lib/viewer';
 import { isCompanyPage } from '../../lib/companyPage';
 import {
+  getSquadIntelUrl,
   getSquadManageUrl,
   getStartupsCheckoutUrl,
   SquadManageSection,
@@ -70,7 +72,8 @@ const getMissingForBoost = (
 
 /** The first post card at the top of a company page with no posts yet */
 export const SquadFirstPost = (): ReactElement | null => {
-  const { squad, setIntelOpen } = useSquadPageContext();
+  const router = useRouter();
+  const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
   const isShown = useIsFirstPostShown();
   const sourceId = getSquadId(squad);
@@ -133,7 +136,7 @@ export const SquadFirstPost = (): ReactElement | null => {
         intel || trends
           ? () => {
               log(LogEvent.ClickStartupsSetupStep, 'first post intel');
-              setIntelOpen(true);
+              router.push(getSquadIntelUrl(squad.handle));
             }
           : undefined
       }

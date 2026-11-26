@@ -28,7 +28,6 @@ import { SquadComposer } from './feed/SquadComposer';
 import { SquadCompanyValue } from './valuePanel/SquadCompanyValue';
 import { SquadSetupWidget } from './widgets/SquadSetupWidget';
 import { SquadPlanWidget } from './widgets/SquadPlanWidget';
-import { SquadFirstPostIntel } from './firstPost/SquadFirstPostIntel';
 import { SquadPinnedPosts } from './feed/SquadPinnedPosts';
 import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
@@ -52,7 +51,7 @@ export const SquadHome = ({
   onClearSearch,
 }: SquadHomeProps): ReactElement => {
   const router = useRouter();
-  const { squad, isIntelOpen } = useSquadPageContext();
+  const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
   const {
     jobs,
@@ -174,10 +173,6 @@ export const SquadHome = ({
         {feed}
       </SquadPageLayout>
     );
-  }
-
-  if (isIntelOpen) {
-    return <SquadFirstPostIntel />;
   }
 
   return (

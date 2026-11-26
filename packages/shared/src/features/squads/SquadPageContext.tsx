@@ -36,9 +36,6 @@ export interface SquadPageContextValue {
   canPreview: boolean;
   isPreviewing: boolean;
   togglePreview: () => void;
-  /** The first post intel takes the page's content area while it is open. */
-  isIntelOpen: boolean;
-  setIntelOpen: (isOpen: boolean) => void;
 }
 
 const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
@@ -46,7 +43,6 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
     const { isLoggedIn, isAuthReadyOrCached, squads } = useAuthContext();
     const { logEvent } = useLogContext();
     const [isPreviewing, setIsPreviewing] = useState(false);
-    const [isIntelOpen, setIntelOpen] = useState(false);
     const bootMember = useMemo(
       () => squads?.find(({ id }) => id === squad.id)?.currentMember,
       [squads, squad.id],
@@ -90,11 +86,8 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
         canPreview,
         isPreviewing: isPreviewActive,
         togglePreview,
-        isIntelOpen,
-        setIntelOpen,
       }),
       [
-        isIntelOpen,
         pageSquad,
         isLoggedIn,
         ownViewer,

@@ -16,6 +16,8 @@ import { LogEvent, Origin } from '../../../../lib/log';
 import { startupsLavender } from '../../../../styles/custom';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId } from '../../lib/features';
+import { getSquadIntelUrl } from '../../lib/routes';
+import Link from '../../../../components/utilities/Link';
 import {
   formatIntelIndex,
   getIntelOpening,
@@ -35,7 +37,7 @@ const TOPICS_SHOWN = 2;
  * daily.dev while it has no intel. The whole intel opens from it.
  */
 export const SquadIntelWidget = (): ReactElement | null => {
-  const { squad, viewer, isViewerKnown, setIntelOpen } = useSquadPageContext();
+  const { squad, viewer, isViewerKnown } = useSquadPageContext();
   const { user } = useAuthContext();
   const isShown =
     isViewerKnown && isStaffViewer(viewer) && isCompanyPage(squad);
@@ -131,21 +133,22 @@ export const SquadIntelWidget = (): ReactElement | null => {
           </li>
         ))}
       </ul>
-      <Button
-        type="button"
-        variant={ButtonVariant.Subtle}
-        size={ButtonSize.Small}
-        className="w-full"
-        onClick={() => {
-          logStartups(LogEvent.ClickStartupsSetupStep, 'intel widget', {
-            origin: Origin.SquadPage,
-            source_id: sourceId,
-          });
-          setIntelOpen(true);
-        }}
-      >
-        {intel ? 'Open the full intel' : 'Open the trends'}
-      </Button>
+      <Link href={getSquadIntelUrl(squad.handle)} passHref>
+        <Button
+          tag="a"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Small}
+          className="w-full"
+          onClick={() =>
+            logStartups(LogEvent.ClickStartupsSetupStep, 'intel widget', {
+              origin: Origin.SquadPage,
+              source_id: sourceId,
+            })
+          }
+        >
+          {intel ? 'Open the full intel' : 'Open the trends'}
+        </Button>
+      </Link>
     </section>
   );
 };
