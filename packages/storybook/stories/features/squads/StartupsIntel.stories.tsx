@@ -29,7 +29,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManageIntel } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageIntel';
-import { SquadIntelPage } from '@dailydotdev/shared/src/features/squads/components/SquadIntelPage';
 import { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import {
   IntelRegion,
@@ -186,12 +185,9 @@ const apiHandlers = (limits: SquadIntelSettings['limits']) => [
 const Seeded = ({
   settings,
   latest,
-  isPage = false,
 }: {
   settings: SquadIntelSettings;
   latest: SquadIntel | null;
-  /** The reading page instead of Manage */
-  isPage?: boolean;
 }): ReactElement => {
   const client = useQueryClient();
   const { user } = useAuthContext();
@@ -226,13 +222,9 @@ const Seeded = ({
 
   return (
     <SquadPageContextProvider squad={acme} isViewerReady>
-      {isPage ? (
-        <SquadIntelPage />
-      ) : (
-        <SquadManageLayout section={SquadManageSection.Intel}>
-          <SquadManageIntel />
-        </SquadManageLayout>
-      )}
+      <SquadManageLayout section={SquadManageSection.Intel}>
+        <SquadManageIntel />
+      </SquadManageLayout>
       <PromptElement />
       <Toast autoDismissNotifications />
     </SquadPageContextProvider>
@@ -319,16 +311,3 @@ export const Enterprise: Story = {
     />
   ),
 };
-
-/** The intel page the notification opens: last week's intel in full. */
-export const IntelPage: Story = {
-  render: () => (
-    <Seeded
-      settings={{ selection: intel.selection, limits: teamLimits, nextIntelAt }}
-      latest={intel}
-      isPage
-    />
-  ),
-};
-
-export const IntelPagePhone: Story = { ...IntelPage, globals: phone };

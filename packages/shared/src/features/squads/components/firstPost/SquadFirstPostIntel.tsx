@@ -37,11 +37,18 @@ const analysisSeen = new Set<string>();
 const prefersReducedMotion = (): boolean =>
   !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
+interface SquadFirstPostIntelProps {
+  /** At its own address, /intel, rather than swapped into the page */
+  standalone?: boolean;
+}
+
 /**
  * The first post intel as a sub-page of the company page: it takes the
  * content area, with a way back, the way Members or Rules do.
  */
-export const SquadFirstPostIntel = (): ReactElement | null => {
+export const SquadFirstPostIntel = ({
+  standalone = false,
+}: SquadFirstPostIntelProps): ReactElement | null => {
   const { squad, setIntelOpen } = useSquadPageContext();
   const { user } = useAuthContext();
   const sourceId = getSquadId(squad);
@@ -61,7 +68,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
   const { data: trends } = useQuery(developerTrendsQueryOptions({ user }));
   const boost = useSquadFreeBoost(squad);
   const [isAnalyzing, setAnalyzing] = useState(
-    () => !analysisSeen.has(sourceId) && !prefersReducedMotion(),
+    () => !standalone && !analysisSeen.has(sourceId) && !prefersReducedMotion(),
   );
 
   useEffect(() => {
@@ -74,12 +81,14 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
 
   const log = (event: LogEvent, targetId: string) =>
     logStartups(event, targetId, {
-      origin: Origin.SquadPage,
+      origin: standalone ? Origin.SquadIntel : Origin.SquadPage,
       source_id: sourceId,
     });
   const close = () => setIntelOpen(false);
   const write = () => {
-    close();
+    if (!standalone) {
+      close();
+    }
     log(LogEvent.ClickStartupsSetupStep, 'first post write');
     openModal({
       type: LazyModal.SmartComposer,
@@ -102,7 +111,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
           }
           backUrl={getSquadUrl(squad.handle)}
           backLabel={`Back to ${squad.name}`}
-          onBack={close}
+          onBack={standalone ? undefined : close}
           action={!isAnalyzingIntel && <FirstPostIntelWrite onWrite={write} />}
         />
       }

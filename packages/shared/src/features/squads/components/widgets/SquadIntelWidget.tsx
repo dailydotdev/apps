@@ -8,7 +8,10 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { squadIntelHighlightsQueryOptions } from '../../../../graphql/squadIntel';
+import {
+  developerTrendsQueryOptions,
+  squadIntelHighlightsQueryOptions,
+} from '../../../../graphql/squadIntel';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { startupsLavender } from '../../../../styles/custom';
 import { useSquadPageContext } from '../../SquadPageContext';
@@ -19,21 +22,25 @@ import {
   getIntelWeekLabel,
 } from '../../lib/intel';
 import { useLogStartups } from '../../hooks/useLogStartups';
-import { useIsFirstPostShown } from '../firstPost/SquadFirstPost';
+import { isStaffViewer } from '../../lib/viewer';
+import { isCompanyPage } from '../../lib/companyPage';
 import { IntelTag } from '../firstPost/IntelTag';
+import { formatMultiple } from '../firstPost/IntelSection';
 
 const TOPICS_SHOWN = 2;
 
 /**
- * The page's weekly intel at a glance, in the side column: the topic to
- * write about and the busiest topics. The whole intel opens from it.
+ * The page's weekly intel at a glance, in the side column of its admins: the
+ * topic to write about and the busiest topics, or the rising topics across
+ * daily.dev while it has no intel. The whole intel opens from it.
  */
 export const SquadIntelWidget = (): ReactElement | null => {
-  const { squad, setIntelOpen } = useSquadPageContext();
+  const { squad, viewer, isViewerKnown, setIntelOpen } = useSquadPageContext();
   const { user } = useAuthContext();
-  const isShown = useIsFirstPostShown();
+  const isShown =
+    isViewerKnown && isStaffViewer(viewer) && isCompanyPage(squad);
   const sourceId = getSquadId(squad);
-  const { data: intel } = useQuery(
+  const { data: intel, isFetched: isIntelFetched } = useQuery(
     squadIntelHighlightsQueryOptions({
       user,
       sourceId,
@@ -41,13 +48,23 @@ export const SquadIntelWidget = (): ReactElement | null => {
       enabled: isShown,
     }),
   );
+  const { data: trends } = useQuery(
+    developerTrendsQueryOptions({
+      user,
+      enabled: isShown && isIntelFetched && !intel,
+    }),
+  );
   const logStartups = useLogStartups();
 
-  if (!isShown || !intel) {
+  const week = intel ?? trends;
+
+  if (!isShown || !week) {
     return null;
   }
 
-  const opening = getIntelOpening(intel.topics);
+  const opening = intel && getIntelOpening(intel.topics);
+  const rising =
+    trends?.risingTopics.filter(({ broad }) => broad !== false) ?? [];
 
   return (
     <section className="flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
@@ -56,10 +73,10 @@ export const SquadIntelWidget = (): ReactElement | null => {
           className="rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 font-bold"
           style={{ color: startupsLavender }}
         >
-          Weekly intel
+          {intel ? 'Weekly intel' : 'Developer trends'}
         </span>
         <span className="text-text-tertiary">
-          {intel.trial ? 'Your free issue' : getIntelWeekLabel(intel)}
+          {intel?.trial ? 'Your free issue' : getIntelWeekLabel(week)}
         </span>
       </div>
       <div className="flex flex-col gap-0.5">
@@ -79,7 +96,22 @@ export const SquadIntelWidget = (): ReactElement | null => {
         )}
       </div>
       <ul className="flex flex-col">
-        {intel.topics.slice(0, TOPICS_SHOWN).map(({ tag, share, change }) => (
+        {!intel &&
+          rising.slice(0, TOPICS_SHOWN).map(({ tag, multiple }) => (
+            <li
+              key={tag}
+              className="flex h-8 items-center gap-2 border-t border-border-subtlest-tertiary typo-footnote"
+            >
+              <IntelTag
+                tag={tag}
+                className="min-w-0 flex-1 truncate font-bold"
+              />
+              <span className="font-bold tabular-nums text-accent-avocado-default">
+                {`${formatMultiple(multiple)} reads`}
+              </span>
+            </li>
+          ))}
+        {intel?.topics.slice(0, TOPICS_SHOWN).map(({ tag, share, change }) => (
           <li
             key={tag}
             className="flex h-8 items-center gap-2 border-t border-border-subtlest-tertiary typo-footnote"
@@ -112,7 +144,7 @@ export const SquadIntelWidget = (): ReactElement | null => {
           setIntelOpen(true);
         }}
       >
-        Open the full intel
+        {intel ? 'Open the full intel' : 'Open the trends'}
       </Button>
     </section>
   );

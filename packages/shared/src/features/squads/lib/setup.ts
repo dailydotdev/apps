@@ -173,17 +173,6 @@ export const getStartupsSetupPrompt = ({
   ].join('\n');
 };
 
-export const getIntelApiUrl = (handle: string): string =>
-  `https://api.daily.dev/public/v1/squads/${handle}/intel`;
-
-/** What an agent can do with the weekly intel, over MCP or the API. */
-export const getIntelPrompt = (handle: string): string =>
-  [
-    `Read the latest weekly intel for @${handle} with the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`) and ${getIntelApiUrl(handle)}. If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`,
-    '',
-    'Then look at what I shipped or wrote recently and suggest three posts for our daily.dev page. For each, give the angle, format, title, length and the best day and hour to publish, and say which numbers in the intel back it.',
-  ].join('\n');
-
 const connectLine = (handle: string): string =>
   `This is for our daily.dev company page @${handle}. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`;
 

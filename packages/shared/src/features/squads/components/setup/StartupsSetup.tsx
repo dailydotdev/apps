@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
@@ -99,16 +99,6 @@ const AgentClientMark = ({
     />
   );
 };
-
-export const StepNumber = ({
-  children,
-}: {
-  children: ReactNode;
-}): ReactElement => (
-  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-float font-bold typo-footnote">
-    {children}
-  </span>
-);
 
 /** The daily.dev MCP server's setup for the agent the founder uses. */
 export const AgentConnect = ({
