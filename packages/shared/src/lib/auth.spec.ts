@@ -47,6 +47,24 @@ describe('iosNativeAuth', () => {
     expect(onTimeout).not.toHaveBeenCalled();
   });
 
+  it('hands the failure reason over when the app reports one', async () => {
+    const onFailure = jest.fn();
+    const onTimeout = jest.fn();
+    const promise = iosNativeAuth('google', { onFailure, onTimeout });
+
+    const failure = {
+      provider: 'google',
+      error: 'The operation couldn’t be completed.',
+      cancelled: false,
+      code: 'com.google.GIDSignIn:-4',
+    };
+    dispatchNativeAuth(failure);
+
+    await expect(promise).resolves.toBeUndefined();
+    expect(onFailure).toHaveBeenCalledWith(failure);
+    expect(onTimeout).not.toHaveBeenCalled();
+  });
+
   it('stops waiting when the app never replies', async () => {
     const onTimeout = jest.fn();
     const promise = iosNativeAuth('google', { onTimeout });

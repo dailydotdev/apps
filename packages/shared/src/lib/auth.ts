@@ -172,24 +172,49 @@ export type NativeAuthResponse = {
 // Long enough for a password and a second factor on the native sheet.
 export const IOS_NATIVE_AUTH_TIMEOUT_MS = 2 * 60 * 1000;
 
+/** What the iOS app sends back when native sign-in does not complete. */
+export type NativeAuthFailure = {
+  provider: string;
+  error: string;
+  cancelled?: boolean;
+  /** `domain:code` of the native error, e.g. `com.google.GIDSignIn:-4`. */
+  code?: string;
+};
+
+type NativeAuthReply =
+  | NativeAuthResponse
+  | NativeAuthFailure
+  | null
+  | undefined;
+
 const nativeAuthTimedOut = Symbol('native-auth-timeout');
+
+const isNativeAuthFailure = (
+  reply: NativeAuthReply,
+): reply is NativeAuthFailure => !!reply && 'error' in reply && !!reply.error;
 
 /**
  * Asks the iOS app to sign in natively and waits for its `native-auth` reply.
- * Resolves `undefined` when the app reports a cancel or failure (an empty
- * detail) and when no reply arrives within `timeoutMs`; older app builds send
- * nothing at all when Google or Apple sign-in fails.
+ * Resolves with the token, or `undefined` when there is none: the app reports
+ * a cancel or failure (`onFailure` gets the reason), or nothing arrives within
+ * `timeoutMs` (`onTimeout`). App builds up to 1.26 send nothing at all when
+ * Google or Apple sign-in fails.
  */
 export const iosNativeAuth = async (
   provider: string,
   {
     timeoutMs = IOS_NATIVE_AUTH_TIMEOUT_MS,
     onTimeout,
-  }: { timeoutMs?: number; onTimeout?: () => void } = {},
+    onFailure,
+  }: {
+    timeoutMs?: number;
+    onTimeout?: () => void;
+    onFailure?: (failure: NativeAuthFailure) => void;
+  } = {},
 ): Promise<NativeAuthResponse | undefined> => {
   const promise = promisifyEventListener<
-    NativeAuthResponse | null | undefined | typeof nativeAuthTimedOut,
-    NativeAuthResponse | null | undefined
+    NativeAuthReply | typeof nativeAuthTimedOut,
+    NativeAuthReply
   >('native-auth', (event) => event.detail, {
     timeout: { ms: timeoutMs, value: nativeAuthTimedOut },
   });
@@ -199,5 +224,9 @@ export const iosNativeAuth = async (
     onTimeout?.();
     return undefined;
   }
-  return res?.token ? res : undefined;
+  if (isNativeAuthFailure(res)) {
+    onFailure?.(res);
+    return undefined;
+  }
+  return res && 'token' in res && res.token ? res : undefined;
 };

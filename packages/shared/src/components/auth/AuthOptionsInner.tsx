@@ -713,21 +713,28 @@ function AuthOptionsInner({
     };
 
     if (isNativeAuthSupported(provider)) {
-      let isTimedOut = false;
+      // Why native sign-in ended without a token, when the app says so or
+      // never answers. A cancel is the user's choice and stays quiet.
+      let nativeFailure: { error: string; code?: string } | undefined;
       const res = await iosNativeAuth(provider, {
         onTimeout: () => {
-          isTimedOut = true;
+          nativeFailure = { error: 'No reply from the iOS app' };
+        },
+        onFailure: ({ error, code, cancelled }) => {
+          if (!cancelled) {
+            nativeFailure = { error, code };
+          }
         },
       });
       if (!res) {
         setIsSocialAuthLoading(false);
-        if (isTimedOut) {
+        if (nativeFailure) {
           logEvent({
             event_name: authErrorEventName,
             extra: JSON.stringify({
               provider,
-              error: 'No reply from the iOS app',
-              origin: Origin.IOSNativeAuthTimeout,
+              ...nativeFailure,
+              origin: Origin.IOSNativeAuth,
             }),
           });
           onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);

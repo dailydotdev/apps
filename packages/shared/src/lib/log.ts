@@ -161,7 +161,7 @@ export enum Origin {
   BetterAuthEmailLoginBoot = 'betterauth email login boot',
   BetterAuthNativeIdToken = 'betterauth native id token',
   BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
-  IOSNativeAuthTimeout = 'ios native auth timeout',
+  IOSNativeAuth = 'ios native auth',
   BetterAuthSocialUrl = 'betterauth social url',
   AuthOneTap = 'auth one tap',
   LoginTurnstile = 'login turnstile',
