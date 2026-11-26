@@ -745,6 +745,7 @@ export enum LogEvent {
 }
 
 export enum TargetType {
+  FirstReputation = 'first reputation',
   VideoPlayer = 'video player',
   LfgPost = 'lfg post',
   LfgReachOut = 'lfg reach out',

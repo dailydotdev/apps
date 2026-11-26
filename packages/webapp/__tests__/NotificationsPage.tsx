@@ -15,6 +15,8 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { render, screen, waitFor } from '@testing-library/react';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import {
   NotificationIconType,
@@ -99,12 +101,14 @@ const renderComponent = (
           isAuthReadyOrCached: true,
         }}
       >
-        <NotificationsContextProvider
-          unreadCount={unreadCount}
-          onUpdateUnreadCount={onUpdateUnreadCount}
-        >
-          <NotificationsPage />
-        </NotificationsContextProvider>
+        <SettingsContext.Provider value={settingsContext}>
+          <NotificationsContextProvider
+            unreadCount={unreadCount}
+            onUpdateUnreadCount={onUpdateUnreadCount}
+          >
+            <NotificationsPage />
+          </NotificationsContextProvider>
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

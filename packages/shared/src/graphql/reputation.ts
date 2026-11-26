@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { subDays } from 'date-fns';
 import type { Connection } from './common';
 import { gqlClient } from './common';
 import {
@@ -250,5 +251,81 @@ export const reputationEventsQueryOptions = ({
   getNextPageParam: (lastPage: Connection<ReputationEvent>) =>
     getNextPageParam(lastPage?.pageInfo),
   enabled: !!user,
+  staleTime: StaleTime.Default,
+});
+
+/** The newest gain, which is what earned the first reputation moment. */
+export const FIRST_REPUTATION_GAIN_QUERY = gql`
+  query FirstReputationGain {
+    firstReputationGain {
+      id
+      reason
+      amount
+      createdAt
+      target {
+        ...ReputationTargetFragment
+      }
+    }
+  }
+  ${REPUTATION_TARGET_FRAGMENT}
+`;
+
+/** The gain the first reputation moment is about: the oldest one standing. */
+export const firstReputationGainQueryOptions = ({
+  user,
+}: {
+  user: ReputationUser;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.ReputationEvents,
+    user ?? undefined,
+    'first-gain',
+  ),
+  queryFn: async () => {
+    const { firstReputationGain } = await gqlClient.request<{
+      firstReputationGain: ReputationEvent | null;
+    }>(FIRST_REPUTATION_GAIN_QUERY);
+
+    return firstReputationGain;
+  },
+  enabled: !!user,
+  staleTime: StaleTime.Default,
+});
+
+export const recentReputationGainsWindowDays = 7;
+
+/**
+ * Reputation gained in the last week, for when there is no count the member
+ * last saw to compare against.
+ */
+export const recentReputationGainsQueryOptions = ({
+  user,
+  enabled = true,
+}: {
+  user: ReputationUser;
+  enabled?: boolean;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.ReputationEvents,
+    user ?? undefined,
+    ReputationEventFilter.Gains,
+    'recent',
+  ),
+  queryFn: async () => {
+    const { reputationEvents } = await gqlClient.request<{
+      reputationEvents: Connection<ReputationEvent>;
+    }>(REPUTATION_EVENTS_QUERY, {
+      first: reputationEventsPageSize,
+      filter: ReputationEventFilter.Gains,
+    });
+    const since = subDays(new Date(), recentReputationGainsWindowDays);
+
+    return reputationEvents.edges.reduce(
+      (total, { node }) =>
+        new Date(node.createdAt) > since ? total + node.amount : total,
+      0,
+    );
+  },
+  enabled: !!user && enabled,
   staleTime: StaleTime.Default,
 });

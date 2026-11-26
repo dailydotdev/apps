@@ -47,6 +47,8 @@ import {
 } from '../../lib/dateFormat';
 import { stripHtmlTags } from '../../lib/strings';
 import { Tooltip } from '../tooltip/Tooltip';
+import { ReputationEarnedChip } from '../ReputationEarnedChip';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import type { Origin } from '../../lib/log';
 
 // Strip markup + collapse whitespace so two HTML strings can be compared for
@@ -66,6 +68,7 @@ export interface NotificationItemProps extends Pick<
   | 'numTotalAvatars'
   | 'referenceId'
   | 'hasThanks'
+  | 'reputation'
 > {
   isUnread?: boolean;
   /** A short row for tight surfaces: no cover or menu. */
@@ -191,6 +194,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     numTotalAvatars,
     referenceId,
     hasThanks,
+    reputation,
     createdAt,
     compact,
     hideActions,
@@ -202,7 +206,9 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     description: memoizedDescription,
   } = useObjectPurify({ title, description: description ?? '' });
   const router = useRouter();
+  const { optOutLevelSystem } = useSettingsContext();
   const isClickable = !notificationTypeNotClickable[type];
+  const showReputation = !optOutLevelSystem && (reputation ?? 0) > 0;
 
   const filteredAvatars = useMemo(() => {
     return avatars?.filter((avatar) => avatar) || [];
@@ -402,6 +408,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             )}
           >
             <span dangerouslySetInnerHTML={{ __html: memoizedTitle }} />
+            {showReputation && (
+              <ReputationEarnedChip
+                amount={reputation ?? 0}
+                withLabel
+                className="ml-1.5 align-middle"
+              />
+            )}
           </div>
         )}
         {showSubtitle && (

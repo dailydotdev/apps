@@ -22,6 +22,8 @@ import useProfileForm from '../../hooks/useProfileForm';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useReferralReminderModal } from '../../hooks/referral/useReferralReminderModal';
 import { useIsBootPopupsPaused } from '../../lib/bootPopupsPause';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFirstReputation } from '../../lib/featureManagement';
 import { useAppStoreReviewPrompt } from '../../hooks/useAppStoreReviewPrompt';
 import { useStreakGoal } from '../../hooks/streaks/useStreakGoal';
 import {
@@ -78,7 +80,8 @@ export const BootPopups = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
-  const { optOutAchievements, isGamificationEnabled } = useSettingsContext();
+  const { optOutAchievements, optOutLevelSystem, isGamificationEnabled } =
+    useSettingsContext();
   const { updateUserProfile } = useProfileForm();
   const {
     alerts,
@@ -151,6 +154,54 @@ export const BootPopups = (): ReactElement => {
     isActionsFetched,
     user?.reputation,
     updateLastBootPopup,
+  ]);
+
+  const isFirstReputationDue =
+    !!alerts?.showFirstReputation && !optOutLevelSystem;
+  const {
+    value: isFirstReputationEnabled,
+    isLoading: isFirstReputationLoading,
+  } = useConditionalFeature({
+    feature: featureFirstReputation,
+    shouldEvaluate: isFirstReputationDue,
+  });
+  const hasFirstReputationThisBoot = useRef(false);
+
+  /**
+   * Immediate popup for the first reputation gain. At 250 the privileges
+   * modal above takes over, so the two never show together.
+   */
+  useEffect(() => {
+    if (
+      !isFirstReputationDue ||
+      isFirstReputationLoading ||
+      !isFirstReputationEnabled ||
+      hasFirstReputationThisBoot.current
+    ) {
+      return;
+    }
+
+    if ((user?.reputation ?? 0) >= REP_TRESHOLD) {
+      updateAlerts({ showFirstReputation: false });
+      return;
+    }
+
+    hasFirstReputationThisBoot.current = true;
+    addImmediatePopup({
+      type: LazyModal.FirstReputation,
+      persistOnRouteChange: true,
+      props: {
+        onAfterClose: () => {
+          updateAlerts({ showFirstReputation: false });
+        },
+      },
+    });
+  }, [
+    isFirstReputationDue,
+    isFirstReputationEnabled,
+    isFirstReputationLoading,
+    updateAlerts,
+    user?.reputation,
   ]);
 
   /**

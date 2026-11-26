@@ -471,3 +471,23 @@ describe('ExperienceCompanyEnriched notification', () => {
     await waitFor(() => expect(mockOnClick).toBeCalledTimes(1));
   });
 });
+
+describe('reputation earned', () => {
+  const upvoteMilestone: NotificationItemProps = {
+    ...sampleNotification,
+    type: NotificationType.CommentUpvoteMilestone,
+    icon: NotificationIconType.Upvote,
+    title: '<span>3 upvotes!</span>',
+  };
+
+  it('should show what the upvotes earned', async () => {
+    renderComponent(<NotificationItem {...upvoteMilestone} reputation={100} />);
+    expect(await screen.findByText('+100 reputation')).toBeInTheDocument();
+  });
+
+  it('should show nothing when the upvotes earned nothing', async () => {
+    renderComponent(<NotificationItem {...upvoteMilestone} reputation={0} />);
+    await screen.findByText('3 upvotes!');
+    expect(screen.queryByText(/reputation/)).not.toBeInTheDocument();
+  });
+});

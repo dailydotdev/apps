@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useNotificationContext } from '../../../contexts/NotificationsContext';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import type { Notification } from '../../../graphql/notifications';
@@ -25,6 +26,7 @@ import {
 } from '../../../components/notifications/utils';
 import { Image } from '../../../components/image/Image';
 import Link from '../../../components/utilities/Link';
+import { ReputationEarnedChip } from '../../../components/ReputationEarnedChip';
 import { Button } from '../../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { IconSize } from '../../../components/Icon';
@@ -68,6 +70,7 @@ const NotificationRow = ({
 }): ReactElement | null => {
   const { type, icon, title, avatars, targetUrl, createdAt } = notification;
   const { isReady, title: safeTitle } = useObjectPurify({ title });
+  const { optOutLevelSystem } = useSettingsContext();
   if (!isReady) {
     return null;
   }
@@ -122,6 +125,13 @@ const NotificationRow = ({
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: safeTitle }}
         />
+        {!optOutLevelSystem && (
+          <ReputationEarnedChip
+            amount={notification.reputation ?? 0}
+            withLabel
+            className="mt-0.5 w-fit"
+          />
+        )}
         {!!createdAt && (
           <span className="truncate text-text-tertiary typo-caption1">
             {publishTimeRelativeShort(createdAt)}

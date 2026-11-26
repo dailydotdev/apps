@@ -180,6 +180,9 @@ export const cloudinaryDevcardDefaultCoverImage =
 export const cloudinaryReputationPrivilegesUnlocked =
   'https://media.daily.dev/image/upload/s--6sO7fJKh--/v1709136797/image_epr7dz.svg';
 
+export const cloudinaryReputationBadge =
+  'https://media.daily.dev/image/upload/s--FNOUQwnt--/f_auto,q_auto/v1795693127/public/reputation-badge';
+
 export const cloudinaryShortcutsIconsGmail =
   'https://media.daily.dev/image/upload/s--QYLzNTIV--/f_auto/v1717506847/public/Gmail%20Shortcut';
 

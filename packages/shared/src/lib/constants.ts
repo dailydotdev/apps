@@ -10,6 +10,7 @@ export const termsOfService = 'https://r.daily.dev/tos';
 export const privacyPolicy = 'https://r.daily.dev/privacy-policy';
 export const cookiePolicy = 'https://r.daily.dev/cookie-policy';
 export const reputation = 'https://r.daily.dev/reputation';
+export const reputationPrivileges = `${reputation}#privileges`;
 export const ownershipGuide = 'https://r.daily.dev/claim';
 export const contentGuidelines = 'https://r.daily.dev/content-guidelines';
 export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
