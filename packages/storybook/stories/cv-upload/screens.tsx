@@ -213,25 +213,19 @@ const LeafHeader = ({ title }: { title: string }): ReactElement => (
 
 const EditMenu = (): ReactElement => (
   <div className="absolute right-0 top-12 z-1 flex w-60 flex-col rounded-14 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2">
-    <button
-      type="button"
-      className="flex items-center gap-3 rounded-10 px-3 py-2.5 text-left text-text-primary typo-callout hover:bg-surface-float"
-    >
-      <EditIcon />
-      Edit profile details
-    </button>
-    <button
-      type="button"
-      className="flex items-center gap-3 rounded-10 px-3 py-2 text-left hover:bg-surface-float"
-    >
-      <UploadIcon />
-      <span className="flex flex-col">
-        <span className="text-text-primary typo-callout">Import from CV</span>
-        <span className="text-text-tertiary typo-caption1">
-          Fills work and education
-        </span>
-      </span>
-    </button>
+    {[
+      { label: 'Edit profile details', icon: <EditIcon /> },
+      { label: 'Import from CV', icon: <UploadIcon /> },
+    ].map((item) => (
+      <button
+        key={item.label}
+        type="button"
+        className="flex items-center gap-3 rounded-10 px-3 py-2.5 text-left text-text-primary typo-callout hover:bg-surface-float"
+      >
+        {item.icon}
+        {item.label}
+      </button>
+    ))}
   </div>
 );
 
