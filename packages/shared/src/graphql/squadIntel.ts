@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { gqlBatchRequest } from './batch';
 import { gqlClient } from './common';
 import type { LoggedUser } from '../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
@@ -460,7 +461,7 @@ export const squadIntelHighlightsQueryOptions = ({
     'highlights',
   ),
   queryFn: async (): Promise<SquadIntelHighlights | null> => {
-    const res = await gqlClient.request<{
+    const res = await gqlBatchRequest<{
       squadIntel: {
         weekStart: string;
         weekEnd: string;
@@ -596,7 +597,7 @@ export const developerTrendsQueryOptions = ({
 }) => ({
   queryKey: generateQueryKey(RequestKey.SquadIntel, user, 'trends'),
   queryFn: async (): Promise<DeveloperTrends | null> => {
-    const res = await gqlClient.request<{
+    const res = await gqlBatchRequest<{
       developerTrends: DeveloperTrends | null;
     }>(DEVELOPER_TRENDS_QUERY);
 

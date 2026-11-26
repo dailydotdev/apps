@@ -90,7 +90,7 @@ export const SquadFirstPost = (): ReactElement | null => {
     }),
   );
   const { data: trends } = useQuery(
-    developerTrendsQueryOptions({ user, enabled: isShown && intel === null }),
+    developerTrendsQueryOptions({ user, enabled: isShown }),
   );
 
   if (!isShown) {

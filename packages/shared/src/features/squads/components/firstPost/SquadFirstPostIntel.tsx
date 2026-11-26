@@ -58,9 +58,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
     }),
   );
   // A free page whose trial ended, or never had one, reads the general trends
-  const { data: trends } = useQuery(
-    developerTrendsQueryOptions({ user, enabled: intel === null }),
-  );
+  const { data: trends } = useQuery(developerTrendsQueryOptions({ user }));
   const boost = useSquadFreeBoost(squad);
   const [isAnalyzing, setAnalyzing] = useState(
     () => !analysisSeen.has(sourceId) && !prefersReducedMotion(),
