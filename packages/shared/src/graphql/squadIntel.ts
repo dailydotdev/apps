@@ -228,7 +228,6 @@ interface StartupsIntelData {
   titleTypes?: IntelIndexRow[];
   titleLengths?: IntelIndexRow[];
   properties?: IntelIndexRow[];
-  publishing?: IntelIndexRow[];
   tagPairs?: { above: IntelIndexRow[]; below: IntelIndexRow[] };
   nativePosts?: IntelIndexRow[];
   readTime?: IntelIndexRow[];
@@ -324,8 +323,6 @@ export interface SquadIntelHighlights {
   titleLengths: IntelIndexRow[];
   /** What the post is like: its intent, focus, self-promotion */
   properties: IntelIndexRow[];
-  /** Written on daily.dev or linked, tag count, cover image */
-  publishing: IntelIndexRow[];
   tagPairs: { above: IntelIndexRow[]; below: IntelIndexRow[] };
   /** Posts written on daily.dev, by what is in them */
   nativePosts: IntelIndexRow[];
@@ -406,7 +403,6 @@ export const toIntelHighlights = ({
     titleTypes: data.titleTypes ?? [],
     titleLengths: data.titleLengths ?? [],
     properties: data.properties ?? [],
-    publishing: data.publishing ?? [],
     tagPairs: data.tagPairs ?? { above: [], below: [] },
     nativePosts: data.nativePosts ?? [],
     readTime: data.readTime ?? [],

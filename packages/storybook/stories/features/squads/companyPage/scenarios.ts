@@ -184,14 +184,6 @@ export const scenarios = {
     profile: { photo: true, headline: true, job: true },
     finishSetupAfterMs: 1500,
   },
-  /** Day 0: the page exists, nothing posted yet */
-  noPostYet: {
-    viewer: 'admin',
-    pageAgeDays: 0,
-    plan: null,
-    posts: [],
-    freeBoost: available(0),
-  },
   /** Mid-day: the numbers climb every 5 minutes */
   boostLive: {
     viewer: 'admin',

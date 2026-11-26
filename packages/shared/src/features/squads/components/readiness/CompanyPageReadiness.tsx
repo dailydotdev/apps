@@ -41,9 +41,6 @@ interface CompanyPageReadinessProps {
   variant?: 'card' | 'widget';
   /** Rows the free boost waits for, tagged in the widget */
   boostRowIds?: string[];
-  /** Shown once every row is done */
-  completeTitle?: string;
-  completeDescription?: string;
   className?: string;
 }
 
@@ -329,8 +326,6 @@ export const CompanyPageReadiness = ({
   onDismiss,
   variant = 'card',
   boostRowIds = [],
-  completeTitle = "You're all set",
-  completeDescription = 'Developers see a complete page and profile next to every post you write.',
   className,
 }: CompanyPageReadinessProps): ReactElement | null => {
   const counted = rows.filter(isCountedItem);
@@ -347,8 +342,8 @@ export const CompanyPageReadiness = ({
   if (doneCount === total) {
     return (
       <Complete
-        title={completeTitle}
-        description={completeDescription}
+        title="You're all set"
+        description="Developers see a complete page and profile next to every post you write."
         onDismiss={onDismiss}
         className={className}
       />
