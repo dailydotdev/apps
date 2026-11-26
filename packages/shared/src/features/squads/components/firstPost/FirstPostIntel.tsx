@@ -30,7 +30,6 @@ import {
 import { AgentMarks } from '../AgentPromptButton';
 import { StartupsFreeChip } from '../StartupsFreeChip';
 import { SquadStatsRow } from '../valuePanel/SquadStatsRow';
-import { FirstPostIntelMap } from './FirstPostIntelMap';
 import { formatMultiple, IntelBar, IntelSection } from './IntelSection';
 import {
   IntelDecayChart,
@@ -473,7 +472,6 @@ export const FirstPostIntel = ({
         title="Where developers' attention went"
         hint="Share of the reads across your topics, and the change from the week before. Green is where few new posts compete."
       >
-        <FirstPostIntelMap topics={topics} openingTag={opening?.tag} />
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center gap-3">
             <Head className="w-24 tablet:w-32">Topic</Head>
