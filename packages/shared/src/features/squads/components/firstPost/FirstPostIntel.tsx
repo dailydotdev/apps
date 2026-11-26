@@ -193,44 +193,6 @@ const AgentStrip = ({
   );
 };
 
-/**
- * Where the free issue turns into what a plan sends every week: the sections
- * under it are the weekly intel on the page's own topics.
- */
-const FreeIssueLine = ({
-  name,
-  pickedFrom,
-  endsAt,
-  upgradeUrl,
-  onUpgrade,
-}: {
-  name: string;
-  pickedFrom: string;
-  endsAt: string;
-  upgradeUrl?: string;
-  onUpgrade?: () => void;
-}): ReactElement => (
-  <div className="flex flex-col gap-1 border-t border-border-subtlest-tertiary pt-6">
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <h3 className="font-bold typo-title3">Your weekly intel</h3>
-      <StartupsFreeChip label="One-time free" />
-      {upgradeUrl && (
-        <a
-          href={upgradeUrl}
-          onClick={onUpgrade}
-          className="ml-auto flex items-center gap-1 font-bold text-text-primary typo-footnote hover:underline"
-        >
-          Upgrade your plan to keep it
-          <MoveToIcon size={IconSize.Size16} className="shrink-0" />
-        </a>
-      )}
-    </div>
-    <p className="text-pretty text-text-tertiary typo-footnote">
-      {`We picked ${name}'s topics from ${pickedFrom} for this one. From ${day(endsAt)}, you get the general daily.dev trends instead.`}
-    </p>
-  </div>
-);
-
 const HOUR_MS = 60 * 60 * 1000;
 // Any Monday, to turn a UTC day and hour into the reader's own
 const MONDAY_UTC = Date.UTC(2024, 0, 1);
@@ -425,16 +387,30 @@ export const FirstPostIntel = ({
             <h3 className="font-bold typo-title3">
               Last week in {name}&apos;s topics
             </h3>
-            {intel.trial && <StartupsFreeChip />}
-            <a
-              href={editTopicsUrl}
-              className="ml-auto font-bold text-text-primary typo-footnote hover:underline"
-            >
-              Edit topics
-            </a>
+            {intel.trial && <StartupsFreeChip label="One-time free" />}
+            {intel.trial && upgradeUrl && (
+              <a
+                href={upgradeUrl}
+                onClick={onUpgrade}
+                className="ml-auto flex items-center gap-1 font-bold text-text-primary typo-footnote hover:underline"
+              >
+                Upgrade to keep it
+                <MoveToIcon size={IconSize.Size16} className="shrink-0" />
+              </a>
+            )}
+            {!intel.trial && (
+              <a
+                href={editTopicsUrl}
+                className="ml-auto font-bold text-text-primary typo-footnote hover:underline"
+              >
+                Edit topics
+              </a>
+            )}
           </div>
-          <p className="text-text-tertiary typo-footnote">
-            {`What developers read on daily.dev, ${getIntelWeekLabel(intel)}.`}
+          <p className="text-pretty text-text-tertiary typo-footnote">
+            {intel.trial
+              ? `What developers read on daily.dev, ${getIntelWeekLabel(intel)}, in the topics we picked from ${intel.trial.pickedFrom}. From ${day(intel.trial.endsAt)}, you get the general daily.dev trends instead.`
+              : `What developers read on daily.dev, ${getIntelWeekLabel(intel)}.`}
           </p>
         </div>
         {intel.postsAnalyzed !== null && (
@@ -467,16 +443,6 @@ export const FirstPostIntel = ({
           </div>
         )}
       </div>
-
-      {intel.trial && (
-        <FreeIssueLine
-          name={name}
-          pickedFrom={intel.trial.pickedFrom}
-          endsAt={intel.trial.endsAt}
-          upgradeUrl={upgradeUrl}
-          onUpgrade={onUpgrade}
-        />
-      )}
 
       <IntelSection
         title="Where developers' attention went"
