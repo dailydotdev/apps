@@ -115,8 +115,7 @@ export const RingAvatar = ({
 );
 
 // The one CV row: the empty Experience section, the empty settings pages
-// and Add work experience. Phones get the buttons under the text, with a
-// way to finish on a laptop where the CV file is.
+// and Add work experience. Phones get the button under the text.
 export const CvRow = ({
   isPhone,
   title = 'Fill your profile from your CV',
@@ -153,14 +152,7 @@ export const CvRow = ({
             {isPhone ? description : `${description} Or drop a PDF here.`}
           </Typography>
         )}
-        {isPhone && (
-          <div className="mt-2 flex gap-2">
-            {upload}
-            <Button variant={ButtonVariant.Float} size={ButtonSize.XSmall}>
-              On my laptop
-            </Button>
-          </div>
-        )}
+        {isPhone && <div className="mt-2 flex">{upload}</div>}
       </div>
       {!isPhone && upload}
     </div>
