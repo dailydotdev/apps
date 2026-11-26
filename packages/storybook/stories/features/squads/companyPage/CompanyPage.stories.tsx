@@ -672,6 +672,18 @@ const developerTrends = {
   ],
 };
 
+// A git-ignored realIntel.local.ts beside this file swaps in real data
+const localData = Object.values(
+  import.meta.glob<{
+    realIntel: {
+      weekStart: string;
+      weekEnd: string;
+      data: typeof intelData;
+    };
+    realTrends: typeof developerTrends;
+  }>('./realIntel.local.ts', { eager: true }),
+)[0];
+
 const handlers = (scenario: Scenario) => {
   const squad = toSquad(scenario);
   const posts = scenarioPosts(scenario, squad);
@@ -771,21 +783,25 @@ const handlers = (scenario: Scenario) => {
           squadIntel: scenario.trialEnded
             ? null
             : {
-                weekStart: '2026-11-16T00:00:00.000Z',
-                weekEnd: '2026-11-23T00:00:00.000Z',
+                weekStart:
+                  localData?.realIntel.weekStart ?? '2026-11-16T00:00:00.000Z',
+                weekEnd:
+                  localData?.realIntel.weekEnd ?? '2026-11-23T00:00:00.000Z',
                 trial: scenario.plan
                   ? null
                   : {
                       endsAt: addDays(new Date(), 6).toISOString(),
                       pickedFrom: 'coderabbit.ai',
                     },
-                data: intelData,
+                data: localData?.realIntel.data ?? intelData,
               },
         },
       }),
     ),
     graphql.query('DeveloperTrends', () =>
-      HttpResponse.json({ data: { developerTrends: developerTrends } }),
+      HttpResponse.json({
+        data: { developerTrends: localData?.realTrends ?? developerTrends },
+      }),
     ),
   ];
 };

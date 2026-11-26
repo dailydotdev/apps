@@ -1,1 +1,3 @@
 storybook-static
+# Real data for local stories, never committed
+*.local.ts
