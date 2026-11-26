@@ -12,12 +12,13 @@ import {
 } from '../open-links-in/kit';
 import { CvProviders } from './providers';
 import {
-  AddWorkExperience,
-  AvatarRing,
-  DesktopAddWork,
-  DesktopProfile,
-  MenuCardCvFirst,
-  ProfileEditMenu,
+  AddWorkDesktop,
+  AddWorkPhone,
+  LfgRing,
+  ProfileDesktop,
+  ProfileMenuDesktop,
+  ProfileMenuPhone,
+  ProfilePhone,
 } from './screens';
 import { LaptopFrame, PhoneFrame } from './embed';
 
@@ -56,10 +57,11 @@ export const Review: Story = {
           title="Ask for the CV where people already work on their profile."
         >
           <p>
-            The six places from the proposal, each on a phone and on desktop.
-            Where a production page exists, the idea sits on it; the edit menu,
-            the Add work shortcut, the ring and the menu card are drawn with
-            production&apos;s pieces. Copy is a placeholder.
+            The six places from the proposal, each on a phone and on desktop, in
+            the look of Tsahi&apos;s video: one green progress ring, one
+            progress card and one CV row, reused everywhere. Where a production
+            page exists, they sit on it; the rest is drawn with
+            production&apos;s pieces. Copy is from the video.
           </p>
         </PageHeader>
 
@@ -70,19 +72,24 @@ export const Review: Story = {
 
         <Section
           title="1. A ring on the avatar that shows profile progress"
-          description="The same avatar at every width."
+          description="On the profile avatar with a 40% chip, and on the app's own avatar in the rail, the phone header and the menu."
         >
           <PhoneRow>
-            <Cell label="Ring on the avatar">
-              <AvatarRing />
+            <Cell label="Phone">
+              <ProfilePhone />
             </Cell>
             <Cell label="With the LFG ribbon">
-              <AvatarRing lfg />
+              <LfgRing />
             </Cell>
           </PhoneRow>
+          <Desktop>
+            <Cell label="Desktop">
+              <ProfileDesktop />
+            </Cell>
+          </Desktop>
           <Callout title="Open question">
-            Either the ring skips people with LFG on, or the ribbon moves off
-            the avatar.
+            The chip and the LFG ribbon both sit on the avatar&apos;s bottom
+            edge. Either the ring skips people with LFG on, or the ribbon moves.
           </Callout>
         </Section>
 
@@ -90,7 +97,7 @@ export const Review: Story = {
           <PhoneRow>
             <Cell
               label="Phone"
-              note="Your own profile, About segment, with no work or education."
+              note="Your own profile with no work or education. Upload fills both."
             >
               <PhoneFrame story="profile-experience" theme={theme} />
             </Cell>
@@ -106,14 +113,14 @@ export const Review: Story = {
           <PhoneRow>
             <Cell
               label="Phone"
-              note="The edit square opens two rows instead of going straight to settings. Tap it."
+              note="The pencil opens two rows instead of going straight to settings. Tap it."
             >
-              <ProfileEditMenu />
+              <ProfilePhone isMenuOpen />
             </Cell>
           </PhoneRow>
           <Desktop>
-            <Cell label="Desktop" note="Tap the edit square.">
-              <DesktopProfile />
+            <Cell label="Desktop">
+              <ProfileDesktop isMenuOpen />
             </Cell>
           </Desktop>
         </Section>
@@ -137,31 +144,36 @@ export const Review: Story = {
           </Desktop>
         </Section>
 
-        <Section title="5. A shortcut inside Add work experience">
+        <Section
+          title="5. A shortcut inside Add work experience"
+          description="Shown only while they have no roles yet."
+        >
           <PhoneRow>
-            <Cell
-              label="Phone"
-              note="One row above the fields. Upload fills every role, not just this one."
-            >
-              <AddWorkExperience />
+            <Cell label="Phone">
+              <AddWorkPhone />
             </Cell>
           </PhoneRow>
           <Desktop>
             <Cell label="Desktop">
-              <DesktopAddWork />
+              <AddWorkDesktop />
             </Cell>
           </Desktop>
         </Section>
 
         <Section
           title="6. The profile menu card leads with the CV"
-          description="When work or education is missing, the upload is the card's action. It takes the completion card's place at the top of the profile menu."
+          description="While work or education is missing, the completion card's action is Fill from CV. Once the CV is in, it moves on to the next step, like a headline."
         >
           <PhoneRow>
-            <Cell label="Profile menu card">
-              <MenuCardCvFirst />
+            <Cell label="Phone">
+              <ProfileMenuPhone />
             </Cell>
           </PhoneRow>
+          <Desktop>
+            <Cell label="Desktop">
+              <ProfileMenuDesktop />
+            </Cell>
+          </Desktop>
         </Section>
       </Page>
     );

@@ -8,25 +8,28 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import {
-  CharmEmptyState,
-  CharmEmptyStatePlacement,
-} from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
-import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import { ShellBlock } from '@dailydotdev/shared/src/components/shell/ShellBlock';
 import { ShellPageProvider } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { blockRest } from '@dailydotdev/shared/src/components/shell/constants';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
 import {
   AccountPageAddSquare,
   AccountPageContainer,
 } from '../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { SETTINGS_PAGE_HEADER_PORTAL_ID } from '../../../webapp/components/layouts/SettingsLayout';
 import { user } from './providers';
-import { FillFromCvRow } from './screens';
+import { CvRow, ExperienceSection } from './screens';
 
 // The production pages with the CV row added, each at the width its iframe
 // gives it, so the phone and laptop layouts are the real ones. Wrappers
@@ -48,36 +51,26 @@ const Shell = ({ children }: { children: ReactNode }): ReactElement => (
   </ShellPageProvider>
 );
 
-// The About segment of your own profile with nothing in work or education,
-// and the CV row under the first empty section.
-export const ProfileExperience = (): ReactElement => (
-  <Shell>
-    <Header
-      user={profile}
-      isSameUser
-      blockTitle={profile.name}
-      isOverCover={false}
-      className="relative left-0 top-0 z-3 w-full bg-background-default laptop:hidden"
-    />
-    <div className="flex flex-col divide-y divide-border-subtlest-tertiary px-4 py-6 tablet:px-6">
-      <UserExperienceList
-        experiences={[]}
-        title="Work Experiences"
-        experienceType={UserExperienceType.Work}
+// Your own profile with nothing in work or education: the one Experience
+// section holds the progress and the CV row.
+export const ProfileExperience = (): ReactElement => {
+  const isTablet = useViewSize(ViewSize.Tablet);
+
+  return (
+    <Shell>
+      <Header
         user={profile}
+        isSameUser
+        blockTitle={profile.name}
+        isOverCover={false}
+        className="relative left-0 top-0 z-3 w-full bg-background-default laptop:hidden"
       />
-      <div className="py-4">
-        <FillFromCvRow description="Upload your CV and we fill in your work and education." />
+      <div className="mx-auto max-w-[40rem] px-4 py-6 tablet:px-6">
+        <ExperienceSection isPhone={!isTablet} />
       </div>
-      <UserExperienceList
-        experiences={[]}
-        title="Education"
-        experienceType={UserExperienceType.Education}
-        user={profile}
-      />
-    </div>
-  </Shell>
-);
+    </Shell>
+  );
+};
 
 const settingsPages = {
   [UserExperienceType.Work]: {
@@ -93,7 +86,7 @@ const settingsPages = {
 };
 
 // The settings list page as webapp/pages/settings/profile/experience
-// renders it, empty, with the CV row under the empty state. On laptop the
+// renders it, empty: the empty state's words and the CV row, no mascot. On laptop the
 // header portals into SettingsLayout's slot, and the column takes
 // SettingsLayout's laptop width; the sidebar is left out.
 const SettingsPage = ({
@@ -102,6 +95,7 @@ const SettingsPage = ({
   type: UserExperienceType.Work | UserExperienceType.Education;
 }): ReactElement => {
   const isLaptopLayout = useLaptopLayout();
+  const isTablet = useViewSize(ViewSize.Tablet);
   const page = settingsPages[type];
   const addUrl = `/settings/profile/experience/edit?type=${type}`;
 
@@ -131,18 +125,19 @@ const SettingsPage = ({
             </Button>
           }
         >
-          <div className="flex flex-col items-center">
-            <CharmEmptyState
-              placement={CharmEmptyStatePlacement.Page}
-              image={cloudinaryCharmEmptyProfile}
-              imageAlt="daily.dev charm with an empty profile"
-              title={page.empty}
-              description="Add it here and it shows on your profile."
-              action={{ label: 'Add', icon: <PlusIcon />, href: addUrl }}
-            />
-            <div className="mt-6 w-full max-w-[30rem]">
-              <FillFromCvRow description="Upload your CV and we fill in your work and education." />
+          <div className="flex flex-col gap-6 pt-4">
+            <div className="flex flex-col items-center gap-1 text-center">
+              <Typography type={TypographyType.Body} bold>
+                {page.empty}
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Add it here and it shows on your profile.
+              </Typography>
             </div>
+            <CvRow isPhone={!isTablet} />
           </div>
         </AccountPageContainer>
       </div>
