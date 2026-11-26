@@ -555,6 +555,10 @@ const nextConfig: NextConfig = {
           headers: noindexHeaders,
         },
         {
+          source: '/embed/chatgpt/:path*',
+          headers: noindexHeaders,
+        },
+        {
           // Static page (headers can't come from the page itself); framing is
           // limited to our own origin and our extensions. This CSP takes
           // precedence over the global X-Frame-Options in modern browsers.
