@@ -25,6 +25,10 @@ import {
 } from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import ProfileMenu from '@dailydotdev/shared/src/components/ProfileMenu/ProfileMenu';
 import { MarketingCtaModal } from '@dailydotdev/shared/src/components/marketing/cta/MarketingCtaModal';
+import { MarketingCtaPopoverSmall } from '@dailydotdev/shared/src/components/marketing/cta/MarketingCtaPopoverSmall';
+import InteractivePopup, {
+  InteractivePopupPosition,
+} from '@dailydotdev/shared/src/components/tooltips/InteractivePopup';
 import type { MarketingCta } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import { ShellBlock } from '@dailydotdev/shared/src/components/shell/ShellBlock';
@@ -38,7 +42,6 @@ import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopL
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
-import { fromCDN } from '@dailydotdev/shared/src/lib/links';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   AccountPageAddSquare,
@@ -124,26 +127,45 @@ export const FeedBanner = (): ReactElement => {
   );
 };
 
-// The campaign's text, tag and image come from Customer.io; these are the
-// ones in the 30-day popover screenshot.
-const campaign: MarketingCta = {
-  campaignId: '48',
-  createdAt: new Date(),
+// The live marketing_cta rows behind campaign 48's two popovers, word for
+// word. Both link to /opportunity/welcome, not to an upload.
+const popover30d: MarketingCta = {
+  campaignId: 'cv-reminder-popup-30d',
+  createdAt: new Date('2025-07-28T16:05:10Z'),
   variant: MarketingCtaVariant.Popover,
   flags: {
+    image:
+      'https://daily-now-res.cloudinary.com/image/upload/v1753718449/docs/Open_for_work__3.jpg',
+    title: 'Your skills deserve better job matches',
+    ctaUrl: 'https://app.daily.dev/opportunity/welcome',
+    ctaText: 'Upload your CV',
     tagText: 'Recommended',
     tagColor: 'avocado',
-    title: 'Your skills deserve better job matches',
     description:
-      "Upload your CV and we'll quietly match you with roles that make sense. 100% private. No spam.",
-    image: fromCDN('/app/assets/cv-upload-banner-1024.webp'),
-    ctaText: 'Upload your CV',
-    ctaUrl: '#',
+      'Upload your CV and we’ll quietly match you with roles that make sense. 100% private. No spam.',
   },
 };
 
-// The modal binds to the app's #__next root, so it opens once that exists.
-export const CampaignPopover = (): ReactElement => {
+const popover60d: MarketingCta = {
+  campaignId: 'cv-popover-60d',
+  createdAt: new Date('2025-07-28T16:10:46Z'),
+  variant: MarketingCtaVariant.PopoverSmall,
+  flags: {
+    image:
+      'https://daily-now-res.cloudinary.com/image/upload/v1753718448/docs/Open_for_work__2.jpg',
+    title: 'Get hired on your terms',
+    ctaUrl: 'https://app.daily.dev/opportunity/welcome',
+    ctaText: 'Upload CV',
+    tagText: 'Popular',
+    tagColor: 'avocado',
+    description: 'Let us handle the search. You choose if and when to respond.',
+  },
+};
+
+// The 30-day popover, the `popover` variant: BootPopups opens it as
+// MarketingCtaModal. The modal binds to the app's #__next root, so it opens
+// once that exists.
+export const Popover30d = (): ReactElement => {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
@@ -152,13 +174,31 @@ export const CampaignPopover = (): ReactElement => {
       {isMounted && (
         <MarketingCtaModal
           isOpen
-          marketingCta={campaign}
+          marketingCta={popover30d}
           onRequestClose={noop}
         />
       )}
     </div>
   );
 };
+
+// The 60-day popover, the `popover_small` variant: BootPopups' interactive
+// popup, with its props, holding MarketingCtaPopoverSmall. A sheet on a
+// phone, bottom right from tablet up.
+export const Popover60d = (): ReactElement => (
+  <div className="min-h-screen bg-background-default">
+    <InteractivePopup
+      isDrawerOnMobile
+      drawerProps={{ className: { wrapper: '!p-0' } }}
+      position={InteractivePopupPosition.RightEnd}
+      disableOverlay
+      closeButton={{ variant: ButtonVariant.Primary }}
+      onClose={noop}
+    >
+      <MarketingCtaPopoverSmall marketingCta={popover60d} />
+    </InteractivePopup>
+  </div>
+);
 
 // ProfilePage for the owner, top down: the completion card below laptop,
 // the header, then the CV banner while no CV is uploaded.

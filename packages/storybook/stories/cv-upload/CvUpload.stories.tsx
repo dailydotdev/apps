@@ -156,11 +156,18 @@ export const Review: Story = {
               <PhoneFrame story="feed-banner" theme={theme} />
             </Cell>
             <Cell
-              label="Today: the 30 and 60-day popover"
+              label="Today: the 30-day popover"
               verdict={Verdict.Skip}
-              note="MarketingCtaModal, as BootPopups opens it. The text, tag and image come from the campaign; these are from its screenshot."
+              note="The popover variant, so BootPopups opens MarketingCtaModal. The live cv-reminder-popup-30d row, word for word."
             >
-              <PhoneFrame story="campaign-popover" theme={theme} />
+              <PhoneFrame story="popover-30-d" theme={theme} />
+            </Cell>
+            <Cell
+              label="Today: the 60-day popover"
+              verdict={Verdict.Skip}
+              note="The popover_small variant: MarketingCtaPopoverSmall in BootPopups' interactive popup, a sheet on a phone. The live cv-popover-60d row."
+            >
+              <PhoneFrame story="popover-60-d" theme={theme} />
             </Cell>
           </PhoneRow>
           <Cell
@@ -170,9 +177,24 @@ export const Review: Story = {
           >
             <LaptopFrame story="feed-banner" theme={theme} />
           </Cell>
-          <Cell label="Today: the popover on a laptop" verdict={Verdict.Skip}>
-            <LaptopFrame story="campaign-popover" theme={theme} />
+          <Cell
+            label="Today: the 30-day popover on a laptop"
+            verdict={Verdict.Skip}
+          >
+            <LaptopFrame story="popover-30-d" theme={theme} />
           </Cell>
+          <Cell
+            label="Today: the 60-day popover on a laptop"
+            verdict={Verdict.Skip}
+            note="Bottom right, with no overlay."
+          >
+            <LaptopFrame story="popover-60-d" theme={theme} />
+          </Cell>
+          <Callout title="Both popovers lead to the jobs page, not an upload">
+            The live rows send Upload your CV to /opportunity/welcome. The feed
+            banner&apos;s row has every copy field empty, so the banner shows
+            the app&apos;s own copy.
+          </Callout>
           <PhoneRow>
             <Cell
               label="Stays: the banner on your own profile"
@@ -181,6 +203,37 @@ export const Review: Story = {
               <PhoneFrame story="profile-top" theme={theme} />
             </Cell>
           </PhoneRow>
+        </Section>
+
+        <Section
+          title="Next to PR 7492: verify work email"
+          description="The verify work email proposal (dailydotdev/apps#7492) works the same way and touches the same places. No files are shared; these are the product overlaps to settle together."
+        >
+          <div className="grid gap-4 tablet:grid-cols-2">
+            <Callout title="One popover slot, two campaigns">
+              Boot carries one marketing CTA at a time. Campaign 46&apos;s
+              verify popover and the 60-day CV popover are the same component,
+              MarketingCtaPopoverSmall, and take turns in that slot. Turning off
+              campaigns 46 and 48 together frees it; turning off one hands its
+              turns to the other.
+            </Callout>
+            <Callout tone={CalloutTone.Good} title="CV first, verify second">
+              Every CV entry point here ends in the &quot;CV uploaded&quot;
+              modal, where 7492 adds &quot;Next: show where you work&quot;. The
+              two chain: upload fills the job, the next row verifies it.
+            </Callout>
+            <Callout title="Work Experience: different states">
+              Here the CV row shows on the empty list; 7492&apos;s verify ask
+              sits above a list with an unverified current job. They never show
+              together, as long as both keep to their state.
+            </Callout>
+            <Callout tone={CalloutTone.Bad} title="Your own profile header">
+              7492 adds an Add badge chip under the bio; this page adds Import
+              from CV to the edit square and a ring on the avatar, beside the
+              completion card and the Autofill banner that stay. Pick which asks
+              the owner&apos;s header keeps, and one at a time.
+            </Callout>
+          </div>
         </Section>
 
         <Section

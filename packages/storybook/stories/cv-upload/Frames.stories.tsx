@@ -4,8 +4,9 @@ import { fn } from 'storybook/test';
 import { useRouter } from '../../mock/next-router';
 import { CvProviders } from './providers';
 import {
-  CampaignPopover as CampaignPopoverFrame,
   FeedBanner as FeedBannerFrame,
+  Popover30d as Popover30dFrame,
+  Popover60d as Popover60dFrame,
   ProfileExperienceProposed as ProfileExperienceProposedFrame,
   ProfileExperienceToday as ProfileExperienceTodayFrame,
   ProfileMenuOpen,
@@ -53,9 +54,9 @@ export const FeedBanner: Story = {
   render: () => <FeedBannerFrame />,
 };
 
-export const CampaignPopover: Story = {
-  render: () => <CampaignPopoverFrame />,
-};
+export const Popover30d: Story = { render: () => <Popover30dFrame /> };
+
+export const Popover60d: Story = { render: () => <Popover60dFrame /> };
 
 export const ProfileTop: Story = { render: () => <ProfileTopFrame /> };
 
