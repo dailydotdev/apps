@@ -307,12 +307,12 @@ export const SquadBlockActions = ({
 
 /** On phones the primary actions leave the icon row for full width buttons. */
 export const SquadPhoneActions = (): ReactElement => {
-  const { squad, viewer } = useSquadPageContext();
+  const { squad, viewer, isViewerKnown } = useSquadPageContext();
   const [, onShare] = useSquadShare();
   const { openModal } = useLazyModal();
   const isMobileAppHeader = useMobileAppHeader();
 
-  if (viewer !== SquadViewer.Admin) {
+  if (!isViewerKnown || viewer !== SquadViewer.Admin) {
     return (
       <div className="mt-4 flex flex-col gap-2 empty:hidden tablet:hidden">
         <SquadJoinButton size={ButtonSize.Medium} className="w-full" />

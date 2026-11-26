@@ -11,7 +11,7 @@ import {
 import { noindexSeoProps } from '../../../../next-seo';
 
 const SquadManage = ({ handle }: SquadRouteProps): ReactElement => (
-  <SquadRoute handle={handle}>
+  <SquadRoute handle={handle} hasStaffLayer={false}>
     <SquadManagePage />
   </SquadRoute>
 );

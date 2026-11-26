@@ -19,7 +19,7 @@ const SquadEditProduct = ({
   handle,
   productId,
 }: SquadEditProductProps): ReactElement => (
-  <SquadRoute handle={handle}>
+  <SquadRoute handle={handle} hasStaffLayer={false}>
     <SquadManagePage
       section={SquadManageSection.Products}
       productId={productId}

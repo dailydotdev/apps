@@ -27,6 +27,7 @@ import { SquadViewer } from '../../lib/viewer';
 import { AgentClient } from '../../lib/setup';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import { getSquadAgentWidgetDismissKey } from '../../hooks/useSquadStaffLayer';
 import { AgentConnect } from '../setup/StartupsSetup';
 
 const TARGET_ID = 'agent widget';
@@ -53,7 +54,7 @@ export const SquadAgentWidget = (): ReactElement | null => {
     (viewer === SquadViewer.Admin ||
       (viewer === SquadViewer.Moderator && hasSeat));
   const [isDismissed, setDismissed, isDismissedFetched] = usePersistentContext(
-    `squad_agent_widget_dismissed_${sourceId}`,
+    getSquadAgentWidgetDismissKey(sourceId),
     false,
   );
   const [isConnecting, setConnecting] = useState(false);

@@ -16,7 +16,7 @@ interface SquadEditJobProps extends SquadRouteProps {
 }
 
 const SquadEditJob = ({ handle, jobId }: SquadEditJobProps): ReactElement => (
-  <SquadRoute handle={handle}>
+  <SquadRoute handle={handle} hasStaffLayer={false}>
     <SquadManagePage section={SquadManageSection.Jobs} jobId={jobId} />
   </SquadRoute>
 );

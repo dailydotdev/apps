@@ -11,6 +11,7 @@ import {
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
 import { getSquadId, hasSquadFeature } from '../lib/features';
+import { useOptionalSquadPageContext } from '../SquadPageContext';
 
 interface UseSquadJobs {
   isEnabled: boolean;
@@ -19,7 +20,11 @@ interface UseSquadJobs {
 }
 
 export const useSquadJobs = (squad: Squad): UseSquadJobs => {
-  const { data, isPending } = useQuery(squadJobsQueryOptions({ squad }));
+  const page = useOptionalSquadPageContext();
+  const { data, isPending } = useQuery({
+    ...squadJobsQueryOptions({ squad }),
+    placeholderData: page?.initialContent?.jobs,
+  });
 
   return {
     isEnabled: hasSquadFeature(squad, 'jobs'),

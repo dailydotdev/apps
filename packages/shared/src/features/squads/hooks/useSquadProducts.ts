@@ -4,6 +4,7 @@ import type { SquadProduct } from '../../../graphql/squadProducts';
 import { squadProductsQueryOptions } from '../../../graphql/squadProducts';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { hasSquadFeature } from '../lib/features';
+import { useOptionalSquadPageContext } from '../SquadPageContext';
 
 interface UseSquadProducts {
   isEnabled: boolean;
@@ -14,8 +15,12 @@ interface UseSquadProducts {
 
 export const useSquadProducts = (squad: Squad): UseSquadProducts => {
   const { user } = useAuthContext();
+  const page = useOptionalSquadPageContext();
   const options = squadProductsQueryOptions({ squad, user });
-  const { data, isPending } = useQuery(options);
+  const { data, isPending } = useQuery({
+    ...options,
+    placeholderData: page?.initialContent?.products,
+  });
 
   return {
     isEnabled: hasSquadFeature(squad, 'products'),
