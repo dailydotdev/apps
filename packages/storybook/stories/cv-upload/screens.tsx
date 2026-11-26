@@ -118,10 +118,13 @@ export const RingAvatar = ({
 // and Add work experience. Phones get the button under the text.
 export const CvRow = ({
   isPhone,
+  isBare,
   title = 'Fill your profile from your CV',
   description = 'Adds work, education, projects and skills. You review it all.',
 }: {
   isPhone?: boolean;
+  // Inside a card that already frames it.
+  isBare?: boolean;
   title?: string;
   description?: string | null;
 }): ReactElement => {
@@ -136,7 +139,13 @@ export const CvRow = ({
   );
 
   return (
-    <div className="flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-secondary p-3">
+    <div
+      className={
+        isBare
+          ? 'flex items-center gap-3'
+          : 'flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-secondary p-3'
+      }
+    >
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <Typography type={TypographyType.Callout} bold>
           {title}
@@ -181,7 +190,7 @@ export const ExperienceSection = ({
         Profile {progress}% done
       </Typography>
       <ProfileProgressBar />
-      <CvRow isPhone={isPhone} />
+      <CvRow isPhone={isPhone} isBare />
     </div>
   </section>
 );
