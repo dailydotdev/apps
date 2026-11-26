@@ -10,13 +10,11 @@ import {
 } from '@dailydotdev/shared/src/components/modals/common/types';
 import {
   Button,
-  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ShieldCheckIcon,
   GiftIcon,
-  JobIcon,
   MailIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -43,27 +41,6 @@ if (typeof document !== 'undefined' && !document.getElementById('__next')) {
   root.id = '__next';
   document.body.appendChild(root);
 }
-
-export const COMPANY = { name: 'Acme' };
-
-/** A stand-in company logo, so the stories need no network. */
-export const CompanyLogo = ({
-  name = COMPANY.name,
-  className = 'size-4',
-}: {
-  name?: string;
-  className?: string;
-}): ReactElement => (
-  <span
-    aria-hidden
-    className={classNames(
-      'flex shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption2',
-      className,
-    )}
-  >
-    {name[0]}
-  </span>
-);
 
 // Real companies from the company table that have verified members, to
 // show the badge works for any employer.
@@ -347,21 +324,3 @@ export const VerifyBadgeModal = ({
     </Modal>
   );
 };
-
-/** A small primary trigger that opens the modal, used by every surface. */
-export const VerifyButton = ({
-  label = 'Verify',
-  onClick,
-}: {
-  label?: string;
-  onClick: () => void;
-}): ReactElement => (
-  <Button
-    variant={ButtonVariant.Primary}
-    size={ButtonSize.Small}
-    icon={<JobIcon />}
-    onClick={onClick}
-  >
-    {label}
-  </Button>
-);

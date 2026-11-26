@@ -26,7 +26,7 @@ const Demo = ({ initialStep }: Args): ReactElement => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <Providers>
+    <Providers jobState="known">
       <div className="flex min-h-screen items-center justify-center bg-background-default">
         <Button
           variant={ButtonVariant.Secondary}
