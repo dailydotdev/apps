@@ -92,7 +92,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
   const upgradeUrl = subscription?.plan
     ? undefined
     : getStartupsCheckoutUrl({ sourceId });
-  const isAnalyzingIntel = !!intel && isAnalyzing;
+  const isAnalyzingIntel = !!intel?.trial && isAnalyzing;
 
   return (
     <SquadPageLayout
@@ -118,7 +118,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
           }
         />
       )}
-      {intel && isAnalyzing && (
+      {intel && isAnalyzingIntel && (
         <div className="px-4 tablet:px-6">
           <FirstPostIntelProgress
             intel={intel}
@@ -131,7 +131,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
           />
         </div>
       )}
-      {intel && !isAnalyzing && (
+      {intel && !isAnalyzingIntel && (
         <FirstPostIntel
           intel={intel}
           name={squad.name}
