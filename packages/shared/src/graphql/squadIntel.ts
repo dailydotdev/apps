@@ -161,9 +161,28 @@ export type IntelCompetition = 'open' | 'moderate' | 'crowded';
 
 // The numbers the API keeps next to each intel's markdown
 // (`common/startups/intel/build.ts`), only the parts the first post flow reads
-interface IntelIndexRow {
+interface IntelPublishRow {
   label: string;
   index: number;
+}
+
+/** A kind of post against the average post, where 100 is the average */
+export interface IntelIndexRow {
+  label: string;
+  posts: number;
+  /** Null when too few posts or actions to tell */
+  reads: number | null;
+  upvotes: number | null;
+  comments: number | null;
+  bookmarks: number | null;
+  /** A title of that kind, on title types */
+  example?: string;
+}
+
+interface IntelPostLink {
+  title: string;
+  url: string;
+  source: string;
 }
 
 interface StartupsIntelData {
@@ -194,10 +213,36 @@ interface StartupsIntelData {
     upvotes: number;
     comments: number;
   }[];
+  // Missing on intel built before they were added
+  risingTags?: { tag: string; change: number }[];
+  newTags?: string[];
+  fewPostsManyReaders?: { tag: string; reads: number; posts: number }[];
+  mostBookmarked?: (IntelPostLink & { bookmarkRateVsAverage: number })[];
+  discussions?: (IntelPostLink & { comment: string })[];
+  formats?: IntelIndexRow[];
+  titleTypes?: IntelIndexRow[];
+  titleLengths?: IntelIndexRow[];
+  properties?: IntelIndexRow[];
+  publishing?: IntelIndexRow[];
+  tagPairs?: { above: IntelIndexRow[]; below: IntelIndexRow[] };
+  nativePosts?: IntelIndexRow[];
+  readTime?: IntelIndexRow[];
   readingDays: { label: string; share: number }[];
-  publishDays: IntelIndexRow[];
-  publishHours: IntelIndexRow[];
+  publishDays: IntelPublishRow[];
+  publishHours: IntelPublishRow[];
+  decay?: IntelDecay[];
 }
+
+export interface IntelDecay {
+  tag: string;
+  /** Shares of a post's first 14 days of reads, 0 to 100 */
+  day1: number;
+  days2to3: number;
+  days4to7: number;
+  days8to14: number;
+}
+
+type IntelPost = { title: string; source: string; permalink: string };
 
 export interface SquadIntelTrial {
   endsAt: string;
@@ -253,6 +298,28 @@ export interface SquadIntelHighlights {
     comments: number;
     permalink: string;
   }[];
+  /** Tags with the biggest jump in reads, in percent */
+  risingTags: { tag: string; change: number }[];
+  /** Tags with under a tenth of this week's readers the week before */
+  newTags: string[];
+  /** Tags whose few posts drew many reads, reads per post as an index */
+  fewPostsManyReaders: { tag: string; reads: number; posts: number }[];
+  mostBookmarked: (IntelPost & { bookmarkRateVsAverage: number })[];
+  /** A top comment on a post the audience talked about */
+  discussions: (IntelPost & { comment: string })[];
+  formats: IntelIndexRow[];
+  titleTypes: IntelIndexRow[];
+  titleLengths: IntelIndexRow[];
+  /** What the post is like: its intent, focus, self-promotion */
+  properties: IntelIndexRow[];
+  /** Written on daily.dev or linked, tag count, cover image */
+  publishing: IntelIndexRow[];
+  tagPairs: { above: IntelIndexRow[]; below: IntelIndexRow[] };
+  /** Posts written on daily.dev, by what is in them */
+  nativePosts: IntelIndexRow[];
+  readTime: IntelIndexRow[];
+  /** How a topic's reads spread over a post's first 14 days */
+  decay: IntelDecay[];
   timing: {
     /** Share of the week's reads by day, Monday first, 0 to 100 */
     days: number[];
@@ -264,7 +331,7 @@ export interface SquadIntelHighlights {
   };
 }
 
-const byIndex = (rows: IntelIndexRow[]): IntelIndexRow[] =>
+const byIndex = (rows: IntelPublishRow[]): IntelPublishRow[] =>
   [...rows].sort((a, b) => b.index - a.index);
 
 /** "15:00-18:00" as "15:00 to 18:00 UTC" */
@@ -308,6 +375,26 @@ export const toIntelHighlights = ({
       image: image ?? null,
       permalink: url,
     })),
+    risingTags: data.risingTags ?? [],
+    newTags: data.newTags ?? [],
+    fewPostsManyReaders: data.fewPostsManyReaders ?? [],
+    mostBookmarked: (data.mostBookmarked ?? []).map(({ url, ...post }) => ({
+      ...post,
+      permalink: url,
+    })),
+    discussions: (data.discussions ?? []).map(({ url, ...post }) => ({
+      ...post,
+      permalink: url,
+    })),
+    formats: data.formats ?? [],
+    titleTypes: data.titleTypes ?? [],
+    titleLengths: data.titleLengths ?? [],
+    properties: data.properties ?? [],
+    publishing: data.publishing ?? [],
+    tagPairs: data.tagPairs ?? { above: [], below: [] },
+    nativePosts: data.nativePosts ?? [],
+    readTime: data.readTime ?? [],
+    decay: data.decay ?? [],
     timing: {
       days: data.readingDays.map(({ share }) => share),
       bestDay: publishDays[0]?.label ?? null,
@@ -392,13 +479,27 @@ export interface DeveloperTrendsTopic {
   multiple: number;
   /** False when one story drove the rise rather than many posts */
   broad: boolean | null;
+  /** What drove the rise, on rising topics */
+  note: string | null;
+}
+
+/** Reads per new post that week, as a multiple of the average topic */
+export interface DeveloperTrendsSupplyTopic {
+  tag: string;
+  multiple: number;
 }
 
 export interface DeveloperTrends {
   weekStart: string;
   weekEnd: string;
+  /** The week in a few sentences, tags written as #tag */
+  summary: string | null;
   risingTopics: DeveloperTrendsTopic[];
   coolingTopics: DeveloperTrendsTopic[];
+  /** Each new post drew far more reads than the average topic */
+  underserved: DeveloperTrendsSupplyTopic[];
+  /** New posts split the reads thinly */
+  crowded: DeveloperTrendsSupplyTopic[];
   /** Per impression, as multiples of the average post */
   formats: {
     format: string;
@@ -407,6 +508,16 @@ export interface DeveloperTrends {
     upvotes: number;
     comments: number;
   }[];
+  /** Posts that worked, described rather than named, and one that did not */
+  examples: {
+    pattern: string;
+    /** The one post that did not work */
+    counterExample: boolean;
+    upvotes: number;
+    comments: number;
+    note: string | null;
+    url: string | null;
+  }[];
 }
 
 const DEVELOPER_TRENDS_QUERY = gql`
@@ -414,15 +525,26 @@ const DEVELOPER_TRENDS_QUERY = gql`
     developerTrends {
       weekStart
       weekEnd
+      summary
       risingTopics {
         tag
         multiple
         broad
+        note
       }
       coolingTopics {
         tag
         multiple
         broad
+        note
+      }
+      underserved {
+        tag
+        multiple
+      }
+      crowded {
+        tag
+        multiple
       }
       formats {
         format
@@ -430,6 +552,14 @@ const DEVELOPER_TRENDS_QUERY = gql`
         bookmarks
         upvotes
         comments
+      }
+      examples {
+        pattern
+        counterExample
+        upvotes
+        comments
+        note
+        url
       }
     }
   }
