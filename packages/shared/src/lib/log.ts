@@ -161,6 +161,7 @@ export enum Origin {
   BetterAuthEmailLoginBoot = 'betterauth email login boot',
   BetterAuthNativeIdToken = 'betterauth native id token',
   BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
+  IOSNativeAuth = 'ios native auth',
   BetterAuthSocialUrl = 'betterauth social url',
   AuthOneTap = 'auth one tap',
   LoginTurnstile = 'login turnstile',
@@ -585,6 +586,7 @@ export enum LogEvent {
   ClearCv = 'clear cv',
   // end CV Upload
   VotePoll = 'vote poll',
+  AnswerFeedSurvey = 'answer feed survey',
   ImpressionComment = 'impression comment',
   // Opportunity
   ImpressionOpportunityNudge = 'impression opportunity nudge',
@@ -842,6 +844,7 @@ export enum TargetType {
   SimilarSquads = 'similar squads',
   Plugin = 'plugin',
   WhatsOff = 'whats off',
+  FeedSurvey = 'feed survey',
 }
 
 export enum TargetId {

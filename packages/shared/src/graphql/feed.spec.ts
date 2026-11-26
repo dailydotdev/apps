@@ -27,6 +27,46 @@ describe('normalizeFeedPage', () => {
     ]);
   });
 
+  it('should normalize a feedV2 survey item into a survey feed item', () => {
+    const survey = {
+      id: 'survey-1',
+      question: 'Did you find something new worth reading?',
+      options: [
+        { id: 'o1', text: 'Yes', order: 0 },
+        { id: 'o2', text: 'Nothing new', order: 1 },
+      ],
+    };
+    const result = normalizeFeedPage({
+      page: {
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [
+          {
+            node: {
+              __typename: 'FeedPostItem' as const,
+              post: defaultFeedPage.edges[0].node,
+            },
+          },
+          {
+            node: {
+              __typename: 'FeedSurveyItem' as const,
+              survey,
+              feedMeta: 'feed-meta',
+            },
+          },
+          // A query that does not select the survey has no card to show
+          { node: { __typename: 'FeedSurveyItem' as const } },
+        ],
+      },
+    });
+
+    expect(result.page.edges).toHaveLength(2);
+    expect(result.page.edges[1].node).toEqual({
+      itemType: 'survey',
+      survey,
+      feedMeta: 'feed-meta',
+    });
+  });
+
   it('should normalize legacy post connections into post feed items', () => {
     const result = normalizeFeedPage({
       page: defaultFeedPage,

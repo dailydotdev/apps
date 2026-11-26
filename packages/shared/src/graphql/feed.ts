@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { CUSTOM_FEED_FRAGMENT, FEED_POST_FRAGMENT } from './fragments';
 import { POST_HIGHLIGHT_FRAGMENT, type PostHighlight } from './highlights';
 import type { Post } from './posts';
+import type { FeedSurvey } from './feedSurvey';
 import type { FeedItemExplain } from '../features/feedExplain/types';
 import { PostType } from '../types';
 import type { Connection } from './common';
@@ -41,6 +42,8 @@ export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
 
 export const feedV2SupportedTypes = [...baseFeedSupportedTypes, 'highlight'];
+// Asked for only by users in the feed survey experiment
+export const feedV2SurveyType = 'survey';
 
 export interface FeedData {
   page: Connection<Post>;
@@ -58,7 +61,13 @@ export type FeedHighlightsItem = {
   feedMeta: string | null;
 };
 
-export type FeedApiItem = FeedPostItem | FeedHighlightsItem;
+export type FeedSurveyItem = {
+  itemType: 'survey';
+  survey: FeedSurvey;
+  feedMeta: string | null;
+};
+
+export type FeedApiItem = FeedPostItem | FeedHighlightsItem | FeedSurveyItem;
 
 export interface FeedItemData {
   page: Connection<FeedApiItem>;
@@ -79,7 +88,16 @@ type FeedV2HighlightsItem = {
   highlights?: PostHighlight[];
 };
 
-export type FeedV2Item = FeedV2PostItem | FeedV2HighlightsItem;
+type FeedV2SurveyItem = {
+  __typename?: 'FeedSurveyItem';
+  feedMeta?: string | null;
+  survey?: FeedSurvey | null;
+};
+
+export type FeedV2Item =
+  | FeedV2PostItem
+  | FeedV2HighlightsItem
+  | FeedV2SurveyItem;
 
 export interface FeedV2Data {
   page: Connection<FeedV2Item>;
@@ -101,7 +119,9 @@ const warnUnsupportedFeedItem = (itemType: string): void => {
 const isFeedV2Typename = (
   typename: FeedV2Item['__typename'] | Post['__typename'],
 ): typename is FeedV2Item['__typename'] =>
-  typename === 'FeedPostItem' || typename === 'FeedHighlightsItem';
+  typename === 'FeedPostItem' ||
+  typename === 'FeedHighlightsItem' ||
+  typename === 'FeedSurveyItem';
 
 export const isFeedApiItem = (
   item: FeedApiItem | FeedV2Item | Post,
@@ -130,6 +150,11 @@ export const isFeedV2HighlightsItem = (
   item: FeedV2Item | Post,
 ): item is FeedV2HighlightsItem =>
   isFeedV2Item(item) && getGraphqlTypename(item) === 'FeedHighlightsItem';
+
+export const isFeedV2SurveyItem = (
+  item: FeedV2Item | Post,
+): item is FeedV2SurveyItem =>
+  isFeedV2Item(item) && getGraphqlTypename(item) === 'FeedSurveyItem';
 
 export const isLegacyFeedPost = (
   item: FeedApiItem | FeedV2Item | Post,
@@ -201,6 +226,22 @@ const normalizeFeedV2Edge = (
         itemType: 'highlight',
         feedMeta: node.feedMeta ?? null,
         highlights: node.highlights,
+      },
+    };
+  }
+
+  if (isFeedV2SurveyItem(node)) {
+    // A query that does not select the survey (Explain mode) has no card
+    if (!node.survey) {
+      return null;
+    }
+
+    return {
+      ...edge,
+      node: {
+        itemType: 'survey',
+        feedMeta: node.feedMeta ?? null,
+        survey: node.survey,
       },
     };
   }
@@ -421,6 +462,19 @@ export const FEED_V2_QUERY = gql`
             feedMeta
             highlights {
               ...PostHighlightCard
+            }
+          }
+          ... on FeedSurveyItem {
+            feedMeta
+            survey {
+              id
+              question
+              options {
+                id
+                text
+                order
+                key
+              }
             }
           }
         }

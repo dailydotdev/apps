@@ -169,13 +169,76 @@ export type NativeAuthResponse = {
   name?: string;
 };
 
+// Long enough for a password and a second factor on the native sheet.
+export const IOS_NATIVE_AUTH_TIMEOUT_MS = 2 * 60 * 1000;
+
+/** What the iOS app sends back when native sign-in does not complete. */
+export type NativeAuthFailure = {
+  provider: string;
+  error: string;
+  cancelled?: boolean;
+  /** `domain:code` of the native error, e.g. `com.google.GIDSignIn:-4`. */
+  code?: string;
+};
+
+type NativeAuthReply =
+  | NativeAuthResponse
+  | NativeAuthFailure
+  | null
+  | undefined;
+
+const nativeAuthTimedOut = Symbol('native-auth-timeout');
+
+const isNativeAuthFailure = (
+  reply: NativeAuthReply,
+): reply is NativeAuthFailure => !!reply && 'error' in reply && !!reply.error;
+
+/**
+ * Asks the iOS app to sign in natively and waits for its `native-auth` reply.
+ * Resolves with the token, or `undefined` when there is none: the app reports
+ * a cancel or failure (`onFailure` gets the reason), or nothing arrives within
+ * `timeoutMs` (`onTimeout`). App builds up to 1.26 send nothing at all when
+ * Google or Apple sign-in fails.
+ */
 export const iosNativeAuth = async (
   provider: string,
+  {
+    timeoutMs = IOS_NATIVE_AUTH_TIMEOUT_MS,
+    onTimeout,
+    onFailure,
+  }: {
+    timeoutMs?: number;
+    onTimeout?: () => void;
+    onFailure?: (failure: NativeAuthFailure) => void;
+  } = {},
 ): Promise<NativeAuthResponse | undefined> => {
   const promise = promisifyEventListener<
-    NativeAuthResponse | undefined,
-    NativeAuthResponse | undefined
-  >('native-auth', (event) => event.detail);
+    NativeAuthReply | typeof nativeAuthTimedOut,
+    NativeAuthReply
+  >('native-auth', (event) => event.detail, {
+    timeout: { ms: timeoutMs, value: nativeAuthTimedOut },
+  });
   postWebKitMessage(WebKitMessageHandlers.NativeAuth, provider);
-  return promise;
+  const res = await promise;
+  if (res === nativeAuthTimedOut) {
+    onTimeout?.();
+    return undefined;
+  }
+  if (isNativeAuthFailure(res)) {
+    onFailure?.(res);
+    return undefined;
+  }
+  if (!res || !('token' in res) || !res.token) {
+    return undefined;
+  }
+  // A sheet that outlived an earlier, timed-out request can answer this one.
+  // Its token belongs to that provider, so it cannot complete this sign-in.
+  if (res.provider && res.provider !== provider) {
+    onFailure?.({
+      provider: res.provider,
+      error: `Reply for ${res.provider} while waiting for ${provider}`,
+    });
+    return undefined;
+  }
+  return res;
 };

@@ -9,6 +9,12 @@ jest.mock('../../hooks/comments/usePostComments', () => ({
   usePostComments: jest.fn(),
 }));
 
+const mockAuth: { user: { id: string } | null } = { user: null };
+
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuthContext: () => mockAuth,
+}));
+
 jest.mock('../../hooks/comments/useDeleteComment', () => ({
   useDeleteComment: () => ({ deleteComment: jest.fn() }),
 }));
@@ -326,5 +332,41 @@ describe('PostComments teaser (logged out)', () => {
     screen
       .getAllByTestId('comment')
       .forEach((node) => expect(node).toHaveAttribute('data-locked', 'false'));
+  });
+});
+
+describe('PostComments own comments', () => {
+  afterEach(() => {
+    mockAuth.user = null;
+  });
+
+  const setAuthoredComments = (authors: string[]): void => {
+    const edges = authors.map((author, index) => ({
+      node: { id: `c${index}`, author: { id: author } },
+    }));
+    mockUsePostComments.mockReturnValue({
+      queryKey: ['post-comments', post.id],
+      comments: { postComments: { edges } },
+      isLoading: false,
+      commentsCount: edges.length,
+    } as unknown as ReturnType<typeof usePostComments>);
+  };
+
+  const renderedIds = () =>
+    screen.getAllByTestId('comment').map((node) => node.textContent);
+
+  it("moves the reader's comments to the top, keeping the order of the rest", () => {
+    mockAuth.user = { id: 'me' };
+    setAuthoredComments(['a', 'me', 'b', 'me', 'c']);
+    render(<PostComments post={post} origin={Origin.ArticlePage} />);
+
+    expect(renderedIds()).toEqual(['c1', 'c3', 'c0', 'c2', 'c4']);
+  });
+
+  it('keeps the loaded order when logged out', () => {
+    setAuthoredComments(['a', 'me', 'b']);
+    render(<PostComments post={post} origin={Origin.ArticlePage} />);
+
+    expect(renderedIds()).toEqual(['c0', 'c1', 'c2']);
   });
 });

@@ -298,10 +298,15 @@ export const broadcastMessage = (
 export const promisifyEventListener = <T, E = unknown>(
   type: string,
   listener: (event: CustomEvent<E>) => T | Promise<T>,
-  options?: { once?: boolean },
+  options?: {
+    once?: boolean;
+    // Stop waiting after `ms` and resolve with `value`. For events a native
+    // shell may never send, so the caller is not left waiting forever.
+    timeout?: { ms: number; value: T };
+  },
 ): Promise<T> => {
   const runtimeWindow = globalThis as unknown as RuntimeWindow;
-  const { once = true } = options || {};
+  const { once = true, timeout } = options || {};
   return new Promise((resolve) => {
     if (!runtimeWindow.eventControllers) {
       runtimeWindow.eventControllers = {};
@@ -315,7 +320,22 @@ export const promisifyEventListener = <T, E = unknown>(
     const controller = new AbortController();
     eventControllers[type] = controller;
 
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    if (timeout) {
+      timeoutId = setTimeout(() => {
+        if (eventControllers[type] === controller) {
+          eventControllers[type] = null;
+        }
+        controller.abort();
+        resolve(timeout.value);
+      }, timeout.ms);
+      controller.signal.addEventListener('abort', () =>
+        clearTimeout(timeoutId),
+      );
+    }
+
     const eventListener: EventListener = async (event: Event) => {
+      clearTimeout(timeoutId);
       eventControllers[type] = null;
       resolve(await listener(event as CustomEvent<E>));
     };

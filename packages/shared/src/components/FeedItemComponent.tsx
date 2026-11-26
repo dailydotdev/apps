@@ -54,6 +54,8 @@ import { useLogContext } from '../contexts/LogContext';
 import { isSourceSquadOrMachine } from '../graphql/sources';
 import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
+import { FeedSurveyGrid } from './cards/survey/FeedSurveyGrid';
+import { FeedSurveyList } from './cards/survey/FeedSurveyList';
 import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
 
 // Only Debug mode lays it over the cards, so readers without it never
@@ -119,6 +121,8 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
       return item.post.id;
     case 'highlight':
       return getHighlightIdsKey(item.highlights) || `highlight-${index}`;
+    case 'survey':
+      return `survey-${item.survey.id}`;
     case 'ad':
       return `ad-${index}`;
     case 'widget':
@@ -271,6 +275,25 @@ function FeedItemComponent({
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { boostedBy } = useFeedCardContext();
+
+  if (item.type === FeedItemType.Survey) {
+    const SurveyTag =
+      shouldUseListFeedLayout || shouldUseListMode
+        ? FeedSurveyList
+        : FeedSurveyGrid;
+
+    return (
+      <SurveyTag
+        survey={item.survey}
+        feedMeta={item.feedMeta}
+        feedName={feedName}
+        ranking={ranking}
+        columns={virtualizedNumCards}
+        column={column}
+        row={row}
+      />
+    );
+  }
 
   if (item.type === FeedItemType.Highlight) {
     const HighlightTag =

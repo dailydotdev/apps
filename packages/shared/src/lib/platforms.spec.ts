@@ -98,6 +98,15 @@ describe('detectPlatformFromUrl', () => {
     ).toBe('discord');
   });
 
+  it('should detect behance profile URLs', () => {
+    expect(
+      detectPlatformFromUrl('https://www.behance.net/user', USER_PLATFORMS),
+    ).toBe('behance');
+    expect(
+      detectPlatformFromUrl('https://behance.net/user', USER_PLATFORMS),
+    ).toBe('behance');
+  });
+
   it('should detect exact domains and subdomains only', () => {
     expect(detectPlatformFromUrl('https://x.com/handle', USER_PLATFORMS)).toBe(
       'twitter',

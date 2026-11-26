@@ -58,8 +58,14 @@ jest.mock('./usePatchyRail', () => ({
   }),
 }));
 
-// The header's spots measure as a fixed box; jsdom has no layout.
-const spotBox = { left: 300, top: 10, width: 24, height: 24 } as DOMRect;
+// The header's spots sit at a fixed offset; jsdom has no layout.
+let spotOffsets: Record<string, number>;
+const restingSpot = {
+  offsetLeft: 300,
+  offsetTop: 10,
+  offsetWidth: 24,
+  offsetHeight: 24,
+};
 
 const HeaderPill = () => {
   const ref = usePatchyAnchor('pill');
@@ -91,9 +97,19 @@ const face = () =>
 beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
+  spotOffsets = { ...restingSpot };
+  Object.keys(restingSpot).forEach((key) => {
+    jest
+      .spyOn(HTMLElement.prototype, key as 'offsetLeft', 'get')
+      .mockImplementation(function offset(this: HTMLElement) {
+        return this === document.body ? 0 : spotOffsets[key];
+      });
+  });
   jest
-    .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-    .mockReturnValue(spotBox);
+    .spyOn(HTMLElement.prototype, 'offsetParent', 'get')
+    .mockImplementation(function parent(this: HTMLElement) {
+      return this === document.body ? null : document.body;
+    });
   mockShellP = 0;
   mockIsReacting = false;
   mockIsReading = false;
@@ -113,9 +129,20 @@ it('leaves him to the pill while the header is up, reacting or not', () => {
   expect(screen.getByTestId('pill')).toHaveAttribute('data-hidden', 'no');
 });
 
-it('stays exactly on his pill spot as the header scrolls away, and a tap brings it back', () => {
+it('leaves with the header as it scrolls away, so he never sits over the page', () => {
   const { rerender } = render(<Shell />);
   mockShellP = 1;
+  rerender(<Shell />);
+
+  expect(face()).toBeNull();
+  expect(screen.getByTestId('pill')).toHaveAttribute('data-hidden', 'no');
+});
+
+it('drops in on his pill spot to react while the header is away, and a tap brings it back', () => {
+  const { rerender } = render(<Shell />);
+  mockShellP = 1;
+  rerender(<Shell />);
+  mockIsReacting = true;
   rerender(<Shell />);
 
   expect(face()).toHaveAttribute('data-position', 'pill');
@@ -129,11 +156,16 @@ it('stays exactly on his pill spot as the header scrolls away, and a tap brings 
     target_type: TargetType.Patchy,
     extra: JSON.stringify({ origin: 'peek' }),
   });
+
+  mockIsReacting = false;
+  rerender(<Shell />);
+  expect(face()).toBeNull();
 });
 
-it('hands back to the pill only once the header has slid back in', () => {
+it('mid-reaction, hands back to the pill only once the header has slid back in', () => {
   const { rerender } = render(<Shell />);
   mockShellP = 1;
+  mockIsReacting = true;
   rerender(<Shell />);
 
   mockShellP = 0;
@@ -150,29 +182,41 @@ it('hands back to the pill only once the header has slid back in', () => {
   expect(screen.getByTestId('pill')).toHaveAttribute('data-hidden', 'no');
 });
 
-it('reacts where he stands instead of moving', () => {
-  const { rerender } = render(<Shell />);
-  mockShellP = 1;
-  rerender(<Shell />);
-  mockIsReacting = true;
-  rerender(<Shell />);
-
-  expect(face()).toHaveAttribute('data-position', 'pill');
-  expect(face()).toHaveStyle({ left: '300px' });
-});
-
-it('on a post, keeps a spot among the header actions and stays on it while scrolling', () => {
+it('on a post, stands among the header actions and only floats to react while it is away', () => {
   mockIsReading = true;
   const { rerender } = render(<Shell withPill={false} />);
+  const spot = () => screen.getByTestId('patchy-actions-spot');
 
-  expect(screen.getByTestId('header-actions')).toBeInTheDocument();
-  expect(face()).toHaveAttribute('data-position', 'actions');
-  expect(face()).toHaveStyle({ left: '300px', top: '10px' });
+  expect(face()).toBeNull();
+  expect(spot()).not.toHaveClass('invisible');
 
+  mockIsReacting = true;
+  rerender(<Shell withPill={false} />);
+  expect(face()).toBeNull();
+
+  mockIsReacting = false;
   mockShellP = 1;
+  rerender(<Shell withPill={false} />);
+  expect(face()).toBeNull();
+
+  mockIsReacting = true;
   rerender(<Shell withPill={false} />);
   expect(face()).toHaveAttribute('data-position', 'actions');
   expect(face()).toHaveStyle({ left: '300px', top: '10px' });
+  expect(spot()).toHaveClass('invisible');
+});
+
+it('lands on his spot after the header actions around it moved it', () => {
+  mockIsReading = true;
+  const { rerender } = render(<Shell withPill={false} />);
+
+  spotOffsets.offsetLeft = 150;
+  mockShellP = 1;
+  rerender(<Shell withPill={false} />);
+  mockIsReacting = true;
+  rerender(<Shell withPill={false} />);
+
+  expect(face()).toHaveStyle({ left: '150px', top: '10px' });
 });
 
 it('elsewhere without a pill, reacts below the header without touching its actions', () => {
@@ -200,6 +244,7 @@ it('turns on without remounting the shell under him', () => {
     </PatchyPhoneCompanion>,
   );
   mockShellP = 1;
+  mockIsReacting = true;
   rerender(
     <PatchyPhoneCompanion isPhone>
       <ShellBlock />
