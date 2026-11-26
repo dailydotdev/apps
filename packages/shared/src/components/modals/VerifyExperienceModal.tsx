@@ -35,6 +35,8 @@ interface VerifyExperienceModalProps extends ModalProps {
   workEmail?: string;
 }
 
+const noop = (): void => undefined;
+
 function VerifyExperienceModal({
   onRequestClose,
   workEmail: initialWorkEmail,
@@ -47,7 +49,7 @@ function VerifyExperienceModal({
   const [code, setCode] = useState<string>();
   const [workEmail, setWorkEmail] = useState<string>(initialWorkEmail || '');
   const [codeSent, setCodeSent] = useState(false);
-  const { timer, setTimer, runTimer } = useTimer(null, 0);
+  const { timer, setTimer, runTimer } = useTimer(noop, 0);
 
   const { mutate: onSubmitCode } = useMutation({
     mutationFn: () =>
@@ -152,7 +154,7 @@ function VerifyExperienceModal({
           ? 'Verification successful'
           : 'Verification initiated',
       );
-      onRequestClose(null);
+      onRequestClose?.(undefined as never);
     },
     onError: () => displayToast(labels.error.generic),
   });
@@ -186,7 +188,7 @@ function VerifyExperienceModal({
               <Button
                 variant={ButtonVariant.Primary}
                 type="button"
-                disabled={!workEmail || timer > 0}
+                disabled={!workEmail || (timer ?? 0) > 0}
                 onClick={() => onSubmitCode()}
                 size={ButtonSize.Small}
               >
@@ -215,7 +217,11 @@ function VerifyExperienceModal({
             type="button"
             disabled={!code || !workEmail || !codeSent}
             variant={ButtonVariant.Primary}
-            onClick={() => verifyUserCompanyCode({ email: workEmail, code })}
+            onClick={() => {
+              if (code) {
+                verifyUserCompanyCode({ email: workEmail, code });
+              }
+            }}
           >
             Verify email
           </Button>
