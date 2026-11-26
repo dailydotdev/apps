@@ -6,6 +6,7 @@ import type { GetServerSidePropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
+import type { SquadPageContent } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadPrivateWall } from '@dailydotdev/shared/src/features/squads/components/SquadPrivateWall';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
@@ -37,6 +38,9 @@ export interface SquadRouteProps {
 
 interface SquadRouteComponentProps extends SquadRouteProps {
   initialSquad?: Squad;
+  initialContent?: SquadPageContent;
+  /** The page shows the squad's staff-only blocks (not the Manage area) */
+  hasStaffLayer?: boolean;
   /** A paid page renders nothing of itself for a squad without the feature. */
   feature?: SquadFeature;
   children: ReactNode;
@@ -47,6 +51,8 @@ interface SquadRouteComponentProps extends SquadRouteProps {
 export const SquadRoute = ({
   handle,
   initialSquad,
+  initialContent,
+  hasStaffLayer = true,
   feature,
   children,
 }: SquadRouteComponentProps): ReactElement => {
@@ -76,7 +82,12 @@ export const SquadRoute = ({
   }
 
   return (
-    <SquadPageContextProvider squad={current} isViewerReady={!!squad}>
+    <SquadPageContextProvider
+      squad={current}
+      isViewerReady={!!squad}
+      hasStaffLayer={hasStaffLayer}
+      initialContent={initialContent}
+    >
       {children}
       {isSettingUpCompany && <CompanyPageHotjarEvents squad={squad} />}
     </SquadPageContextProvider>

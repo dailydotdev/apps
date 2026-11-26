@@ -394,8 +394,8 @@ describe('squad page viewer matrix', () => {
 });
 
 describe('squad page before the viewer query lands', () => {
-  // The server renders the logged out copy; the viewer's role comes from boot
-  // so role specific regions render once instead of shifting in later.
+  // The server renders the logged out copy; the viewer's role comes from boot,
+  // and staff regions wait for the viewer's own copy so they come in at once.
   const renderFromServerCopy = (squads: Squad[]): RenderResult => {
     const serverCopy = createSquad({ currentMember: undefined });
 
@@ -417,8 +417,9 @@ describe('squad page before the viewer query lands', () => {
     );
   };
 
-  it('renders the staff regions for an admin from boot', async () => {
+  it('holds the staff regions for an admin until their own copy lands', async () => {
     const squad = createSquad();
+    mockSquad({ ...squad, currentMember: adminMember });
     renderFromServerCopy([
       {
         ...squad,
@@ -429,6 +430,11 @@ describe('squad page before the viewer query lands', () => {
       },
     ]);
 
+    // The composer is the same height either way, so it follows boot's role
+    expect(screen.getAllByText('Share a link').length).toBeGreaterThan(0);
+    expect(
+      screen.queryByLabelText('View as a visitor'),
+    ).not.toBeInTheDocument();
     expect(
       await screen.findByLabelText('View as a visitor'),
     ).toBeInTheDocument();

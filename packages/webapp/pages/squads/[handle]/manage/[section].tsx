@@ -21,7 +21,7 @@ const SquadManageSectionPage = ({
   handle,
   section,
 }: SquadManageSectionProps): ReactElement => (
-  <SquadRoute handle={handle}>
+  <SquadRoute handle={handle} hasStaffLayer={false}>
     <SquadManagePage key={section} section={section} />
   </SquadRoute>
 );

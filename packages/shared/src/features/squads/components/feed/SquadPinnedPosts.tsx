@@ -106,12 +106,13 @@ const PinnedCard = ({
 };
 
 export const SquadPinnedPosts = (): ReactElement | null => {
-  const { squad, viewer } = useSquadPageContext();
+  const { squad, viewer, initialContent } = useSquadPageContext();
   const { user } = useAuthContext();
   const client = useQueryClient();
-  const { data: pins } = useQuery(
-    squadPinnedPostsQueryOptions({ squad, user }),
-  );
+  const { data: pins } = useQuery({
+    ...squadPinnedPostsQueryOptions({ squad, user }),
+    placeholderData: initialContent?.pins,
+  });
   const [isLocallyCollapsed, setIsLocallyCollapsed] = useState(false);
   const isJoined = isJoinedViewer(viewer);
   const canPin = verifyPermission(squad, SourcePermissions.PostPin);

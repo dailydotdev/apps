@@ -11,7 +11,11 @@ import type { SquadStaticData } from '@dailydotdev/shared/src/graphql/squads';
 import {
   getSquad,
   getSquadStaticFields,
+  squadPinnedPostsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/squads';
+import { squadProductsQueryOptions } from '@dailydotdev/shared/src/graphql/squadProducts';
+import { squadJobsQueryOptions } from '@dailydotdev/shared/src/graphql/squadJobs';
+import type { SquadPageContent } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import type {
   SourceData,
   Squad,
@@ -116,6 +120,32 @@ const getSquadPageJsonLd = (
   });
 };
 
+// The lists above the feed, so the server's page already has them instead of
+// pushing the feed down once they load
+const getSquadPageContent = async (squad: Squad): Promise<SquadPageContent> => {
+  const [pins, products, jobs] = await Promise.all([
+    squadPinnedPostsQueryOptions({ squad })
+      .queryFn()
+      .catch(() => undefined),
+    hasSquadFeature(squad, 'products')
+      ? squadProductsQueryOptions({ squad })
+          .queryFn()
+          .catch(() => undefined)
+      : undefined,
+    hasSquadFeature(squad, 'jobs')
+      ? squadJobsQueryOptions({ squad })
+          .queryFn()
+          .catch(() => undefined)
+      : undefined,
+  ]);
+
+  return {
+    ...(pins && { pins }),
+    ...(products && { products }),
+    ...(jobs && { jobs }),
+  };
+};
+
 const getSquadProfileUrls = (squad?: Squad): string[] => {
   if (!squad || !hasSquadFeature(squad, 'links')) {
     return [];
@@ -129,6 +159,7 @@ interface SourcePageProps extends DynamicSeoProps {
   initialData?: SquadStaticData;
   /** Public squads only: the page renders from it on the server. */
   initialSquad?: Squad;
+  initialContent?: SquadPageContent;
   referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
   jsonLd?: string;
   seoUsers?: SquadSeoUsers;
@@ -185,6 +216,7 @@ const SquadSeoLinks = ({
 const SquadPage = ({
   handle,
   initialSquad,
+  initialContent,
   jsonLd,
   seoUsers,
 }: SourcePageProps): ReactElement => {
@@ -279,7 +311,11 @@ const SquadPage = ({
       {privateSourceJoin.isActive ? (
         <SquadPageSkeleton />
       ) : (
-        <SquadRoute handle={handle} initialSquad={initialSquad}>
+        <SquadRoute
+          handle={handle}
+          initialSquad={initialSquad}
+          initialContent={initialContent}
+        >
           <SquadHome searchQuery={searchQuery} onClearSearch={onClearSearch} />
         </SquadRoute>
       )}
@@ -372,6 +408,9 @@ export async function getServerSideProps({
     const initialSquad = isPublicSquad
       ? await getSquad(handle).catch(() => undefined)
       : undefined;
+    const initialContent = initialSquad
+      ? await getSquadPageContent(initialSquad)
+      : undefined;
     const seoUsers = getSeoSquadUsers(initialSquad);
 
     setCacheHeader();
@@ -402,6 +441,7 @@ export async function getServerSideProps({
         handle,
         initialData: squad,
         ...(initialSquad && { initialSquad }),
+        ...(initialContent && { initialContent }),
         ...(seoUsers && { seoUsers }),
         ...(referringUser && { referringUser }),
         ...(isPublicSquad && {

@@ -12,7 +12,7 @@ import {
 import { noindexSeoProps } from '../../../../../next-seo';
 
 const SquadAddJob = ({ handle }: SquadRouteProps): ReactElement => (
-  <SquadRoute handle={handle}>
+  <SquadRoute handle={handle} hasStaffLayer={false}>
     <SquadManagePage section={SquadManageSection.Jobs} jobId={null} />
   </SquadRoute>
 );

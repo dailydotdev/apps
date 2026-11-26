@@ -51,7 +51,7 @@ export const SquadHome = ({
   onClearSearch,
 }: SquadHomeProps): ReactElement => {
   const router = useRouter();
-  const { squad } = useSquadPageContext();
+  const { squad, isViewerKnown } = useSquadPageContext();
   const { user } = useAuthContext();
   const {
     jobs,
@@ -67,7 +67,7 @@ export const SquadHome = ({
   const hasJobsTab =
     isJobsEnabled &&
     (!!jobs.length ||
-      verifyPermission(squad, SourcePermissions.Edit) ||
+      (isViewerKnown && verifyPermission(squad, SourcePermissions.Edit)) ||
       (isJobsPending && isJobsRequested));
   const { shouldUseListFeedLayout } = useFeedLayout();
   const { postTypesFilter } = useSearchContextProvider();
