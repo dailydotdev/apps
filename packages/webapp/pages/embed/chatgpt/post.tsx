@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
@@ -32,37 +32,128 @@ interface ToolPost {
   numComments?: number;
 }
 
-interface OpenAiGlobals {
+interface HostGlobals {
   toolOutput?: { data?: ToolPost | ToolPost[] } | null;
   theme?: 'light' | 'dark';
   displayMode?: 'inline' | 'fullscreen' | 'pip';
 }
 
-interface OpenAi extends OpenAiGlobals {
+interface OpenAi extends HostGlobals {
   openExternal?: (options: { href: string }) => void;
 }
+
+const MCP_APPS_PROTOCOL_VERSION = '2026-01-26';
+const INITIALIZE_REQUEST_ID = 1;
+let nextRequestId = INITIALIZE_REQUEST_ID + 1;
 
 const getOpenAi = (): OpenAi | undefined =>
   (globalThis as { openai?: OpenAi }).openai;
 
-const useOpenAiGlobals = (): OpenAiGlobals => {
-  const [globals, setGlobals] = useState<OpenAiGlobals>({});
+const isEmbedded = (): boolean => globalThis.parent !== globalThis.window;
+
+const postToHost = (message: Record<string, unknown>): void => {
+  globalThis.parent.postMessage({ jsonrpc: '2.0', ...message }, '*');
+};
+
+const definedOnly = (globals: HostGlobals): HostGlobals =>
+  Object.fromEntries(
+    Object.entries(globals).filter(([, value]) => value !== undefined),
+  );
+
+const useHostGlobals = (): HostGlobals => {
+  const [globals, setGlobals] = useState<HostGlobals>({});
 
   useEffect(() => {
-    const read = () =>
-      setGlobals({
-        toolOutput: getOpenAi()?.toolOutput,
-        theme: getOpenAi()?.theme,
-        displayMode: getOpenAi()?.displayMode,
+    const merge = (update: HostGlobals) =>
+      setGlobals((current) => ({ ...current, ...definedOnly(update) }));
+
+    const readOpenAi = () => {
+      const openAi = getOpenAi();
+      if (openAi) {
+        merge({
+          toolOutput: openAi.toolOutput,
+          theme: openAi.theme,
+          displayMode: openAi.displayMode,
+        });
+      }
+    };
+
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== globalThis.parent || event.data?.jsonrpc !== '2.0') {
+        return;
+      }
+
+      const { id, method, params, result } = event.data;
+      if (id === INITIALIZE_REQUEST_ID && result) {
+        merge({
+          theme: result.hostContext?.theme,
+          displayMode: result.hostContext?.displayMode,
+        });
+        postToHost({ method: 'ui/notifications/initialized' });
+        return;
+      }
+
+      if (method === 'ui/notifications/tool-result') {
+        merge({ toolOutput: params?.structuredContent });
+        return;
+      }
+
+      if (method === 'ui/notifications/host-context-changed') {
+        merge({ theme: params?.theme, displayMode: params?.displayMode });
+        return;
+      }
+
+      if (method === 'ui/resource-teardown') {
+        postToHost({ id, result: {} });
+      }
+    };
+
+    readOpenAi();
+    globalThis.addEventListener('openai:set_globals', readOpenAi);
+    globalThis.addEventListener('message', onMessage);
+
+    if (isEmbedded()) {
+      postToHost({
+        id: INITIALIZE_REQUEST_ID,
+        method: 'ui/initialize',
+        params: {
+          appInfo: { name: 'daily.dev', version: '1.0.0' },
+          appCapabilities: { availableDisplayModes: ['inline', 'fullscreen'] },
+          protocolVersion: MCP_APPS_PROTOCOL_VERSION,
+        },
       });
+    }
 
-    read();
-    globalThis.addEventListener('openai:set_globals', read);
-
-    return () => globalThis.removeEventListener('openai:set_globals', read);
+    return () => {
+      globalThis.removeEventListener('openai:set_globals', readOpenAi);
+      globalThis.removeEventListener('message', onMessage);
+    };
   }, []);
 
   return globals;
+};
+
+const useHostSize = (): RefObject<HTMLDivElement> => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || !isEmbedded()) {
+      return undefined;
+    }
+
+    const observer = new ResizeObserver(() =>
+      postToHost({
+        method: 'ui/notifications/size-changed',
+        params: { height: Math.ceil(element.getBoundingClientRect().height) },
+      }),
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
 };
 
 const openLink = (href: string): void => {
@@ -70,6 +161,16 @@ const openLink = (href: string): void => {
 
   if (openAi?.openExternal) {
     openAi.openExternal({ href });
+    return;
+  }
+
+  if (isEmbedded()) {
+    postToHost({
+      id: nextRequestId,
+      method: 'ui/open-link',
+      params: { url: href },
+    });
+    nextRequestId += 1;
     return;
   }
 
@@ -141,7 +242,7 @@ const ChatGptPostCard = ({ post }: { post: ToolPost }): ReactElement => (
 const ChatGptPosts = ({
   data,
   displayMode,
-}: Pick<OpenAiGlobals, 'displayMode'> & {
+}: Pick<HostGlobals, 'displayMode'> & {
   data: ToolPost | ToolPost[];
 }): ReactElement => {
   if (!Array.isArray(data)) {
@@ -174,7 +275,8 @@ const ChatGptPosts = ({
 };
 
 export default function ChatGptPostEmbed(): ReactElement {
-  const { toolOutput, theme, displayMode } = useOpenAiGlobals();
+  const { toolOutput, theme, displayMode } = useHostGlobals();
+  const sizeRef = useHostSize();
   const data = toolOutput?.data;
 
   useEffect(() => {
@@ -210,7 +312,9 @@ export default function ChatGptPostEmbed(): ReactElement {
                 'html,body{margin:0;min-width:0!important;background:transparent!important}'
               }
             </style>
-            {data && <ChatGptPosts data={data} displayMode={displayMode} />}
+            <div ref={sizeRef}>
+              {data && <ChatGptPosts data={data} displayMode={displayMode} />}
+            </div>
           </SettingsContextProvider>
         </FeaturesReadyContext.Provider>
       </AuthContext.Provider>
