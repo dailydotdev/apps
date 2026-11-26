@@ -175,7 +175,7 @@ export const DevSpec: StoryObj = {
               <Code key="f">
                 hooks/notifications/useReadingReminderHero.ts
               </Code>,
-              'Hour from now, push before saving, push-supported gate, account-level close, and the last-seen stamp written only when the card is on screen. useReadingReminderHeroSettled waits for the account-level close too, so Weekly picks keeps landing with it.',
+              'Hour from now, push before saving, push-supported gate, account-level close, and the last-seen stamp written only when the card is on screen. Gate the card itself on isActionsFetched, not useReadingReminderHeroSettled: Weekly picks waits on that hook within a 2s budget, and the two never show together.',
             ],
             [
               <Code key="f">
@@ -339,8 +339,9 @@ export const DevSpec: StoryObj = {
                 <Code>disableTopHero</Code> hides it when the feed hero (
                 <Code>featureFeedHero</Code>, without feed widgets) is on, and
                 while Weekly picks is still deciding (
-                <Code>MainFeedLayout.tsx</Code>). On phones and tablets it also
-                gives way to any other top content of the feed.
+                <Code>MainFeedLayout.tsx</Code>). On every width it also gives
+                way to any other top content of the feed, such as the explore
+                chips in list layout (<Code>Feed.tsx</Code>).
               </>,
               'Same',
               <Tag key="t" kind="same" />,
@@ -433,10 +434,13 @@ export const DevSpec: StoryObj = {
               Flow · All states shows every state at that width.
             </>,
             <>
-              <strong className="text-text-primary">Phones and tablets:</strong>{' '}
-              the inline card only shows when the feed has no other top content
-              (<Code>Feed.tsx</Code>). <Code>keepTopHero</Code> would keep it,
-              but no production caller sets it; only tests do.
+              <strong className="text-text-primary">Other top content:</strong>{' '}
+              on every width the card only shows when the feed has no other top
+              content (<Code>Feed.tsx</Code> gates both the inline card and the
+              laptop strip card on it). On laptop in list layout the explore
+              chips are that content, so those readers don’t get the card today
+              either. <Code>keepTopHero</Code> would keep it, but no production
+              caller sets it; only tests do.
             </>,
           ]}
         />
@@ -547,8 +551,9 @@ export const DevSpec: StoryObj = {
               Actions are not in boot: <Code>useActions</Code> fetches once the
               shell has settled. Don’t show the hero until{' '}
               <Code>isActionsFetched</Code>, or it flashes for people who closed
-              it. Fold that into <Code>useReadingReminderHeroSettled</Code>,
-              which the strip waits on.
+              it. Gate the card on that, not on{' '}
+              <Code>useReadingReminderHeroSettled</Code>: Weekly picks waits on
+              that hook within a 2s budget, and the two never show together.
             </>,
             'Keep reading the old IndexedDB "dismissed" value, and complete the action when it’s found, so past closes carry over.',
             'No backend change needed: completeAction stores any string (daily-api src/schema/actions.ts). Adding the type to the backend’s UserActionType is optional tidy-up.',

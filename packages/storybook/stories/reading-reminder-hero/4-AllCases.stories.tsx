@@ -3,7 +3,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { DeviceName } from '../sources/device';
 import { Device } from '../sources/device';
-import { FeedInDevice, FeedMock } from './FeedMock';
+import { FeedInDevice, FeedMock, StripInLaptop } from './FeedMock';
 import type { HeroStep, PromptPlatform } from './ProposedHero';
 import {
   PermissionPrompt,
@@ -159,12 +159,12 @@ const stepNotes: { step: HeroStep; title: string; note: string }[] = [
   {
     step: 'offer',
     title: 'Offer',
-    note: 'The hour they see the card, in their timezone, rounded down.',
+    note: 'The hour they see the card, in their timezone, rounded down; 9 AM between midnight and 5 AM.',
   },
   {
     step: 'picking',
     title: 'Other time',
-    note: '9 AM, 1 PM and 8 PM, with the current hour in place of the nearest one.',
+    note: '9 AM, 1 PM and 8 PM, with the offered hour in place of the nearest one.',
   },
   {
     step: 'asking',
@@ -251,7 +251,7 @@ export const Hours: StoryObj<CaseArgs> = {
     >
       {hourCases.map(({ hour, note }) => (
         <Group key={hour} title={`Seen at ${shortHour(hour)}`} note={note}>
-          <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[14rem_14rem_minmax(0,26rem)]">
+          <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[14rem_14rem_minmax(0,1fr)]">
             <FeedInDevice
               device="phone"
               height={440}
@@ -271,14 +271,23 @@ export const Hours: StoryObj<CaseArgs> = {
               }
             />
             <div className="flex flex-col gap-3">
-              <span className="font-bold text-text-tertiary typo-caption1">
-                Laptop strip, half width
-              </span>
-              <ProposedTopHero step="offer" readingHour={hour} onClose={noop} />
-              <ProposedTopHero
-                step="picking"
-                readingHour={hour}
-                onClose={noop}
+              <StripInLaptop
+                hero={
+                  <ProposedTopHero
+                    step="offer"
+                    readingHour={hour}
+                    onClose={noop}
+                  />
+                }
+              />
+              <StripInLaptop
+                hero={
+                  <ProposedTopHero
+                    step="picking"
+                    readingHour={hour}
+                    onClose={noop}
+                  />
+                }
               />
             </div>
           </div>
@@ -375,7 +384,7 @@ const whoCases: {
     note: 'The page check never passes there.',
   },
   {
-    reader: 'Phone or tablet feed with other top content',
+    reader: 'Feed with other top content (e.g. explore chips in list layout)',
     today: 'none',
     proposed: 'none',
     note: 'keepTopHero would keep it, but only tests set it.',
@@ -396,7 +405,7 @@ const whoCases: {
     reader: 'Weekly picks still deciding',
     today: 'none',
     proposed: 'none',
-    note: 'Held back for a moment so both cards land together.',
+    note: 'Held back until Weekly picks decides, since Weekly picks takes the slot when it shows.',
   },
 ];
 

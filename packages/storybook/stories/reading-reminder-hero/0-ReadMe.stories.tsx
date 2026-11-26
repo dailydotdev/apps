@@ -77,6 +77,7 @@ const beforeAfter = 'growth-reading-reminder-hero-1-before-and-after';
 const flow = 'growth-reading-reminder-hero-2-flow';
 const devSpec = 'growth-reading-reminder-hero-3-dev-spec--dev-spec';
 const allCases = 'growth-reading-reminder-hero-4-all-cases--today';
+const allCasesPlatforms = 'growth-reading-reminder-hero-4-all-cases--platforms';
 
 export const ReadMe: StoryObj = {
   name: 'Read me first',
@@ -123,7 +124,7 @@ export const ReadMe: StoryObj = {
 
       <section className="flex flex-col gap-3">
         <h2 className="font-bold text-text-primary typo-title3">
-          The six changes
+          Tsahi’s six points, and what we did
         </h2>
         <Change
           index={1}
@@ -150,12 +151,12 @@ export const ReadMe: StoryObj = {
           index={4}
           title="Push before saving"
           today="Saves the reminder, then asks for push. 46% don’t allow it, so almost half of the reminders it saves can’t arrive."
-          proposed="Asks for push first and saves only once it’s allowed. Already allowed skips the ask. Blocked shows how to turn it on. Hidden where push can’t work (iOS Safari outside an installed app)."
-          story={`${flow}--all-states`}
+          proposed="Asks for push first and saves only once it’s allowed. Already allowed skips the ask. Blocked readers get steps to turn it on (ReEnableNotifications in production). Hidden where push can’t work (iOS Safari outside an installed app)."
+          story={allCasesPlatforms}
         />
         <Change
           index={5}
-          title="Light theme on phones"
+          title="Light theme on phones and tablets"
           today="Fixed dark colors mixed with theme colors: in light theme its small title line (“Never miss a learning day”) and the button’s background disappear."
           proposed="Theme tokens, so it reads in both themes."
           story={`${beforeAfter}--themes`}

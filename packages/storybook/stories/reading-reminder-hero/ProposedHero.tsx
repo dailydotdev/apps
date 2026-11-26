@@ -195,8 +195,8 @@ const heroContent = ({
         title: 'Make reading a daily habit',
         subtitle:
           offered === readingHour
-            ? `One top pick a day at ${time}, when you’re reading now. Skipped on days you’ve read.`
-            : `One top pick a day at ${time}. Skipped on days you’ve read.`,
+            ? `One top pick a day at ${shortHour(offered)}, when you’re reading now. Skipped on days you’ve read.`
+            : `One top pick a day at ${shortHour(offered)}. Skipped on days you’ve read.`,
         actions: (
           <>
             <Button
@@ -229,13 +229,15 @@ export const ProposedHero = ({
   const { title, subtitle, actions } = heroContent(props);
 
   return (
-    <section className={classNames('mb-4 w-full', feedStyles.cards, className)}>
+    <section
+      className={classNames('mb-4 w-full pt-2', feedStyles.cards, className)}
+    >
       <div className={classNames(frame, 'relative')}>
         {onClose && <Close onClose={onClose} />}
         {/* Today's layout: stacked and centered on phones, a row from tablet
             up with the copy on the left and the art on the right
             (ReadingReminderFeedHero). */}
-        <div className="flex flex-col tablet:min-h-[13.125rem] tablet:flex-row tablet:items-stretch">
+        <div className="flex flex-col tablet:min-h-[12.625rem] tablet:flex-row tablet:items-stretch">
           <div className="flex flex-1 flex-col items-center px-5 pb-6 text-center tablet:items-start tablet:justify-center tablet:p-6 tablet:text-left">
             <h3 className="font-bold text-text-primary typo-title3 tablet:typo-title2">
               {title}
@@ -324,7 +326,7 @@ const promptCopy: Record<
       <>
         <strong>“daily.dev” Would Like to Send You Notifications</strong>
         <br />
-        Notifications may include alerts, sounds and icon badges.
+        Notifications may include alerts, sounds, and icon badges.
       </>
     ),
     block: 'Don’t Allow',

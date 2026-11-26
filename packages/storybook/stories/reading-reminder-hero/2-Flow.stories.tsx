@@ -7,7 +7,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Device } from '../sources/device';
-import { FeedInDevice, FeedMock } from './FeedMock';
+import { FeedInDevice, FeedMock, StripInLaptop } from './FeedMock';
 import type { HeroStep } from './ProposedHero';
 import {
   offeredHour,
@@ -186,7 +186,7 @@ const InteractiveFlow = ({
         <p className="text-text-tertiary typo-footnote">
           Change the reader’s hour and their push permission in the controls.
           The permission prompt is a stand-in: the real one belongs to the
-          browser or iOS.
+          browser or the OS.
         </p>
       </div>
     </div>
@@ -208,17 +208,17 @@ const states: { step: HeroStep; label: string; note: string }[] = [
   {
     step: 'offer',
     label: 'Offer',
-    note: 'The hour they see the card, in their timezone, rounded down. At that hour the first reminder is tomorrow; a later hour picked under Other time can come today.',
+    note: 'The hour they see the card, in their timezone, rounded down; 9 AM between midnight and 5 AM. The current hour’s first reminder comes tomorrow; a later hour (9 AM late at night, or one picked under Other time) can come today.',
   },
   {
     step: 'picking',
     label: 'Other time',
-    note: 'Three presets, the current hour in place of the nearest one. Picking one goes straight to the push ask.',
+    note: 'Three presets, the offered hour in place of the nearest one. Picking one goes straight to the push ask.',
   },
   {
     step: 'asking',
     label: 'Asking for push',
-    note: 'Shown behind the browser or iOS prompt. Nothing is saved yet.',
+    note: 'Shown behind the browser or OS prompt. Nothing is saved yet.',
   },
   {
     step: 'saved',
@@ -244,7 +244,7 @@ export const AllStates: StoryObj<FlowArgs> = {
   render: ({ readingHour }) => (
     <Page
       title="All states"
-      intro="Every state the slot can show: the feed card on a phone and a tablet, and the laptop strip card at half width (the strip splits when Weekly picks or the CV card also shows). Each state keeps its frame and roughly its height, so the feed under it doesn’t jump."
+      intro="Every state the slot can show: the feed card on a phone and a tablet, and the laptop strip card at 1024px, sharing the strip with another card as it does when the upload-CV card also shows. Each state keeps its frame and roughly its height, so the feed under it doesn’t jump."
     >
       <div className="flex flex-col gap-10">
         {states.map(({ step, label, note }) => {
@@ -266,22 +266,21 @@ export const AllStates: StoryObj<FlowArgs> = {
                 </p>
                 <p className="text-text-tertiary typo-footnote">{note}</p>
               </div>
-              <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[14rem_minmax(0,1fr)_minmax(0,26rem)]">
+              <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[14rem_minmax(0,1fr)_minmax(0,1fr)]">
                 <FeedInDevice device="phone" height={440} hero={card} />
                 <FeedInDevice device="tablet" height={300} hero={card} />
-                <div className="flex flex-col gap-2">
-                  <span className="font-bold text-text-tertiary typo-caption1">
-                    Laptop strip, half width
-                  </span>
-                  <ProposedTopHero
-                    step={step}
-                    readingHour={readingHour}
-                    onSend={noop}
-                    onPickTime={noop}
-                    onRetry={noop}
-                    onClose={noop}
-                  />
-                </div>
+                <StripInLaptop
+                  hero={
+                    <ProposedTopHero
+                      step={step}
+                      readingHour={readingHour}
+                      onSend={noop}
+                      onPickTime={noop}
+                      onRetry={noop}
+                      onClose={noop}
+                    />
+                  }
+                />
               </div>
             </div>
           );

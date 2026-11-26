@@ -87,3 +87,30 @@ export const FeedInDevice = ({
     <FeedMock hero={hero} />
   </Device>
 );
+
+/**
+ * The laptop strip card at a real laptop width, beside a placeholder for a
+ * second strip card (the upload-CV card, say), so it renders at the half
+ * width the strip gives it when two cards share it.
+ */
+export const StripInLaptop = ({ hero }: { hero: ReactNode }): ReactElement => (
+  <Device
+    device="laptop"
+    height={230}
+    url="/"
+    label="Laptop · 1024, strip shared with another card"
+  >
+    <FeedMock
+      isLaptop
+      hero={
+        <>
+          {hero}
+          <div
+            aria-hidden
+            className="rounded-16 border border-dashed border-border-subtlest-tertiary"
+          />
+        </>
+      }
+    />
+  </Device>
+);

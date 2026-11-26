@@ -72,7 +72,7 @@ const Pair = ({
           theme={theme}
           height={height}
           url="/"
-          label={`Today${theme ? '' : ` · ${device}`}`}
+          label={`Today · ${device}`}
         >
           <FeedMock
             isLaptop={isLaptop}
@@ -93,7 +93,7 @@ const Pair = ({
           theme={theme}
           height={height}
           url="/"
-          label={`Proposed${theme ? '' : ` · ${device}`}`}
+          label={`Proposed · ${device}`}
         >
           <FeedMock
             isLaptop={isLaptop}
@@ -147,14 +147,16 @@ export const Responsive: StoryObj = {
 export const Themes: StoryObj = {
   render: () => (
     <Page
-      title="Light theme on phones"
+      title="Light theme on phones and tablets"
       intro="Today’s card mixes fixed dark colors with theme colors, so in light theme its small title line (“Never miss a learning day”) and the button’s background disappear. The proposal uses theme tokens and reads in both."
     >
       <div className="flex flex-col gap-6">
         <h2 className="font-bold text-text-primary typo-title3">Light</h2>
         <Pair device="phone" theme="light" height={600} />
+        <Pair device="tablet" theme="light" height={420} />
         <h2 className="font-bold text-text-primary typo-title3">Dark</h2>
         <Pair device="phone" theme="dark" height={600} />
+        <Pair device="tablet" theme="dark" height={420} />
       </div>
     </Page>
   ),
