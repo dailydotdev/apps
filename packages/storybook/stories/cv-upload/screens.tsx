@@ -203,12 +203,15 @@ export const CvCompletionCard = (): ReactElement => (
               size={IconSize.XSmall}
               className="shrink-0 text-text-secondary"
             />
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Secondary}
-            >
-              Your CV fills work and education, +{progressWithCv - progress}%
-            </Typography>
+            <div className="min-w-0 max-w-full flex-1">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Secondary}
+                className="w-full break-words"
+              >
+                Your CV fills work and education, +{progressWithCv - progress}%
+              </Typography>
+            </div>
           </div>
         </div>
         <div className="flex shrink-0 leading-none">
