@@ -2,7 +2,10 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CvProviders } from './providers';
 import {
-  ProfileExperience as ProfileExperienceFrame,
+  AddWork as AddWorkFrame,
+  ProfileLfg,
+  ProfileMenuCvFirst,
+  ProfilePage,
   SettingsEducation as SettingsEducationFrame,
   SettingsWork as SettingsWorkFrame,
 } from './frames';
@@ -26,8 +29,18 @@ export default meta;
 
 type Story = StoryObj;
 
-export const ProfileExperience: Story = {
-  render: () => <ProfileExperienceFrame />,
+export const Profile: Story = { render: () => <ProfilePage /> };
+
+export const ProfileEditMenu: Story = {
+  render: () => <ProfilePage isEditMenuOpen />,
+};
+
+export const ProfileLfgToday: Story = {
+  render: () => <ProfilePage lfg={ProfileLfg.Today} />,
+};
+
+export const ProfileLfgNameRow: Story = {
+  render: () => <ProfilePage lfg={ProfileLfg.NameRow} />,
 };
 
 export const SettingsWork: Story = { render: () => <SettingsWorkFrame /> };
@@ -35,3 +48,7 @@ export const SettingsWork: Story = { render: () => <SettingsWorkFrame /> };
 export const SettingsEducation: Story = {
   render: () => <SettingsEducationFrame />,
 };
+
+export const AddWork: Story = { render: () => <AddWorkFrame /> };
+
+export const ProfileMenu: Story = { render: () => <ProfileMenuCvFirst /> };

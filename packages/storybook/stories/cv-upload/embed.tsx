@@ -113,3 +113,22 @@ export const LaptopFrame = ({
     />
   </div>
 );
+
+// The top right of a laptop viewport, where the header's profile menu opens.
+export const MenuCrop = ({
+  story,
+  theme,
+}: {
+  story: string;
+  theme: string;
+}): ReactElement => (
+  <div className="relative h-[45rem] w-[22rem] overflow-hidden rounded-16 border border-border-subtlest-secondary shadow-3">
+    <QueuedFrame
+      story={story}
+      theme={theme}
+      width={1280}
+      height={900}
+      className="absolute right-0 top-[-3rem] border-0"
+    />
+  </div>
+);

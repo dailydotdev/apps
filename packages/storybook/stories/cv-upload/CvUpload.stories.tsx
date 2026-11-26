@@ -11,16 +11,7 @@ import {
   Status,
 } from '../open-links-in/kit';
 import { CvProviders } from './providers';
-import {
-  AddWorkDesktop,
-  AddWorkPhone,
-  LfgRing,
-  ProfileDesktop,
-  ProfileMenuDesktop,
-  ProfileMenuPhone,
-  ProfilePhone,
-} from './screens';
-import { LaptopFrame, PhoneFrame } from './embed';
+import { LaptopFrame, MenuCrop, PhoneFrame } from './embed';
 
 const meta: Meta = {
   title: 'Growth/CV upload/1. Review',
@@ -59,9 +50,9 @@ export const Review: Story = {
           <p>
             The six places from the proposal, each on a phone and on desktop, in
             the look of Tsahi&apos;s video: one progress ring, one progress card
-            and one CV row, reused everywhere. Where a production page exists,
-            they sit on it; the rest is drawn with production&apos;s pieces.
-            Copy is from the video.
+            and one CV row, reused everywhere. Every frame is the production
+            page, loaded at a phone&apos;s or a laptop&apos;s width, with only
+            the new piece added. Copy is from the video.
           </p>
         </PageHeader>
 
@@ -72,64 +63,60 @@ export const Review: Story = {
 
         <Section
           title="1. A ring on the avatar that shows profile progress"
-          description="On the profile avatar with a 40% chip, and on the app's own avatar in the rail, the phone header and the menu."
+          description="The owner's own profile: the ring takes the place of the completion card and the CV banner."
         >
           <PhoneRow>
             <Cell label="Phone">
-              <ProfilePhone />
+              <PhoneFrame story="profile" theme={theme} />
             </Cell>
-            <Cell label="Clash: today's LFG ribbon">
-              <LfgRing />
+            <Cell
+              label="Clash: today's LFG badge"
+              note="An open LFG post draws its own green ring and the ribbon on the same avatar."
+            >
+              <PhoneFrame story="profile-lfg-today" theme={theme} />
             </Cell>
             <Cell
               label="Suggested: LFG next to the Plus icon"
-              note="The ribbon moves to the name row as a chip beside the Plus mark, and LFG's own ring goes. The avatar keeps one ring and one chip."
+              note="The ribbon moves to the name row as a chip beside the Plus mark, and LFG's ring goes. The avatar keeps one ring and one chip."
             >
-              <ProfilePhone hasLfg />
+              <PhoneFrame story="profile-lfg-name-row" theme={theme} />
             </Cell>
           </PhoneRow>
           <Desktop>
             <Cell label="Desktop">
-              <ProfileDesktop />
+              <LaptopFrame story="profile" theme={theme} />
             </Cell>
           </Desktop>
           <Callout title="LFG on the avatar">
-            An open LFG post draws a green ring and the LFG ribbon on the same
-            avatar, so the two rings would stack. Suggested: move LFG to the
-            name row next to the Plus icon, wherever the full profile header
-            shows it. Small avatars in comments and posts keep today&apos;s
-            corner mark.
+            Suggested: move LFG to the name row next to the Plus icon, wherever
+            the full profile header shows it. Small avatars in comments and
+            posts keep today&apos;s corner mark.
           </Callout>
         </Section>
 
-        <Section title="2. One “Fill from CV” row in the empty Experience section">
+        <Section
+          title="2. One “Fill from CV” row in the empty Experience section"
+          description="Further down the same profile: one Experience section with the progress and the CV row. Upload fills work and education."
+        >
           <PhoneRow>
-            <Cell
-              label="Phone"
-              note="Your own profile with no work or education. Upload fills both."
-            >
-              <PhoneFrame story="profile-experience" theme={theme} />
+            <Cell label="Phone">
+              <PhoneFrame story="profile" theme={theme} height={900} />
             </Cell>
           </PhoneRow>
-          <Desktop>
-            <Cell label="Desktop">
-              <LaptopFrame story="profile-experience" theme={theme} />
-            </Cell>
-          </Desktop>
         </Section>
 
         <Section title="3. “Import from CV” in the profile edit menu">
           <PhoneRow>
             <Cell
               label="Phone"
-              note="The pencil opens two rows instead of going straight to settings. Tap it."
+              note="The pencil opens the dropdown instead of going straight to settings; on a phone it is the dropdown's sheet."
             >
-              <ProfilePhone isMenuOpen />
+              <PhoneFrame story="profile-edit-menu" theme={theme} />
             </Cell>
           </PhoneRow>
           <Desktop>
             <Cell label="Desktop">
-              <ProfileDesktop isMenuOpen />
+              <LaptopFrame story="profile-edit-menu" theme={theme} />
             </Cell>
           </Desktop>
         </Section>
@@ -155,34 +142,29 @@ export const Review: Story = {
 
         <Section
           title="5. A shortcut inside Add work experience"
-          description="Shown only while they have no roles yet."
+          description="Above the real form, shown only while they have no roles yet."
         >
           <PhoneRow>
             <Cell label="Phone">
-              <AddWorkPhone />
+              <PhoneFrame story="add-work" theme={theme} />
             </Cell>
           </PhoneRow>
           <Desktop>
-            <Cell label="Desktop">
-              <AddWorkDesktop />
+            <Cell label="Desktop" note="The settings sidebar is left out.">
+              <LaptopFrame story="add-work" theme={theme} />
             </Cell>
           </Desktop>
         </Section>
 
         <Section
           title="6. The profile menu card leads with the CV"
-          description="While work or education is missing, the completion card's action is Fill from CV. Once the CV is in, it moves on to the next step, like a headline."
+          description="The header's profile menu, with ProfileCompletion's card leading with Fill from CV while work or education is missing. Once the CV is in, it goes back to the next missing step."
         >
           <PhoneRow>
-            <Cell label="Phone">
-              <ProfileMenuPhone />
+            <Cell label="Desktop: the header's profile menu">
+              <MenuCrop story="profile-menu" theme={theme} />
             </Cell>
           </PhoneRow>
-          <Desktop>
-            <Cell label="Desktop">
-              <ProfileMenuDesktop />
-            </Cell>
-          </Desktop>
         </Section>
       </Page>
     );
