@@ -125,14 +125,14 @@ export const CvRow = ({
   isPhone?: boolean;
   // Inside a card that already frames it.
   isBare?: boolean;
-  title?: string;
+  title?: string | null;
   description?: string | null;
 }): ReactElement => {
   const upload = (
     <Button
       variant={ButtonVariant.Primary}
-      size={isPhone ? ButtonSize.XSmall : ButtonSize.Small}
-      icon={<UploadIcon size={IconSize.Small} />}
+      size={ButtonSize.Small}
+      icon={<UploadIcon />}
     >
       Upload CV
     </Button>
@@ -147,9 +147,11 @@ export const CvRow = ({
       }
     >
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <Typography type={TypographyType.Callout} bold>
-          {title}
-        </Typography>
+        {title && (
+          <Typography type={TypographyType.Callout} bold>
+            {title}
+          </Typography>
+        )}
         {description && (
           <Typography
             type={TypographyType.Footnote}
@@ -190,7 +192,7 @@ export const ExperienceSection = ({
         Profile {progress}% done
       </Typography>
       <ProfileProgressBar />
-      <CvRow isPhone={isPhone} isBare />
+      <CvRow isPhone={isPhone} isBare title={null} />
     </div>
   </section>
 );
@@ -470,7 +472,7 @@ const ProfileMenuPanel = (): ReactElement => (
       <Button
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
-        icon={<UploadIcon size={IconSize.Small} />}
+        icon={<UploadIcon />}
       >
         Fill from CV
       </Button>
