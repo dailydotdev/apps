@@ -11,6 +11,7 @@ const textColors = {
     default: 'var(--theme-text-highlight-default)',
     hover: 'var(--theme-text-highlight-hover)',
   },
+  verified: 'var(--theme-text-verified)',
   credit: 'var(--theme-accent-bun-default)',
 };
 

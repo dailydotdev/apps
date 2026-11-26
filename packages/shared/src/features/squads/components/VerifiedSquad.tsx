@@ -5,6 +5,7 @@ import type { Source } from '../../../graphql/sources';
 import {
   featuredSquadCardGlow,
   featuredSquadCardShadow,
+  verifiedSealCheck,
   verifiedSquadCardBg,
   verifiedSquadCardGlow,
   verifiedSquadCardShadow,
@@ -15,8 +16,7 @@ import { showsVerifiedBadge } from '../lib/features';
 
 export const verifiedSquadLabel = 'Verified Company Squad';
 
-// A scalloped seal with a check, the shape people read as verified. The
-// check is cut in the page background so the seal works on any surface.
+// A scalloped seal with a check, the shape people read as verified.
 export const VerifiedSquadSeal = ({
   className,
 }: {
@@ -34,8 +34,8 @@ export const VerifiedSquadSeal = ({
     <path
       d="M7.6 12.3l3 3 5.8-6"
       fill="none"
-      stroke="var(--theme-background-default)"
-      strokeWidth="2.2"
+      style={{ stroke: verifiedSealCheck }}
+      strokeWidth="2.4"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -51,7 +51,7 @@ export const VerifiedSquadBadge = ({
     role="img"
     aria-label={verifiedSquadLabel}
     title={verifiedSquadLabel}
-    className="inline-flex shrink-0 text-accent-cabbage-default"
+    className="inline-flex shrink-0 text-text-verified"
   >
     <VerifiedSquadSeal className={className} />
   </span>
@@ -70,7 +70,7 @@ export const VerifiedCompanySquadCard = (): ReactElement => (
       className="absolute inset-0 blur-lg"
       style={{ background: verifiedSquadCardGlow }}
     />
-    <VerifiedSquadSeal className="relative size-6 text-accent-cabbage-default" />
+    <VerifiedSquadSeal className="relative size-6 text-text-verified" />
     <span className="relative font-bold text-text-primary typo-callout">
       {verifiedSquadLabel}
     </span>
@@ -79,8 +79,8 @@ export const VerifiedCompanySquadCard = (): ReactElement => (
 
 export const featuredSquadLabel = 'Featured Squad';
 
-// The Verified card's design in blue, for squads daily.dev features. Purple
-// stays the verified colour, so the two never read as one thing.
+// The Verified card's design in blue, for squads daily.dev features. Gold
+// stays the verified color, so the two never read as one thing.
 export const FeaturedSquadCard = (): ReactElement => (
   <div
     className="relative flex items-center gap-3 overflow-hidden rounded-16 px-4 py-3"
@@ -123,7 +123,7 @@ export const VerifiedLogoCheck = ({
     aria-label={verifiedSquadLabel}
     title={verifiedSquadLabel}
     className={classNames(
-      'pointer-events-none absolute -bottom-1 -right-1 z-2 flex size-3.5 rounded-full bg-background-default p-px text-accent-cabbage-default',
+      'pointer-events-none absolute -bottom-1 -right-1 z-2 flex size-3.5 rounded-full bg-background-default p-px text-text-verified',
       className,
     )}
   >
