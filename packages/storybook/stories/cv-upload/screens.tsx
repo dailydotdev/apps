@@ -30,7 +30,7 @@ import { avatar, completion, user } from './providers';
 import { BrowserChrome, Phone } from '../open-links-in/kit';
 
 // Tsahi's designs from the proposal video, drawn with production's pieces:
-// one green progress ring, one progress card and one dashed CV row, reused
+// one progress ring, one progress card and one dashed CV row, reused
 // everywhere the CV is asked for. Copy is his.
 
 const progress = completion.percentage;
@@ -84,7 +84,7 @@ export const RingAvatar = ({
         height="96"
         rx="24"
         pathLength={100}
-        className="fill-none stroke-border-subtlest-tertiary"
+        className="fill-none stroke-accent-pepper-subtler"
         strokeWidth={isLarge ? 3 : 6}
       />
       <rect
@@ -94,14 +94,14 @@ export const RingAvatar = ({
         height="96"
         rx="24"
         pathLength={100}
-        className="fill-none stroke-accent-avocado-default"
+        className="fill-none stroke-accent-cabbage-default"
         strokeWidth={isLarge ? 3 : 6}
         strokeLinecap="round"
         strokeDasharray={`${progress} 100`}
       />
     </svg>
     {hasChip && !hasLfg && (
-      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-8 bg-accent-avocado-default px-2.5 py-1 font-bold text-black typo-caption2">
+      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-8 bg-accent-cabbage-default px-2.5 py-1 font-bold text-white typo-caption2">
         {progress}%
       </span>
     )}
@@ -137,7 +137,7 @@ export const CvRow = ({
 
   return (
     <div className="flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-secondary p-3">
-      <span className="flex size-10 shrink-0 items-center justify-center self-start rounded-10 bg-surface-float text-accent-avocado-default">
+      <span className="flex size-10 shrink-0 items-center justify-center self-start rounded-10 bg-surface-float text-accent-cabbage-default">
         <UploadIcon />
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">

@@ -58,10 +58,10 @@ export const Review: Story = {
         >
           <p>
             The six places from the proposal, each on a phone and on desktop, in
-            the look of Tsahi&apos;s video: one green progress ring, one
-            progress card and one CV row, reused everywhere. Where a production
-            page exists, they sit on it; the rest is drawn with
-            production&apos;s pieces. Copy is from the video.
+            the look of Tsahi&apos;s video: one progress ring, one progress card
+            and one CV row, reused everywhere. Where a production page exists,
+            they sit on it; the rest is drawn with production&apos;s pieces.
+            Copy is from the video.
           </p>
         </PageHeader>
 
