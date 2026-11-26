@@ -37,7 +37,7 @@ const ProfileProgressBar = (): ReactElement => (
     className={{
       wrapper: 'h-1.5 rounded-14',
       bar: 'h-full rounded-14',
-      barColor: 'bg-accent-onion-default',
+      barColor: 'bg-brand-default',
     }}
   />
 );
@@ -73,14 +73,14 @@ export const ProgressRing = ({
         height="96"
         rx="20"
         pathLength={100}
-        className="fill-none stroke-accent-onion-default"
+        className="fill-none stroke-brand-default"
         strokeWidth="4"
         strokeLinecap="round"
         strokeDasharray={`${progress} 100`}
       />
     </svg>
     {hasChip && (
-      <span className="absolute left-1/2 top-[calc(100%+0.25rem)] -translate-x-1/2 -translate-y-1/2 rounded-8 bg-accent-onion-default px-2.5 py-1 font-bold text-white typo-caption2">
+      <span className="absolute left-1/2 top-[calc(100%+0.25rem)] -translate-x-1/2 -translate-y-1/2 rounded-8 bg-brand-default px-2.5 py-1 font-bold text-white typo-caption2">
         {progress}%
       </span>
     )}
@@ -89,7 +89,7 @@ export const ProgressRing = ({
 
 // LfgBadgeMark's ribbon, out of the avatar and into the name row.
 export const LfgChip = (): ReactElement => (
-  <span className="flex items-center gap-0.5 rounded-8 bg-accent-avocado-default px-1.5 py-0.5 font-bold text-white typo-caption2">
+  <span className="flex items-center gap-0.5 rounded-8 bg-accent-avocado-default px-1.5 py-0.5 font-bold text-raw-pepper-90 typo-caption2">
     <SignalIcon size={IconSize.XXSmall} secondary />
     LFG
   </span>
