@@ -1,6 +1,21 @@
 import { graphql, HttpResponse } from 'msw';
 import { COMPANY } from './modal';
 
+type MockCompany = { id: string; name: string; image: string | null };
+
+// The company the member's work email belongs to. Providers set it to the
+// story's current job, so a verify matches that job and marks it verified, as
+// production does.
+let verifiedCompany: MockCompany = {
+  id: 'acme',
+  name: COMPANY.name,
+  image: null,
+};
+
+export const setVerifiedCompany = (company: MockCompany | null): void => {
+  verifiedCompany = company ?? { id: 'acme', name: COMPANY.name, image: null };
+};
+
 // The two mutations VerifyExperienceModal sends. Any code passes, and the
 // company comes back linked, which production toasts as "Verification
 // successful".
@@ -13,7 +28,7 @@ export const verifyHandlers = [
       data: {
         verifyUserCompanyCode: {
           email: variables.email,
-          company: { id: 'acme', name: COMPANY.name, image: null },
+          company: verifiedCompany,
         },
       },
     }),

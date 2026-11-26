@@ -9,6 +9,7 @@ import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/Lazy
 import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import type { UserExperienceWork } from '@dailydotdev/shared/src/graphql/user/profile';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
+import { setVerifiedCompany } from './mocks';
 
 const noop = (): void => undefined;
 
@@ -133,6 +134,7 @@ export const Providers = ({
       member,
     );
     const currentJob = jobByState[jobState];
+    setVerifiedCompany(currentJob?.company ?? null);
     // Verified companies, and no completed actions.
     client.setQueryData(
       generateQueryKey(RequestKey.UserCompanies, member as never),
