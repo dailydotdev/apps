@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -34,7 +34,6 @@ const SidebarDesktopV2 = dynamic(loadSidebarDesktopV2);
 
 interface SidebarProps {
   activePage: string;
-  additionalButtons?: ReactNode;
   isNavButtons?: boolean;
   showFeedbackWidget?: boolean;
   onNavTabClick?: (tab: string) => void;
@@ -42,7 +41,6 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
-  additionalButtons,
   isNavButtons,
   showFeedbackWidget,
   onNavTabClick,
@@ -68,7 +66,6 @@ export const Sidebar = ({
       <SidebarDesktopV2
         activePage={isExtension ? activePage : undefined}
         featureTheme={featureTheme}
-        additionalButtons={additionalButtons}
         isNavButtons={isNavButtons}
         showFeedbackWidget={showFeedbackWidget}
         onNavTabClick={onNavTabClick}

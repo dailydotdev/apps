@@ -71,6 +71,7 @@ export enum ActionType {
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
+  ClosedCompanionBanner = 'closed_companion_banner',
   SidebarTourSeen = 'sidebar_tour_seen',
   MarketplaceSidebarClick = 'marketplace_sidebar_click',
   DismissPluginShareTooltip = 'dismiss_plugin_share_tooltip',

@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import HeaderLogo from './HeaderLogo';
@@ -26,7 +26,6 @@ import { PatchyPhoneCompanion } from '../../features/patchy/PatchyPhoneCompanion
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
   sidebarRendered?: boolean;
-  additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   canShowSignInStrip?: boolean;
 }
@@ -46,7 +45,6 @@ const HeaderButtons = dynamic(
 function MainLayoutHeader({
   hasBanner,
   sidebarRendered,
-  additionalButtons,
   onLogoClick,
   canShowSignInStrip = false,
 }: MainLayoutHeaderProps): ReactElement {
@@ -163,7 +161,7 @@ function MainLayoutHeader({
                   />
                 </div>
                 {renderSearchPanel()}
-                <HeaderButtons additionalButtons={additionalButtons} />
+                <HeaderButtons />
               </>
             )}
       </header>
