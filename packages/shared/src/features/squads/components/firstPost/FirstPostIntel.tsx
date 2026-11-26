@@ -43,7 +43,6 @@ import {
 
 interface FirstPostIntelProps {
   intel: SquadIntelHighlights;
-  name: string;
   editTopicsUrl: string;
   /** The prompt that starts the content skills, built on click */
   getAgentPrompt: () => string;
@@ -357,7 +356,6 @@ const PublishNow = ({
  */
 export const FirstPostIntel = ({
   intel,
-  name,
   editTopicsUrl,
   getAgentPrompt,
   onCopyPrompt,
@@ -385,7 +383,7 @@ export const FirstPostIntel = ({
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <h3 className="font-bold typo-title3">
-              Last week in {name}&apos;s topics
+              Reach the developers who matter to you
             </h3>
             {intel.trial && <StartupsFreeChip label="One-time free" />}
             {intel.trial && upgradeUrl && (

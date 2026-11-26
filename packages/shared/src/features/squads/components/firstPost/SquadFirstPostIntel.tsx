@@ -134,7 +134,6 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
       {intel && !isAnalyzingIntel && (
         <FirstPostIntel
           intel={intel}
-          name={squad.name}
           editTopicsUrl={getSquadManageUrl(
             squad.handle,
             SquadManageSection.Intel,
