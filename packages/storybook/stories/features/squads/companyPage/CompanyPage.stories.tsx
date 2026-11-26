@@ -415,6 +415,11 @@ export const TrendsAfterTrial: Story = {
   ...story('trialEnded'),
   play: CreateSomethingNew.play,
 };
+/** 2d. A page on a plan, nothing posted yet: its weekly intel, no trial. */
+export const PaidIntel: Story = {
+  ...story('paidNoPost'),
+  play: CreateSomethingNew.play,
+};
 /** 3. The admin finishes the last setup rows while the page is open. */
 export const SetupDone = story('setupDone');
 /** 4. Boosting: from the first post until the day-long boost ends. */

@@ -159,6 +159,20 @@ export const scenarios = {
     page: { logo: true, website: true, cover: false },
     profile: { photo: true, headline: false, job: false },
   },
+  /** On Starter, nothing posted yet: the weekly intel without a trial */
+  paidNoPost: {
+    viewer: 'admin',
+    pageAgeDays: 3,
+    plan: SquadPlan.Starter,
+    posts: [],
+    freeBoost: {
+      status: SquadFreeBoostStatus.Unavailable,
+      availableUntil: null,
+      post: null,
+      campaign: null,
+    },
+    page: { logo: true, website: true, cover: true },
+  },
   /** The admin fills in the last rows while the page is open */
   setupDone: {
     viewer: 'admin',
