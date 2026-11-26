@@ -272,7 +272,7 @@ export const ProposedHero = ({
  * like TopHero: the same frame, art on the left, copy and buttons beside it.
  * Bold title first and the line under it second, which TopHero's props
  * (small title over a bold subtitle) can't express. The strip splits in two
- * when Weekly picks or the CV card also shows.
+ * when the upload-CV card also shows.
  */
 export const ProposedTopHero = ({
   onClose,

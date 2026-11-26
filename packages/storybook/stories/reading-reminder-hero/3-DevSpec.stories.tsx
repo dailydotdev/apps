@@ -430,8 +430,9 @@ export const DevSpec: StoryObj = {
               <Code>tablet:has-[&gt;:nth-child(2)]:grid-cols-2</Code>). The
               reminder already waits for Weekly picks to decide (
               <Code>isAwaitingPicksHero</Code>), so hiding it behind Weekly
-              picks adds no new wait. The laptop card has to fit about 440px;
-              Flow · All states shows every state at that width.
+              picks adds no new wait. The laptop card has to work at half the
+              strip: about 490px at 1024px in the demo, less with the sidebar
+              open. Flow · All states shows every state at that width.
             </>,
             <>
               <strong className="text-text-primary">Other top content:</strong>{' '}
