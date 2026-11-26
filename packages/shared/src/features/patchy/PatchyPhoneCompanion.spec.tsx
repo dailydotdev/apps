@@ -58,8 +58,14 @@ jest.mock('./usePatchyRail', () => ({
   }),
 }));
 
-// The header's spots measure as a fixed box; jsdom has no layout.
-const spotBox = { left: 300, top: 10, width: 24, height: 24 } as DOMRect;
+// The header's spots sit at a fixed offset; jsdom has no layout.
+let spotOffsets: Record<string, number>;
+const restingSpot = {
+  offsetLeft: 300,
+  offsetTop: 10,
+  offsetWidth: 24,
+  offsetHeight: 24,
+};
 
 const HeaderPill = () => {
   const ref = usePatchyAnchor('pill');
@@ -91,9 +97,19 @@ const face = () =>
 beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
+  spotOffsets = { ...restingSpot };
+  Object.keys(restingSpot).forEach((key) => {
+    jest
+      .spyOn(HTMLElement.prototype, key as 'offsetLeft', 'get')
+      .mockImplementation(function offset(this: HTMLElement) {
+        return this === document.body ? 0 : spotOffsets[key];
+      });
+  });
   jest
-    .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-    .mockReturnValue(spotBox);
+    .spyOn(HTMLElement.prototype, 'offsetParent', 'get')
+    .mockImplementation(function parent(this: HTMLElement) {
+      return this === document.body ? null : document.body;
+    });
   mockShellP = 0;
   mockIsReacting = false;
   mockIsReading = false;
@@ -166,14 +182,19 @@ it('mid-reaction, hands back to the pill only once the header has slid back in',
   expect(screen.getByTestId('pill')).toHaveAttribute('data-hidden', 'no');
 });
 
-it('on a post, keeps a spot among the header actions and leaves it while the header is away', () => {
+it('on a post, stands among the header actions and only floats to react while it is away', () => {
   mockIsReading = true;
   const { rerender } = render(<Shell withPill={false} />);
+  const spot = () => screen.getByTestId('patchy-actions-spot');
 
-  expect(screen.getByTestId('header-actions')).toBeInTheDocument();
-  expect(face()).toHaveAttribute('data-position', 'actions');
-  expect(face()).toHaveStyle({ left: '300px', top: '10px' });
+  expect(face()).toBeNull();
+  expect(spot()).not.toHaveClass('invisible');
 
+  mockIsReacting = true;
+  rerender(<Shell withPill={false} />);
+  expect(face()).toBeNull();
+
+  mockIsReacting = false;
   mockShellP = 1;
   rerender(<Shell withPill={false} />);
   expect(face()).toBeNull();
@@ -182,11 +203,20 @@ it('on a post, keeps a spot among the header actions and leaves it while the hea
   rerender(<Shell withPill={false} />);
   expect(face()).toHaveAttribute('data-position', 'actions');
   expect(face()).toHaveStyle({ left: '300px', top: '10px' });
+  expect(spot()).toHaveClass('invisible');
+});
 
-  mockIsReacting = false;
-  mockShellP = 0;
+it('lands on his spot after the header actions around it moved it', () => {
+  mockIsReading = true;
+  const { rerender } = render(<Shell withPill={false} />);
+
+  spotOffsets.offsetLeft = 150;
+  mockShellP = 1;
   rerender(<Shell withPill={false} />);
-  expect(face()).toHaveAttribute('data-position', 'actions');
+  mockIsReacting = true;
+  rerender(<Shell withPill={false} />);
+
+  expect(face()).toHaveStyle({ left: '150px', top: '10px' });
 });
 
 it('elsewhere without a pill, reacts below the header without touching its actions', () => {
