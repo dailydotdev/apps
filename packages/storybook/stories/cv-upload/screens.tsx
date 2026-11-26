@@ -16,11 +16,13 @@ import {
 } from '@dailydotdev/shared/src/features/lfg/components/LfgAvatarBadge';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
+import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
 import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
 import { LinkIcon } from '@dailydotdev/shared/src/components/icons/Link';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
+import { SignalIcon } from '@dailydotdev/shared/src/components/icons/Signal';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { avatar, completion, user } from './providers';
@@ -99,7 +101,11 @@ export const RingAvatar = ({
         {progress}%
       </span>
     )}
-    {hasLfg && <LfgBadgeMark size={LfgBadgeSize.Ribbon} />}
+    {hasLfg && (
+      <span className="absolute inset-1.5 rounded-16 ring-2 ring-accent-avocado-default ring-offset-2 ring-offset-background-default">
+        <LfgBadgeMark size={LfgBadgeSize.Ribbon} />
+      </span>
+    )}
   </div>
 );
 
@@ -271,10 +277,21 @@ const ProfileActions = ({
   );
 };
 
+// The LFG ribbon, out of the avatar and into the name row beside the Plus
+// mark, so the progress ring and its chip keep the avatar to themselves.
+const LfgChip = (): ReactElement => (
+  <span className="flex items-center gap-0.5 rounded-8 bg-accent-avocado-default px-1.5 py-0.5 font-bold text-white typo-caption2">
+    <SignalIcon size={IconSize.XXSmall} secondary />
+    LFG
+  </span>
+);
+
 const ProfileHead = ({
   isMenuOpen,
+  hasLfg,
 }: {
   isMenuOpen?: boolean;
+  hasLfg?: boolean;
 }): ReactElement => (
   <div className="flex flex-col">
     <div className="h-24 rounded-16 bg-gradient-to-r from-accent-onion-default to-accent-cabbage-default" />
@@ -283,9 +300,16 @@ const ProfileHead = ({
       <ProfileActions isMenuOpen={isMenuOpen} />
     </div>
     <div className="mt-3 flex flex-col gap-1">
-      <Typography type={TypographyType.Title2} bold>
-        {user.name}
-      </Typography>
+      <div className="flex items-center gap-2">
+        <Typography type={TypographyType.Title2} bold>
+          {user.name}
+        </Typography>
+        <DevPlusIcon
+          className="text-action-plus-default"
+          size={IconSize.Size16}
+        />
+        {hasLfg && <LfgChip />}
+      </div>
       <Typography
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
@@ -326,13 +350,15 @@ const Laptop = ({
 
 export const ProfilePhone = ({
   isMenuOpen,
+  hasLfg,
 }: {
   isMenuOpen?: boolean;
+  hasLfg?: boolean;
 }): ReactElement => (
   <Phone browser={BrowserChrome.None} height={440}>
     <LeafHeader title={user.name} />
     <div className="px-4">
-      <ProfileHead isMenuOpen={isMenuOpen} />
+      <ProfileHead isMenuOpen={isMenuOpen} hasLfg={hasLfg} />
     </div>
   </Phone>
 );
@@ -357,8 +383,8 @@ export const LfgRing = (): ReactElement => (
       color={TypographyColor.Tertiary}
       className="max-w-56 text-center"
     >
-      The LFG ribbon takes the chip&apos;s place on the avatar&apos;s bottom
-      edge.
+      Today an open LFG post adds its own green ring and this ribbon to the same
+      avatar edge.
     </Typography>
   </div>
 );

@@ -78,8 +78,14 @@ export const Review: Story = {
             <Cell label="Phone">
               <ProfilePhone />
             </Cell>
-            <Cell label="With the LFG ribbon">
+            <Cell label="Clash: today's LFG ribbon">
               <LfgRing />
+            </Cell>
+            <Cell
+              label="Suggested: LFG next to the Plus icon"
+              note="The ribbon moves to the name row as a chip beside the Plus mark, and LFG's own ring goes. The avatar keeps one ring and one chip."
+            >
+              <ProfilePhone hasLfg />
             </Cell>
           </PhoneRow>
           <Desktop>
@@ -87,9 +93,12 @@ export const Review: Story = {
               <ProfileDesktop />
             </Cell>
           </Desktop>
-          <Callout title="Open question">
-            The chip and the LFG ribbon both sit on the avatar&apos;s bottom
-            edge. Either the ring skips people with LFG on, or the ribbon moves.
+          <Callout title="LFG on the avatar">
+            An open LFG post draws a green ring and the LFG ribbon on the same
+            avatar, so the two rings would stack. Suggested: move LFG to the
+            name row next to the Plus icon, wherever the full profile header
+            shows it. Small avatars in comments and posts keep today&apos;s
+            corner mark.
           </Callout>
         </Section>
 
