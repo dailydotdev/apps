@@ -332,6 +332,7 @@ export const realIntel = {
         url: 'https://daily.dev/posts/7-ai-tools-i-m-begging-you-to-try--yx87jescb',
         title: "7 AI tools I'M BEGGING YOU to try...",
         source: 'CodeHead',
+        image: 'https://i.ytimg.com/vi/RwtaADjOi0Q/sddefault.jpg',
         upvotes: 139,
         comments: 10,
         readsVsAverage: 318.3,
@@ -340,6 +341,8 @@ export const realIntel = {
         url: 'https://daily.dev/posts/everyone-s-a-software-engineer-now-h2iradjim',
         title: 'Everyone’s a software engineer now',
         source: 'LeadDev',
+        image:
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/19931621d7aa9dca7d0e1499415e24b1?_a=AQAEuop',
         upvotes: 82,
         comments: 35,
         readsVsAverage: 136.8,
@@ -348,6 +351,8 @@ export const realIntel = {
         url: 'https://daily.dev/posts/this-is-how-a-modern-software-delivery-pipeline-looks-like-ziuz7xfez',
         title: 'This Is How a Modern Software Delivery Pipeline Looks Like',
         source: 'Pavan Belagatti',
+        image:
+          'https://media.daily.dev/image/upload/s--79gpUMMv--/f_auto,pg_1/v1794501649/posts/ZiUz7xFEZ?_a=BAMAMiiw0',
         upvotes: 133,
         comments: 25,
         readsVsAverage: 128.4,
@@ -356,6 +361,8 @@ export const realIntel = {
         url: 'https://daily.dev/posts/all-ai-generated-code-should-be-open-source-jhhpyu8mk',
         title: 'All AI-generated code should be Open Source',
         source: 'Hacker News',
+        image:
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/f13c6e24bac9c7aa0cf534bf30a6bbcb?_a=AQAEuop',
         upvotes: 122,
         comments: 31,
         readsVsAverage: 104.5,
@@ -365,6 +372,7 @@ export const realIntel = {
         title:
           'Creator Of Taste Skill Just Revealed His Entire AI Design Workflow',
         source: 'AI LABS',
+        image: 'https://i.ytimg.com/vi/-bv2xKQzZio/sddefault.jpg',
         upvotes: 124,
         comments: 1,
         readsVsAverage: 99.6,
@@ -373,6 +381,8 @@ export const realIntel = {
         url: 'https://daily.dev/posts/vibe-coding-has-a-blind-spot-bvlsqrzfn',
         title: 'Vibe Coding Has a Blind Spot',
         source: 'Daily Dose of Data Science | Avi Chawla | Substack',
+        image:
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/0003f2e78c25f9eb4c8d7079c1f2857f?_a=AQAEuop',
         upvotes: 54,
         comments: 14,
         readsVsAverage: 93.3,
@@ -382,6 +392,7 @@ export const realIntel = {
         title:
           'Meta just opensourced a 100-File Skill Library for Better UI Designs!',
         source: 'AICodeKing',
+        image: 'https://i.ytimg.com/vi/VpYEFW5Yn7k/sddefault.jpg',
         upvotes: 98,
         comments: 8,
         readsVsAverage: 89.2,
@@ -390,6 +401,8 @@ export const realIntel = {
         url: 'https://daily.dev/posts/i-laugh-at-people-who-say-that-developer-jobs-are-at-risk-on0xirojz',
         title: 'I Laugh at People Who Say That Developer Jobs Are at Risk',
         source: 'Pavan Belagatti',
+        image:
+          'https://media.daily.dev/image/upload/s--efyCqFLY--/f_auto,pg_1/v1794155687/posts/oN0xiroJZ?_a=BAMAMiiw0',
         upvotes: 165,
         comments: 53,
         readsVsAverage: 81.3,
@@ -398,6 +411,7 @@ export const realIntel = {
         url: 'https://daily.dev/posts/herdr-vs-orca-vs-zed---what-s-my-choice--fesvpqbg1',
         title: "Herdr vs Orca vs Zed - What's my choice?",
         source: 'Christian Lempa',
+        image: 'https://i.ytimg.com/vi/6R27sCZAYa0/sddefault.jpg',
         upvotes: 40,
         comments: 4,
         readsVsAverage: 72,
@@ -406,6 +420,8 @@ export const realIntel = {
         url: 'https://daily.dev/posts/ep233-kubernetes-explained-for-busy-engineers-v0zh7npda',
         title: 'EP233: Kubernetes Explained for Busy Engineers',
         source: 'ByteByteGo',
+        image:
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/9ad1e65a0f59769a41738b150adcea93?_a=AQAEuop',
         upvotes: 78,
         comments: 5,
         readsVsAverage: 70.3,
@@ -414,6 +430,7 @@ export const realIntel = {
         url: 'https://daily.dev/posts/10-cybersecurity-terms-to-prepare-you-for-the-age-of-ai-4thdx8dsy',
         title: '10 cybersecurity terms to prepare you for the age of AI',
         source: 'CodeHead',
+        image: 'https://i.ytimg.com/vi/THtxqKwQdw4/sddefault.jpg',
         upvotes: 62,
         comments: 3,
         readsVsAverage: 65.5,
@@ -423,6 +440,8 @@ export const realIntel = {
         title:
           'This Open-Source Project Turn Your Windows 11 Taskbar into a macOS-Style Dock',
         source: 'Dev Tools',
+        image:
+          'https://media.daily.dev/image/upload/s--Z0gimWEa--/f_auto,pg_1/v1794714460/posts/vZyamV0VN?_a=BAMAMiiw0',
         upvotes: 91,
         comments: 29,
         readsVsAverage: 65.1,
@@ -779,6 +798,10 @@ export const realIntel = {
         url: 'https://daily.dev/posts/everyone-s-a-software-engineer-now-h2iradjim',
         title: 'Everyone’s a software engineer now',
         source: 'LeadDev',
+        image:
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/19931621d7aa9dca7d0e1499415e24b1?_a=AQAEuop',
+        upvotes: 85,
+        comments: 36,
         comment:
           'I don’t think so. Engineers don’t just write code, they build systems. The ability generate code with no knowledge of building scalable, secure, and performant systems does != software engineering. It’s great that more people can learn to build things with the tools but I’m not sure calling them software engineers is accurate.',
       },
@@ -786,6 +809,10 @@ export const realIntel = {
         url: 'https://daily.dev/posts/all-ai-generated-code-should-be-open-source-jhhpyu8mk',
         title: 'All AI-generated code should be Open Source',
         source: 'Hacker News',
+        image:
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/f13c6e24bac9c7aa0cf534bf30a6bbcb?_a=AQAEuop',
+        upvotes: 127,
+        comments: 31,
         comment:
           "I don't agree. AI LLMs are trained on human knowledge, so are human developers. If a developer used knowledge it acquired from open-source to create something commercial you wouldn't object, so what's the difference. AI is just a tool for us to use the common knowledge more efficiently.\nAnd AI doesn't generate products on its own, it gets prompted to do it, by a human.",
       },
@@ -794,6 +821,10 @@ export const realIntel = {
         title:
           'This Open-Source Project Turn Your Windows 11 Taskbar into a macOS-Style Dock',
         source: 'Dev Tools',
+        image:
+          'https://media.daily.dev/image/upload/s--Z0gimWEa--/f_auto,pg_1/v1794714460/posts/vZyamV0VN?_a=BAMAMiiw0',
+        upvotes: 100,
+        comments: 31,
         comment: "It's really good and extremely light on the system.",
       },
       {
@@ -808,6 +839,10 @@ export const realIntel = {
         url: 'https://daily.dev/posts/vibe-coding-has-a-blind-spot-bvlsqrzfn',
         title: 'Vibe Coding Has a Blind Spot',
         source: 'Daily Dose of Data Science | Avi Chawla | Substack',
+        image:
+          'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/0003f2e78c25f9eb4c8d7079c1f2857f?_a=AQAEuop',
+        upvotes: 62,
+        comments: 16,
         comment:
           'Do better prompt? If u had known there is role and access rules write it, also postgres has row level security. Defining role and access rule in another tool instead of just the DB is just more maintenance, the work is still there just more tools to remember.',
       },
@@ -951,6 +986,9 @@ export const realIntel = {
         url: 'https://daily.dev/posts/programming-problems-worth-1million--xejj8u5ed',
         title: 'Programming Problems Worth $1MILLION...',
         source: 'CodeHead',
+        image: 'https://i.ytimg.com/vi/H98S_K40qYE/sddefault.jpg',
+        upvotes: 3,
+        comments: 0,
         bookmarkRateVsAverage: 6.9,
       },
       {
@@ -964,6 +1002,10 @@ export const realIntel = {
         url: 'https://daily.dev/posts/agentic-engineering-layers-every-developer-should-know--htysrzqwb',
         title: 'Agentic Engineering Layers Every Developer Should Know!',
         source: 'Pavan Belagatti',
+        image:
+          'https://media.daily.dev/image/upload/s--QVAtXxnA--/f_auto,pg_1/v1794673653/posts/htySrZQwB?_a=BAMAMiiw0',
+        upvotes: 30,
+        comments: 4,
         bookmarkRateVsAverage: 4.4,
       },
       {
@@ -971,6 +1013,9 @@ export const realIntel = {
         title:
           'Just Ask Jev: Building Decision Layers for AI Agents and LLM Applications',
         source: 'Machine Learning News',
+        image: null,
+        upvotes: 12,
+        comments: 1,
         bookmarkRateVsAverage: 4.2,
       },
     ],

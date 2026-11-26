@@ -6,14 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import {
-  DiscussIcon,
-  EditIcon,
-  LinkIcon,
-  MoveToIcon,
-  OpenLinkIcon,
-  UpvoteIcon,
-} from '../../../../components/icons';
+import { EditIcon, MoveToIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { useCopyLink } from '../../../../hooks/useCopy';
 import type { SquadIntelHighlights } from '../../../../graphql/squadIntel';
@@ -31,12 +24,14 @@ import { AgentMarks } from '../AgentPromptButton';
 import { StartupsFreeChip } from '../StartupsFreeChip';
 import { SquadStatsRow } from '../valuePanel/SquadStatsRow';
 import { formatMultiple, IntelBar, IntelSection } from './IntelSection';
+import { IntelPostRow } from './IntelPostRow';
+import { IntelTag, IntelText } from './IntelTag';
 import {
   IntelDecayChart,
   IntelDiscussions,
-  IntelHowItsPosted,
   IntelMostBookmarked,
   IntelOnTheMove,
+  IntelTagsAndLength,
   IntelTitles,
   IntelWhatGetsRead,
 } from './FirstPostIntelSections';
@@ -64,8 +59,6 @@ interface FirstPostIntelProps {
 // Monday first, as the intel's days are
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const RISING_SHOWN = 3;
-
-const number = (value: number): string => value.toLocaleString('en-US');
 
 /** Rounded, as "38K": enough for scale, not an exact audience size */
 const compact = (value: number): string =>
@@ -322,64 +315,6 @@ const PublishNow = ({
   );
 };
 
-type TopPost = SquadIntelHighlights['topPosts'][number];
-
-/** A post as a place to go: its picture, its title as a link, how it did */
-const PostRow = ({
-  post,
-  rank,
-}: {
-  post: TopPost;
-  rank: number;
-}): ReactElement => (
-  <li>
-    <a
-      href={post.permalink}
-      target="_blank"
-      rel="noopener"
-      className="group -mx-2 flex items-center gap-3 rounded-12 p-2 hover:bg-surface-float"
-    >
-      <span className="w-4 shrink-0 text-center tabular-nums text-text-tertiary typo-footnote">
-        {rank}
-      </span>
-      {post.image ? (
-        <img
-          src={post.image}
-          alt=""
-          className="h-12 w-20 shrink-0 rounded-8 object-cover"
-        />
-      ) : (
-        <span className="flex h-12 w-20 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-tertiary group-hover:bg-surface-hover">
-          <LinkIcon size={IconSize.Small} />
-        </span>
-      )}
-      <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="line-clamp-2 font-bold typo-callout group-hover:underline">
-          {post.title}
-        </span>
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-footnote">
-          <span>{post.source}</span>
-          <strong className="text-text-primary">
-            {`${formatMultiple(post.readsVsAverage)} the average reads`}
-          </strong>
-          <span className="flex items-center gap-1">
-            <UpvoteIcon size={IconSize.Size16} />
-            {number(post.upvotes)}
-          </span>
-          <span className="flex items-center gap-1">
-            <DiscussIcon size={IconSize.Size16} />
-            {number(post.comments)}
-          </span>
-        </span>
-      </span>
-      <OpenLinkIcon
-        size={IconSize.Size16}
-        className="shrink-0 text-text-tertiary group-hover:text-text-primary"
-      />
-    </a>
-  </li>
-);
-
 /**
  * The page's weekly intel, drawn: the same four parts as the report that
  * paid pages read every Monday (your topics, what else your audience reads,
@@ -450,7 +385,9 @@ export const FirstPostIntel = ({
             <span className="text-text-tertiary typo-footnote">
               Our pick for your first post
             </span>
-            <strong className="typo-title3">{`#${opening.tag} is your opening`}</strong>
+            <strong className="typo-title3">
+              <IntelTag tag={opening.tag} /> is your opening
+            </strong>
             <p className="text-pretty text-text-secondary typo-callout">
               {`Posts there get ${formatIntelIndex(opening.readsPerPost)} the average reads, and few new posts compete for them.`}
             </p>
@@ -496,7 +433,7 @@ export const FirstPostIntel = ({
                     topic.tag === opening?.tag && 'font-bold',
                   )}
                 >
-                  #{topic.tag}
+                  <IntelTag tag={topic.tag} />
                 </span>
                 <IntelBar
                   percentage={(topic.share / maxShare) * 100}
@@ -558,7 +495,7 @@ export const FirstPostIntel = ({
                   {index + 1}
                 </span>
                 <span className="w-24 shrink-0 truncate typo-footnote tablet:w-44">
-                  #{tag.tag}
+                  <IntelTag tag={tag.tag} />
                 </span>
                 <IntelBar percentage={(tag.affinity / maxAffinity) * 100} />
                 <span className="w-10 shrink-0 text-right font-bold tabular-nums typo-footnote">
@@ -573,7 +510,7 @@ export const FirstPostIntel = ({
           </ul>
           {!!rising.length && !intel.risingTags.length && (
             <p className="text-text-secondary typo-footnote">
-              {`Rising fastest: ${list(rising)}.`}
+              <IntelText text={`Rising fastest: ${list(rising)}.`} />
             </p>
           )}
         </IntelSection>
@@ -582,12 +519,17 @@ export const FirstPostIntel = ({
       <IntelOnTheMove intel={intel} />
       <IntelWhatGetsRead intel={intel} />
       <IntelTitles intel={intel} />
-      <IntelHowItsPosted intel={intel} />
+      <IntelTagsAndLength intel={intel} />
 
       <IntelSection title="Top posts in your topics">
         <ol className="flex flex-col">
           {intel.topPosts.map((post, index) => (
-            <PostRow key={post.permalink} post={post} rank={index + 1} />
+            <IntelPostRow
+              key={post.permalink}
+              post={post}
+              rank={index + 1}
+              stat={`${formatMultiple(post.readsVsAverage)} the average reads`}
+            />
           ))}
         </ol>
       </IntelSection>

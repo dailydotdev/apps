@@ -19,6 +19,7 @@ import {
 import { getIntelWeekLabel } from '../../lib/intel';
 import { StartupsFreeChip } from '../StartupsFreeChip';
 import { TagChips } from './FirstPostIntelSections';
+import { IntelTag, IntelText } from './IntelTag';
 import { formatMultiple, IntelBar, IntelSection } from './IntelSection';
 
 interface FirstPostTrendsProps {
@@ -52,9 +53,10 @@ const RisingRows = ({
       {topics.map(({ tag, multiple, note }) => (
         <li key={tag} className="flex flex-col gap-1">
           <div className="flex items-center gap-3">
-            <span className="w-28 shrink-0 truncate font-bold typo-footnote tablet:w-40">
-              #{tag}
-            </span>
+            <IntelTag
+              tag={tag}
+              className="w-28 shrink-0 truncate font-bold typo-footnote tablet:w-40"
+            />
             <IntelBar
               percentage={max > 0 ? ((multiple - 1) / max) * 100 : 0}
               fillClassName="bg-accent-avocado-default"
@@ -65,7 +67,7 @@ const RisingRows = ({
           </div>
           {note && (
             <p className="text-pretty text-text-tertiary typo-caption1">
-              {sentence(note)}
+              <IntelText text={sentence(note)} />
             </p>
           )}
         </li>
@@ -84,7 +86,9 @@ const ExampleRow = ({ example }: { example: Example }): ReactElement => {
 
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-pretty typo-callout">{sentence(example.pattern)}</p>
+      <p className="text-pretty typo-callout">
+        <IntelText text={sentence(example.pattern)} />
+      </p>
       {example.url ? (
         <a
           href={example.url}
@@ -99,7 +103,7 @@ const ExampleRow = ({ example }: { example: Example }): ReactElement => {
       )}
       {example.note && (
         <p className="text-pretty text-text-tertiary typo-footnote">
-          {sentence(example.note)}
+          <IntelText text={sentence(example.note)} />
         </p>
       )}
     </div>
@@ -157,7 +161,7 @@ export const FirstPostTrends = ({
             className="text-pretty border-l-2 py-1 pl-4 text-text-secondary typo-callout"
             style={{ borderColor: startupsLavender }}
           >
-            {trends.summary}
+            <IntelText text={trends.summary} />
           </p>
         )}
       </div>
@@ -170,12 +174,14 @@ export const FirstPostTrends = ({
           <RisingRows topics={rising} />
           {!!oneStory.length && (
             <p className="text-pretty text-text-secondary typo-footnote">
-              {`A single story drove ${oneStory
-                .map(
-                  ({ tag, multiple }) =>
-                    `#${tag} (${formatMultiple(multiple)})`,
-                )
-                .join(', ')}, so they may not last.`}
+              <IntelText
+                text={`A single story drove ${oneStory
+                  .map(
+                    ({ tag, multiple }) =>
+                      `#${tag} (${formatMultiple(multiple)})`,
+                  )
+                  .join(', ')}, so they may not last.`}
+              />
             </p>
           )}
         </IntelSection>

@@ -183,6 +183,10 @@ interface IntelPostLink {
   title: string;
   url: string;
   source: string;
+  /** Missing on most bookmarked and discussed posts of older intel */
+  image?: string | null;
+  upvotes?: number;
+  comments?: number;
 }
 
 interface StartupsIntelData {
@@ -242,7 +246,14 @@ export interface IntelDecay {
   days8to14: number;
 }
 
-type IntelPost = { title: string; source: string; permalink: string };
+export interface IntelPost {
+  title: string;
+  source: string;
+  permalink: string;
+  image?: string | null;
+  upvotes?: number;
+  comments?: number;
+}
 
 export interface SquadIntelTrial {
   endsAt: string;

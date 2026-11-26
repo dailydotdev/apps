@@ -20,6 +20,7 @@ import {
 } from '../../lib/intel';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useIsFirstPostShown } from '../firstPost/SquadFirstPost';
+import { IntelTag } from '../firstPost/IntelTag';
 
 const TOPICS_SHOWN = 2;
 
@@ -63,9 +64,13 @@ export const SquadIntelWidget = (): ReactElement | null => {
       </div>
       <div className="flex flex-col gap-0.5">
         <h2 className="font-bold typo-callout">
-          {opening
-            ? `#${opening.tag} is your opening`
-            : 'What developers read last week'}
+          {opening ? (
+            <>
+              <IntelTag tag={opening.tag} /> is your opening
+            </>
+          ) : (
+            'What developers read last week'
+          )}
         </h2>
         {opening && (
           <p className="text-text-tertiary typo-footnote">
@@ -79,7 +84,7 @@ export const SquadIntelWidget = (): ReactElement | null => {
             key={tag}
             className="flex h-8 items-center gap-2 border-t border-border-subtlest-tertiary typo-footnote"
           >
-            <span className="min-w-0 flex-1 truncate font-bold">#{tag}</span>
+            <IntelTag tag={tag} className="min-w-0 flex-1 truncate font-bold" />
             <span className="tabular-nums text-text-tertiary">{`${share}% of reads`}</span>
             <span
               className={classNames(
