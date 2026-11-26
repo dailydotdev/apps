@@ -24,6 +24,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
 import { AccountPageContainer } from '../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { SettingsFrame } from './production';
+import { CyclingCompanyLogo } from './modal';
 import { member } from './providers';
 // A proposed cover from Smith: Patchy and friends reading the new CV.
 import cvUploadedCover from './cv-uploaded-cover.png';
@@ -76,8 +77,30 @@ const useCurrentCompany = (): { name: string; image?: string } => {
 };
 
 /**
- * The ask: the company's logo when we have it (the building placeholder
- * otherwise, as on the experience list), one line, one button. Copy is a
+ * The company's logo when we have it; otherwise the logos taking turns, as on
+ * the modal's benefits screen.
+ */
+const CompanyLogoOrCycle = ({
+  image,
+  name,
+}: {
+  image?: string;
+  name: string;
+}): ReactElement =>
+  image ? (
+    <Image
+      className="size-6 rounded-max object-cover"
+      type={ImageType.Organization}
+      src={image}
+      alt={`${name} logo`}
+    />
+  ) : (
+    <CyclingCompanyLogo className="size-6" />
+  );
+
+/**
+ * The ask: the company's logo when we have it (the logos taking turns
+ * otherwise), one line, one button. Copy is a
  * placeholder.
  */
 const AskRow = ({
@@ -90,12 +113,7 @@ const AskRow = ({
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-12 bg-surface-float p-3">
-      <Image
-        className="size-6 rounded-max object-cover"
-        type={ImageType.Organization}
-        src={image}
-        alt={`${name} logo`}
-      />
+      <CompanyLogoOrCycle image={image} name={name} />
       <Typography
         className="min-w-0 flex-1"
         type={TypographyType.Footnote}
@@ -221,12 +239,7 @@ const NextStepRow = ({
 }: PlaceProps & { company: { name: string; image?: string } }): ReactElement => (
   <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3">
     <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float">
-      <Image
-        className="size-6 rounded-max object-cover"
-        type={ImageType.Organization}
-        src={image}
-        alt={`${name} logo`}
-      />
+      <CompanyLogoOrCycle image={image} name={name} />
     </span>
     <div className="flex min-w-0 flex-1 flex-col">
       <Typography type={TypographyType.Callout} bold>
@@ -282,6 +295,8 @@ export const AfterCvUpload = ({ onVerify }: PlaceProps): ReactElement => {
           isOpen
           parentSelector={() => host}
           overlayClassName="!absolute"
+          // Inline in its box, it mustn't lock the page's scroll.
+          bodyOpenClassName={null}
           onRequestClose={() => setIsModalOpen(false)}
           withCloseOnTablet
           content={{

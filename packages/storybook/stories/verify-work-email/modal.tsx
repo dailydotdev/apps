@@ -165,6 +165,24 @@ const CompanyImage = ({
   />
 );
 
+/**
+ * The company logos taking turns, for when we have no logo for the member's
+ * company.
+ */
+export const CyclingCompanyLogo = ({
+  className,
+}: {
+  className: string;
+}): ReactElement => {
+  const { company, isShown } = useCyclingCompany();
+
+  return (
+    <span className={fade(isShown)}>
+      <CompanyImage company={company} className={className} />
+    </span>
+  );
+};
+
 // The feed widgets' corner glow (feedWidgets/widgets/material.tsx), in the
 // avocado green the production popover tags verification with.
 const verifiedGlow = {
