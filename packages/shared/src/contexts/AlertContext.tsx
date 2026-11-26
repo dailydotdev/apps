@@ -19,6 +19,7 @@ export const ALERT_DEFAULTS: Alerts = {
   showGenericReferral: false,
   showStreakMilestone: false,
   showAchievementUnlock: null,
+  showFirstReputation: false,
   lastBootPopup: null,
   briefBannerLastSeen: null,
 };

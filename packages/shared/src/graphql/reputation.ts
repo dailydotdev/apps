@@ -252,3 +252,29 @@ export const reputationEventsQueryOptions = ({
   enabled: !!user,
   staleTime: StaleTime.Default,
 });
+
+/** The newest gain, which is what earned the first reputation moment. */
+export const latestReputationGainQueryOptions = ({
+  user,
+}: {
+  user: ReputationUser;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.ReputationEvents,
+    user ?? undefined,
+    ReputationEventFilter.Gains,
+    'latest',
+  ),
+  queryFn: async () => {
+    const { reputationEvents } = await gqlClient.request<{
+      reputationEvents: Connection<ReputationEvent>;
+    }>(REPUTATION_EVENTS_QUERY, {
+      first: 1,
+      filter: ReputationEventFilter.Gains,
+    });
+
+    return reputationEvents.edges[0]?.node ?? null;
+  },
+  enabled: !!user,
+  staleTime: StaleTime.Default,
+});

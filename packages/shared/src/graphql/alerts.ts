@@ -23,6 +23,7 @@ export type Alerts = {
   showRecoverStreak?: boolean;
   showTopReader?: boolean;
   showAchievementUnlock?: string | null;
+  showFirstReputation?: boolean;
   briefBannerLastSeen?: Date;
   opportunityId?: Opportunity['id'] | null;
   flags?: AlertsFlags;
@@ -43,6 +44,7 @@ export const UPDATE_ALERTS = gql`
       showStreakMilestone
       showTopReader
       showAchievementUnlock
+      showFirstReputation
       briefBannerLastSeen
     }
   }

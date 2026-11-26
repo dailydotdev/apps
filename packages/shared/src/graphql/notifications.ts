@@ -53,6 +53,8 @@ export interface Notification {
   targetUrl: string;
   numTotalAvatars?: number;
   hasThanks?: boolean;
+  /** Reputation an upvote milestone's upvotes earned, 0 otherwise. */
+  reputation?: number;
 }
 
 export interface NotificationsData {
@@ -91,6 +93,7 @@ export const NOTIFICATIONS_QUERY = gql`
           targetUrl
           numTotalAvatars
           hasThanks
+          reputation
         }
       }
     }

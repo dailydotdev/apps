@@ -118,6 +118,13 @@ const ReputationPrivilegesModal = dynamic(
     ),
 );
 
+const FirstReputationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "firstReputationModal" */ './FirstReputationModal'
+    ),
+);
+
 const MarketingCtaModal = dynamic(
   () =>
     import(
@@ -597,6 +604,7 @@ export const modals = {
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
+  [LazyModal.FirstReputation]: FirstReputationModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,

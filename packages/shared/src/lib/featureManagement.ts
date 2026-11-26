@@ -460,3 +460,8 @@ export const featureQuestBonusHighlight = new Feature(
 // user on My Feed, so those are the users it enrolls. The API decides when a
 // user in the experiment is due the card.
 export const featureFeedSurvey = new Feature('feed_survey', false);
+
+// Rollout: the first reputation moment, a modal (a drawer on phones) on the
+// next page load after a member's first reputation gain. Replaces Customer.io
+// campaign 16. Evaluated only for members the API flagged.
+export const featureFirstReputation = new Feature('first_reputation', false);

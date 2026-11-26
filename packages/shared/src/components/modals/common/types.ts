@@ -50,6 +50,7 @@ export enum LazyModal {
   StreakFreeFreezesUpsell = 'streakFreeFreezesUpsell',
   StreakGoal = 'streakGoal',
   ReputationPrivileges = 'reputationPrivileges',
+  FirstReputation = 'firstReputation',
   MarketingCta = 'marketingCta',
   Share = 'share',
   BookmarkReminder = 'bookmarkReminder',

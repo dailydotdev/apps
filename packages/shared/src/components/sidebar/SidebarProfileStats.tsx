@@ -1,6 +1,9 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { ReputationEarnedChip } from '../ReputationEarnedChip';
 import { walletUrl, webappUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { formatCurrency } from '../../lib/utils';
@@ -19,13 +22,36 @@ const cellClass =
 // (see StreakRing / useStreakRingState).
 export const SidebarProfileStats = (): ReactElement | null => {
   const { user } = useAuthContext();
+  const { optOutLevelSystem } = useSettingsContext();
   const hasCoresAccess = useHasAccessToCores();
+  const reputation = user?.reputation ?? 0;
+  // The count the member last saw here; the chip shows what came since
+  const [seenReputation, setSeenReputation, isSeenLoaded] = usePersistentState<
+    number | null
+  >(`seen_reputation_${user?.id}`, null);
+  const latestReputation = useRef(reputation);
+  latestReputation.current = reputation;
+
+  useEffect(() => {
+    if (!user || !isSeenLoaded) {
+      return undefined;
+    }
+
+    return () => {
+      setSeenReputation(latestReputation.current);
+    };
+    // Saved once the menu closes, so the chip stays while it is open
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSeenLoaded, user?.id]);
 
   if (!user) {
     return null;
   }
 
-  const reputation = user.reputation ?? 0;
+  const earned =
+    !optOutLevelSystem && isSeenLoaded && seenReputation !== null
+      ? reputation - seenReputation
+      : 0;
   const balance = user.balance?.amount ?? 0;
   const preciseBalance = formatCurrency(balance, { minimumFractionDigits: 0 });
 
@@ -44,6 +70,7 @@ export const SidebarProfileStats = (): ReactElement | null => {
           >
             {largeNumberFormat(reputation)}
           </Typography>
+          <ReputationEarnedChip amount={earned} />
         </a>
       </Link>
       {hasCoresAccess && (
