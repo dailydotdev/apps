@@ -713,9 +713,32 @@ function AuthOptionsInner({
     };
 
     if (isNativeAuthSupported(provider)) {
-      const res = await iosNativeAuth(provider);
+      // Why native sign-in ended without a token, when the app says so or
+      // never answers. A cancel is the user's choice and stays quiet.
+      let nativeFailure: { error: string; code?: string } | undefined;
+      const res = await iosNativeAuth(provider, {
+        onTimeout: () => {
+          nativeFailure = { error: 'No reply from the iOS app' };
+        },
+        onFailure: ({ error, code, cancelled }) => {
+          if (!cancelled) {
+            nativeFailure = { error, code };
+          }
+        },
+      });
       if (!res) {
         setIsSocialAuthLoading(false);
+        if (nativeFailure) {
+          logEvent({
+            event_name: authErrorEventName,
+            extra: JSON.stringify({
+              provider,
+              ...nativeFailure,
+              origin: Origin.IOSNativeAuth,
+            }),
+          });
+          onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
+        }
         return;
       }
       const result = await betterAuthSignInWithIdToken({
