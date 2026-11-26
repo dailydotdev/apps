@@ -7,8 +7,8 @@ import { BrowserChrome, Phone } from '../open-links-in/kit';
 // Frames load one at a time: several previews pulling the same module graph
 // at once make the dev server's imports fail.
 
-const frameSrc = (story: string, theme: string, args?: string): string =>
-  `iframe.html?id=growth-cv-upload-2-production-frames--${story}&viewMode=story&globals=theme:${theme}${args ? `&args=${args}` : ''}`;
+const frameSrc = (story: string, theme: string): string =>
+  `iframe.html?id=growth-cv-upload-2-production-frames--${story}&viewMode=story&globals=theme:${theme}`;
 
 let queue = Promise.resolve();
 
@@ -23,14 +23,12 @@ const isRendered = (frame: HTMLIFrameElement | null): boolean => {
 const QueuedFrame = ({
   story,
   theme,
-  args,
   className,
   width,
   height,
 }: {
   story: string;
   theme: string;
-  args?: string;
   className: string;
   width?: number;
   height?: number;
@@ -71,7 +69,7 @@ const QueuedFrame = ({
     <iframe
       ref={ref}
       title={story}
-      src={isStarted ? frameSrc(story, theme, args) : undefined}
+      src={isStarted ? frameSrc(story, theme) : undefined}
       width={width}
       height={height}
       className={className}
@@ -82,20 +80,16 @@ const QueuedFrame = ({
 export const PhoneFrame = ({
   story,
   theme,
-  args,
   height = 720,
 }: {
   story: string;
   theme: string;
-  // Story args, as Storybook's URL takes them: key:value;key:value.
-  args?: string;
   height?: number;
 }): ReactElement => (
   <Phone browser={BrowserChrome.None} height={height}>
     <QueuedFrame
       story={story}
       theme={theme}
-      args={args}
       className="w-full flex-1 border-0"
     />
   </Phone>

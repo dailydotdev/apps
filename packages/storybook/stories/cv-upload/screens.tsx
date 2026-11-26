@@ -42,52 +42,13 @@ const ProfileProgressBar = (): ReactElement => (
   />
 );
 
-// Candidate colors for the ring and its chip, as literal classes so
-// Tailwind keeps them. Brand is cabbage; green stays LFG's.
-export const ringColors = {
-  brand: {
-    stroke: 'stroke-brand-default',
-    chip: 'bg-brand-default text-white',
-  },
-  onion: {
-    stroke: 'stroke-accent-onion-default',
-    chip: 'bg-accent-onion-default text-white',
-  },
-  water: {
-    stroke: 'stroke-accent-water-default',
-    chip: 'bg-accent-water-default text-white',
-  },
-  blueCheese: {
-    stroke: 'stroke-accent-blueCheese-default',
-    chip: 'bg-accent-blueCheese-default text-raw-pepper-90',
-  },
-  cheese: {
-    stroke: 'stroke-accent-cheese-default',
-    chip: 'bg-accent-cheese-default text-raw-pepper-90',
-  },
-  bun: {
-    stroke: 'stroke-accent-bun-default',
-    chip: 'bg-accent-bun-default text-raw-pepper-90',
-  },
-  bacon: {
-    stroke: 'stroke-accent-bacon-default',
-    chip: 'bg-accent-bacon-default text-white',
-  },
-  salt: {
-    stroke: 'stroke-accent-salt-default',
-    chip: 'bg-accent-salt-default text-raw-pepper-90',
-  },
-};
-
-export type RingColor = keyof typeof ringColors;
-
 // The profile progress around the avatar, for ProfileHeader's avatarBadge
 // slot, which covers the avatar exactly. The chip sits centered on the
 // ring's bottom edge.
 export const ProgressRing = ({
-  color = 'brand',
+  hasChip = true,
 }: {
-  color?: RingColor;
+  hasChip?: boolean;
 }): ReactElement => (
   <>
     <svg
@@ -112,17 +73,17 @@ export const ProgressRing = ({
         height="96"
         rx="20"
         pathLength={100}
-        className={`fill-none ${ringColors[color].stroke}`}
+        className="fill-none stroke-brand-default"
         strokeWidth="4"
         strokeLinecap="round"
         strokeDasharray={`${progress} 100`}
       />
     </svg>
-    <span
-      className={`absolute left-1/2 top-[calc(100%+0.25rem)] -translate-x-1/2 -translate-y-1/2 rounded-8 px-2.5 py-1 font-bold typo-caption2 ${ringColors[color].chip}`}
-    >
-      {progress}%
-    </span>
+    {hasChip && (
+      <span className="absolute left-1/2 top-[calc(100%+0.25rem)] -translate-x-1/2 -translate-y-1/2 rounded-8 bg-brand-default px-2.5 py-1 font-bold text-white typo-caption2">
+        {progress}%
+      </span>
+    )}
   </>
 );
 

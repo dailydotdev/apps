@@ -32,6 +32,7 @@ export const user = {
   name: 'Dev Dana',
   username: 'dana',
   image: avatar,
+  cover: '/cv-upload/cover-cyber-city.jpg',
   bio: 'Frontend developer',
   permalink: 'https://app.daily.dev/dana',
   createdAt: '2024-03-01T00:00:00.000Z',
