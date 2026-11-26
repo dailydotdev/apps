@@ -126,8 +126,8 @@ export const ReadMe: StoryObj = {
         <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
           <Item title="The member’s job">
             A company we have (its logo), a typed-in company (the logos take
-            turns), a long name, still loading (a skeleton the same height, so
-            nothing jumps), no current job and already verified (no ask
+            turns), a long name, still loading (the asks in the page show a
+            skeleton the same height, so nothing jumps), no current job and already verified (no ask
             anywhere).
           </Item>
           <Item title="The verify form">

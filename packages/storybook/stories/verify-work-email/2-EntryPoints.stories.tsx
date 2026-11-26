@@ -80,7 +80,10 @@ export const AllFiveOnPhone: Story = { globals: phone };
 /** All five on a tablet, where settings shows its own menu. */
 export const AllFiveOnTablet: Story = { globals: tablet };
 
-/** While the job loads, each ask holds its place with a skeleton. */
+/**
+ * While the job loads, the asks in the page hold their place with a skeleton.
+ * The "CV uploaded" modal adds its row once the job has loaded.
+ */
 export const Loading: Story = { args: { jobState: 'loading' } };
 
 /** No current job: nothing to verify, so no ask anywhere. */
