@@ -195,10 +195,13 @@ export const PatchyFloatingFace = (): ReactElement | null => {
   const [rect, setRect] = useState<SpotRect | null>(null);
   const element = companion?.anchor?.element;
   const isFloating = !!companion?.isFloating;
+  const isHeaderAway = !!companion?.isHeaderAway;
 
   // Measured when the spot or the row it sits in changes size (a menu
-  // docking next to it); while the header is out of the layout the last
-  // spot holds.
+  // docking next to it), and again as the header starts to leave, while it's
+  // still in the layout: actions that portal in later and the top ad strip
+  // move the spot without resizing anything. While the header is out of the
+  // layout the last spot holds.
   useClientLayoutEffect(() => {
     if (!element) {
       setRect(null);
@@ -221,7 +224,7 @@ export const PatchyFloatingFace = (): ReactElement | null => {
       observer.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [element]);
+  }, [element, isHeaderAway]);
 
   const onClick = useCallback(() => {
     revealShell();
@@ -235,7 +238,7 @@ export const PatchyFloatingFace = (): ReactElement | null => {
   if (!companion || !isFloating) {
     return null;
   }
-  const { anchor, canTap, isHeaderAway } = companion;
+  const { anchor, canTap } = companion;
   const isPill = anchor?.kind === 'pill';
   const spot = anchor && rect ? rect : null;
   let position: string = isHeaderAway ? 'corner' : 'below';

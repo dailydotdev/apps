@@ -59,7 +59,8 @@ jest.mock('./usePatchyRail', () => ({
 }));
 
 // The header's spots sit at a fixed offset; jsdom has no layout.
-const spotOffsets: Record<string, number> = {
+let spotOffsets: Record<string, number>;
+const restingSpot = {
   offsetLeft: 300,
   offsetTop: 10,
   offsetWidth: 24,
@@ -96,11 +97,12 @@ const face = () =>
 beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
-  Object.entries(spotOffsets).forEach(([key, value]) => {
+  spotOffsets = { ...restingSpot };
+  Object.keys(restingSpot).forEach((key) => {
     jest
       .spyOn(HTMLElement.prototype, key as 'offsetLeft', 'get')
       .mockImplementation(function offset(this: HTMLElement) {
-        return this === document.body ? 0 : value;
+        return this === document.body ? 0 : spotOffsets[key];
       });
   });
   jest
@@ -202,6 +204,19 @@ it('on a post, stands among the header actions and only floats to react while it
   expect(face()).toHaveAttribute('data-position', 'actions');
   expect(face()).toHaveStyle({ left: '300px', top: '10px' });
   expect(spot()).toHaveClass('invisible');
+});
+
+it('lands on his spot after the header actions around it moved it', () => {
+  mockIsReading = true;
+  const { rerender } = render(<Shell withPill={false} />);
+
+  spotOffsets.offsetLeft = 150;
+  mockShellP = 1;
+  rerender(<Shell withPill={false} />);
+  mockIsReacting = true;
+  rerender(<Shell withPill={false} />);
+
+  expect(face()).toHaveStyle({ left: '150px', top: '10px' });
 });
 
 it('elsewhere without a pill, reacts below the header without touching its actions', () => {
