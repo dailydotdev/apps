@@ -25,6 +25,7 @@ import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
 import { SignalIcon } from '@dailydotdev/shared/src/components/icons/Signal';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { avatar, completion, user } from './providers';
 import { BrowserChrome, Phone } from '../open-links-in/kit';
 
@@ -35,13 +36,16 @@ import { BrowserChrome, Phone } from '../open-links-in/kit';
 const progress = completion.percentage;
 const progressWithCv = 80;
 
-export const ProgressBar = ({ value }: { value: number }): ReactElement => (
-  <div className="h-1.5 w-full overflow-hidden rounded-full bg-border-subtlest-tertiary">
-    <div
-      className="h-full rounded-full bg-accent-avocado-default"
-      style={{ width: `${value}%` }}
-    />
-  </div>
+// The profile's own progress bar, as the achievement cards draw it.
+const ProfileProgressBar = (): ReactElement => (
+  <ProgressBar
+    percentage={progress}
+    shouldShowBg
+    className={{
+      wrapper: 'h-1.5 rounded-14',
+      bar: 'h-full rounded-14',
+    }}
+  />
 );
 
 // The rounded-square avatar with the profile progress drawn around it.
@@ -197,7 +201,7 @@ export const ExperienceSection = ({
           Your CV takes it to {progressWithCv}%
         </Typography>
       </div>
-      <ProgressBar value={progress} />
+      <ProfileProgressBar />
       <Typography
         type={TypographyType.Caption1}
         color={TypographyColor.Quaternary}
@@ -480,7 +484,7 @@ const ProfileMenuPanel = (): ReactElement => (
           Your CV fills work and education, +{progressWithCv - progress}%
         </Typography>
       </div>
-      <ProgressBar value={progress} />
+      <ProfileProgressBar />
       <Button
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
