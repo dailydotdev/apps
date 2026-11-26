@@ -176,28 +176,11 @@ export const ExperienceSection = ({
         Add
       </Button>
     </div>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      Only you see this section until it has something in it.
-    </Typography>
     <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-3">
-      <div className="flex items-baseline justify-between gap-2">
-        <Typography type={TypographyType.Callout} bold>
-          Profile {progress}% done
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Your CV takes it to {progressWithCv}%
-        </Typography>
-      </div>
-      <ProfileProgressBar />
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Quaternary}
-      >
-        The ring on your photo shows the same progress
+      <Typography type={TypographyType.Callout} bold>
+        Profile {progress}% done
       </Typography>
+      <ProfileProgressBar />
       <CvRow isPhone={isPhone} />
     </div>
   </section>
