@@ -83,14 +83,10 @@ it('says what earned the first reputation and where it leads', async () => {
   expect(links.map((link) => link.textContent)).toEqual([
     'See your reputation',
     'See all privileges',
-    'See your comment',
   ]);
   expect(
     screen.getByRole('link', { name: 'See all privileges' }),
   ).toHaveAttribute('href', reputationPrivileges);
-  expect(
-    screen.getByRole('link', { name: 'See your comment' }),
-  ).toHaveAttribute('href', commentUpvote.target?.permalink);
 });
 
 it('closes without showing anything when the gain is gone', async () => {

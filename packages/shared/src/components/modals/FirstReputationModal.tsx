@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { LockIcon } from '../icons/Lock';
 import { ReputationIcon } from '../icons/Reputation';
@@ -13,7 +13,7 @@ import { IconSize } from '../Icon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { cloudinaryReputationPrivilegesUnlocked } from '../../lib/image';
+import { cloudinaryReputationBadge } from '../../lib/image';
 import { reputationPrivileges, webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -27,35 +27,12 @@ import {
   reputationMilestones,
 } from '../analytics/reputation/common';
 
-interface FirstReputationCopy {
-  /** What the headline names: "Your comment earned …". */
-  subject: string;
-  /** The link to what earned it. */
-  seeLabel: string;
-}
-
-const reasonCopy: Partial<Record<ReputationReason, FirstReputationCopy>> = {
-  [ReputationReason.CommentUpvoted]: {
-    subject: 'Your comment',
-    seeLabel: 'See your comment',
-  },
-  [ReputationReason.PostUpvoted]: {
-    subject: 'Your post',
-    seeLabel: 'See your post',
-  },
-  [ReputationReason.PostReportConfirmed]: {
-    subject: 'Your report',
-    seeLabel: 'See the post',
-  },
-  [ReputationReason.SourceRequestApproved]: {
-    subject: 'Your source request',
-    seeLabel: 'See the source',
-  },
-};
-
-const defaultCopy: FirstReputationCopy = {
-  subject: 'You',
-  seeLabel: 'See what earned it',
+/** What the headline names: "Your comment earned …". */
+const reasonSubject: Partial<Record<ReputationReason, string>> = {
+  [ReputationReason.CommentUpvoted]: 'Your comment',
+  [ReputationReason.PostUpvoted]: 'Your post',
+  [ReputationReason.PostReportConfirmed]: 'Your report',
+  [ReputationReason.SourceRequestApproved]: 'Your source request',
 };
 
 const roadMilestones = reputationMilestones.filter(
@@ -214,7 +191,7 @@ export const FirstReputationModal = ({
     return null;
   }
 
-  const copy = reasonCopy[event.reason as ReputationReason] ?? defaultCopy;
+  const subject = reasonSubject[event.reason as ReputationReason] ?? 'You';
   const quote = getQuote(event);
   const reputation = Math.min(user.reputation ?? 0, REPUTATION_GRANT_THRESHOLD);
 
@@ -241,7 +218,7 @@ export const FirstReputationModal = ({
       <div className="flex flex-col items-center gap-6 p-0 text-center tablet:p-6">
         <span className="relative flex size-40 justify-center">
           <Image
-            src={cloudinaryReputationPrivilegesUnlocked}
+            src={cloudinaryReputationBadge}
             alt="Reputation badge"
             className="size-[85%]"
           />
@@ -251,7 +228,7 @@ export const FirstReputationModal = ({
         </span>
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-text-primary typo-title2">
-            {copy.subject} earned +{event.amount} reputation
+            {subject} earned +{event.amount} reputation
           </h3>
           {quote && (
             <p className="line-clamp-2 text-text-tertiary typo-callout">
@@ -283,18 +260,6 @@ export const FirstReputationModal = ({
           >
             See all privileges
           </Button>
-          {event.target?.permalink && (
-            <Button
-              tag="a"
-              href={event.target.permalink}
-              className="w-full"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              onClick={onCta('target')}
-            >
-              {copy.seeLabel}
-            </Button>
-          )}
         </div>
       </div>
     </Modal>
