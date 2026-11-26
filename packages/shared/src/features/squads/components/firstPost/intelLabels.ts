@@ -52,9 +52,6 @@ const LABELS: Record<string, IntelLabel> = {
   'Starts a discussion': {
     hint: 'An argument, an experience or a focused question that invites replies.',
   },
-  'Sells a product': {
-    hint: 'Its main goal is to sell or advocate for a product, service or tool.',
-  },
   'Shares news': {
     hint: 'News or updates that keep the reader current, with nothing for them to do.',
   },
@@ -64,32 +61,27 @@ const LABELS: Record<string, IntelLabel> = {
   'Helps pick an option': {
     hint: 'Compares options, evaluates them or weighs pros and cons.',
   },
-  'An overview for newcomers': {
-    hint: 'Covers a topic from the top, like "What is Kubernetes?"',
+  'For beginners': {
+    hint: 'Introduces a whole topic to newcomers, like "What is Kubernetes?"',
   },
-  'One part of a topic': {
-    hint: 'Goes into one part of a topic, like "GraphQL pagination patterns".',
+  'For practitioners': {
+    hint: 'Covers one aspect or use case of a topic, like "GraphQL pagination patterns".',
   },
-  'A deep dive for experts': {
-    hint: 'A narrow topic that needs prior knowledge, like tuning etcd in large clusters.',
-  },
-  'Barely mentions its own product': {
-    hint: 'The quarter of posts that promote the author or company least.',
-  },
-  'Mostly about its own product': {
-    hint: 'The quarter of posts that promote the author or company most.',
+  'For experts': {
+    hint: 'A narrow deep dive that needs prior knowledge, like tuning etcd in large clusters.',
   },
   // Labels of intel built before the names above
   'Intent: teaches': { name: 'Teaches a skill' },
   'Intent: opens a discussion': { name: 'Starts a discussion' },
-  'Intent: promotes': { name: 'Sells a product' },
   'Intent: informs': { name: 'Shares news' },
   'Intent: solves a specific problem': { name: 'Fixes one problem' },
   'Intent: helps decide': { name: 'Helps pick an option' },
-  'Focused on one topic': { name: 'One part of a topic' },
-  'Highly specific': { name: 'A deep dive for experts' },
-  'Self-promotion: lowest quarter': { name: 'Barely mentions its own product' },
-  'Self-promotion: highest quarter': { name: 'Mostly about its own product' },
+  'Focused on one topic': { name: 'For practitioners' },
+  'Highly specific': { name: 'For experts' },
+  // Rows the intel no longer builds
+  'Intent: promotes': { hidden: true },
+  'Self-promotion: lowest quarter': { hidden: true },
+  'Self-promotion: highest quarter': { hidden: true },
   'Title oversells the content': { hidden: true },
   "Doesn't deliver what it promises": { hidden: true },
   'Likely clickbait': { hidden: true },
