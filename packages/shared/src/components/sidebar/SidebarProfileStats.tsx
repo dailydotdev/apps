@@ -1,9 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { ReputationEarnedChip } from '../ReputationEarnedChip';
+import { recentReputationGainsQueryOptions } from '../../graphql/reputation';
 import { walletUrl, webappUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { formatCurrency } from '../../lib/utils';
@@ -29,6 +31,15 @@ export const SidebarProfileStats = (): ReactElement | null => {
   const [seenReputation, setSeenReputation, isSeenLoaded] = usePersistentState<
     number | null
   >(`seen_reputation_${user?.id}`, null);
+  const hasNoSeenReputation =
+    !optOutLevelSystem && isSeenLoaded && seenReputation === null;
+  // Nothing seen on this device yet: show the last week's gains instead
+  const { data: recentGains = 0 } = useQuery(
+    recentReputationGainsQueryOptions({
+      user,
+      enabled: hasNoSeenReputation,
+    }),
+  );
   const latestReputation = useRef(reputation);
   latestReputation.current = reputation;
 
@@ -48,10 +59,12 @@ export const SidebarProfileStats = (): ReactElement | null => {
     return null;
   }
 
-  const earned =
-    !optOutLevelSystem && isSeenLoaded && seenReputation !== null
-      ? reputation - seenReputation
-      : 0;
+  let earned = 0;
+  if (hasNoSeenReputation) {
+    earned = recentGains;
+  } else if (!optOutLevelSystem && isSeenLoaded && seenReputation !== null) {
+    earned = reputation - seenReputation;
+  }
   const balance = user.balance?.amount ?? 0;
   const preciseBalance = formatCurrency(balance, { minimumFractionDigits: 0 });
 

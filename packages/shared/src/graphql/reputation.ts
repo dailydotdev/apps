@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { subDays } from 'date-fns';
 import type { Connection } from './common';
 import { gqlClient } from './common';
 import {
@@ -276,5 +277,43 @@ export const latestReputationGainQueryOptions = ({
     return reputationEvents.edges[0]?.node ?? null;
   },
   enabled: !!user,
+  staleTime: StaleTime.Default,
+});
+
+export const recentReputationGainsWindowDays = 7;
+
+/**
+ * Reputation gained in the last week, for when there is no count the member
+ * last saw to compare against.
+ */
+export const recentReputationGainsQueryOptions = ({
+  user,
+  enabled = true,
+}: {
+  user: ReputationUser;
+  enabled?: boolean;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.ReputationEvents,
+    user ?? undefined,
+    ReputationEventFilter.Gains,
+    'recent',
+  ),
+  queryFn: async () => {
+    const { reputationEvents } = await gqlClient.request<{
+      reputationEvents: Connection<ReputationEvent>;
+    }>(REPUTATION_EVENTS_QUERY, {
+      first: reputationEventsPageSize,
+      filter: ReputationEventFilter.Gains,
+    });
+    const since = subDays(new Date(), recentReputationGainsWindowDays);
+
+    return reputationEvents.edges.reduce(
+      (total, { node }) =>
+        new Date(node.createdAt) > since ? total + node.amount : total,
+      0,
+    );
+  },
+  enabled: !!user && enabled,
   staleTime: StaleTime.Default,
 });
