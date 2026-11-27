@@ -144,7 +144,7 @@ export const ReEnableNotifications = ({
           <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-background-default font-bold tabular-nums text-text-primary typo-footnote">
             {index + 1}
           </span>
-          <span className="pt-0.5 text-text-secondary typo-callout">
+          <span className="min-w-0 flex-1 pt-0.5 text-text-secondary typo-callout">
             {step}
           </span>
         </li>

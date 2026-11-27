@@ -66,6 +66,7 @@ export enum ActionType {
   DisableAchievementCompletion = 'disable_achievement_completion',
   DismissInstallExtension = 'dismiss_install_extension',
   DismissBriefCard = 'dismiss_brief_card',
+  DismissReadingReminderHero = 'dismiss_reading_reminder_hero',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',

@@ -8,12 +8,26 @@ import {
   useNotificationCtaAnalytics,
 } from './useNotificationCtaAnalytics';
 import { readingReminderPushPromptCopy } from './useReadingReminderPushPrompt';
+import { ReadingReminderHeroVariant } from '../../lib/featureManagement';
 
 const mockUseRouter = jest.fn();
 const mockUseReadingReminderHero = jest.fn();
 const mockUseNotificationCtaAnalytics = jest.fn();
 const mockUseReadingReminderPushPrompt = jest.fn();
 const mockPersistentContext = jest.fn();
+
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuthContext: () => ({ user: { timezone: 'UTC' } }),
+}));
+
+jest.mock('../../contexts/LogContext', () => ({
+  useLogContext: () => ({ logEvent: jest.fn() }),
+}));
+
+const mockDisplayToast = jest.fn();
+jest.mock('../useToastNotification', () => ({
+  useToastNotification: () => ({ displayToast: mockDisplayToast }),
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => mockUseRouter(),
@@ -59,6 +73,7 @@ jest.mock('../usePersistentContext', () => ({
 describe('useReadingReminderFeedHero', () => {
   const onEnable = jest.fn(() => Promise.resolve());
   const onDismiss = jest.fn(() => Promise.resolve());
+  const onSchedule = jest.fn(() => Promise.resolve('granted'));
   const logClick = jest.fn();
   const logDismiss = jest.fn();
   const onEnablePush = jest.fn(() => Promise.resolve(true));
@@ -75,9 +90,11 @@ describe('useReadingReminderFeedHero', () => {
     mockUseRouter.mockReturnValue({ pathname: '/' });
     mockUseReadingReminderHero.mockReturnValue({
       shouldShow: true,
+      variant: ReadingReminderHeroVariant.Control,
       title: 'Title',
       subtitle: 'Subtitle',
       onEnable,
+      onSchedule,
       onDismiss,
     });
     mockUseNotificationCtaAnalytics.mockReturnValue({
@@ -125,6 +142,9 @@ describe('useReadingReminderFeedHero', () => {
     );
 
     expect(result.current.shouldShowTopHero).toBe(false);
+    expect(mockUseReadingReminderHero).toHaveBeenCalledWith(
+      expect.objectContaining({ enabled: false }),
+    );
   });
 
   it('should not show the top hero off the homepage', () => {
@@ -180,5 +200,78 @@ describe('useReadingReminderFeedHero', () => {
     expect(mockUseReadingReminderPushPrompt).toHaveBeenCalledWith(
       expect.objectContaining({ enabled: false }),
     );
+  });
+
+  describe('habit variant', () => {
+    const renderHabit = () => {
+      mockUseReadingReminderHero.mockReturnValue({
+        shouldShow: true,
+        variant: ReadingReminderHeroVariant.Habit,
+        title: 'Title',
+        subtitle: 'Subtitle',
+        onEnable,
+        onSchedule,
+        onDismiss,
+      });
+      return renderHook(() => useReadingReminderFeedHero());
+    };
+
+    it('should not offer the redesign to the control', () => {
+      const { result } = renderHook(() => useReadingReminderFeedHero());
+
+      expect(result.current.habit).toBeUndefined();
+    });
+
+    it('should hold the slot to confirm a saved reminder', async () => {
+      const { result } = renderHabit();
+
+      expect(result.current.habit?.step).toBe('offer');
+
+      await act(async () => {
+        await result.current.habit?.onSend(20, 'now');
+      });
+
+      expect(onSchedule).toHaveBeenCalledWith(20);
+      expect(onEnable).not.toHaveBeenCalled();
+      expect(result.current.habit).toMatchObject({
+        step: 'saved',
+        savedHour: 20,
+      });
+      expect(result.current.shouldShowTopHero).toBe(true);
+    });
+
+    it('should show the way back when push is blocked', async () => {
+      onSchedule.mockResolvedValueOnce('denied');
+      const { result } = renderHabit();
+
+      await act(async () => {
+        await result.current.habit?.onSend(13, 'picked');
+      });
+
+      expect(result.current.habit?.step).toBe('denied');
+    });
+
+    it('should return to the offer when the prompt is closed', async () => {
+      onSchedule.mockResolvedValueOnce('dismissed');
+      const { result } = renderHabit();
+
+      await act(async () => {
+        await result.current.habit?.onSend(20, 'now');
+      });
+
+      expect(result.current.habit?.step).toBe('offer');
+    });
+
+    it('should let the reader retry when the save fails', async () => {
+      onSchedule.mockRejectedValueOnce(new Error('network'));
+      const { result } = renderHabit();
+
+      await act(async () => {
+        await result.current.habit?.onSend(13, 'picked');
+      });
+
+      expect(mockDisplayToast).toHaveBeenCalledTimes(1);
+      expect(result.current.habit?.step).toBe('picking');
+    });
   });
 });

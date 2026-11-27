@@ -555,6 +555,16 @@ export default function MainFeedLayout({
   // it waits for the flags: painted once, in its final place.
   const picksHero = useWeeklyPicksHero({ enabled: isHomePage });
   const isAwaitingPicksHero = isHomePage && !picksHero.isSettled;
+  // The reading reminder never joins the picks card, nor takes its place
+  // once it's closed or used, for the rest of the visit.
+  const [hasShownPicksHero, setHasShownPicksHero] = useState(false);
+  useEffect(() => {
+    if (picksHero.shouldShow) {
+      setHasShownPicksHero(true);
+    }
+  }, [picksHero.shouldShow]);
+  const isPicksHeroHoldingStrip =
+    isHomePage && (picksHero.shouldShow || hasShownPicksHero);
   // The widgets are the hero's successor: where they are on, the hero yields,
   // and a reader who turned them off gets the plain feed, not the hero back.
   const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsFlagOn;
@@ -1237,8 +1247,13 @@ export default function MainFeedLayout({
               // The flag, not the hero's render: this placement logs an
               // impression, so it has to be suppressed from the first paint
               // rather than flickering in and out as the hero resolves. Held
-              // too while the picks card decides, so the two land together.
-              disableTopHero={isFeedHeroEnabled || isAwaitingPicksHero}
+              // too while the picks card decides, so the two land together,
+              // and while it shows.
+              disableTopHero={
+                isFeedHeroEnabled ||
+                isAwaitingPicksHero ||
+                isPicksHeroHoldingStrip
+              }
               // The render, so a hero that finds no headlines hands the
               // highlights card and row one back to the grid.
               disableHighlightCards={

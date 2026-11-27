@@ -91,6 +91,20 @@ export const featureReadingReminderHeroCopy = new Feature(
   },
 );
 
+export enum ReadingReminderHeroVariant {
+  /** Control: today's hero, 9 AM saved before push is asked. */
+  Control = 'control',
+  /** Reading Patchy, the reader's current hour, push asked before saving. */
+  Habit = 'habit',
+  /** As Habit, with the "Turn on your daily reading reminder" line kept. */
+  HabitReminderCopy = 'habit_reminder_copy',
+}
+export const featureReadingReminderHeroVariant =
+  new Feature<ReadingReminderHeroVariant>(
+    'reading_reminder_hero_variant',
+    ReadingReminderHeroVariant.Control,
+  );
+
 // Experiment: show the clickbait shield to free users even while they have
 // intro quests, to measure the effect on D1 retention.
 export const featureClickbaitShieldIntroQuests = new Feature(

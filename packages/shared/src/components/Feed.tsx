@@ -82,6 +82,10 @@ import { FeedPromoBannerSlot } from './plus/FeedPromoBannerSlot';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
+import {
+  ReadingReminderHabitFeedHero,
+  ReadingReminderHabitTopHero,
+} from './marketing/banners/ReadingReminderHabitHero';
 import { TopHeroPortal } from '../contexts/TopHeroSlotContext';
 import { useIsPhone } from '../hooks/useViewSize';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
@@ -455,6 +459,7 @@ export default function Feed<T>({
       ctaLabel: readingReminderCtaLabel,
       onEnable: onEnableHero,
       onDismiss: onDismissHero,
+      habit: readingReminderHabit,
     },
   } = bannerInsertions;
 
@@ -774,17 +779,26 @@ export default function Feed<T>({
     : FeedContainer;
   const showReadingReminder =
     shouldShowTopHero && (keepTopHero || !topContentProp);
+  const readingReminderFeedHero = readingReminderHabit ? (
+    <ReadingReminderHabitFeedHero
+      className="pt-2"
+      hero={readingReminderHabit}
+      onClose={onDismissHero}
+    />
+  ) : (
+    <ReadingReminderFeedHero
+      className="pt-2"
+      title={readingReminderTitle}
+      subtitle={readingReminderSubtitle}
+      ctaLabel={readingReminderCtaLabel}
+      onCtaClick={onEnableHero}
+      onClose={onDismissHero}
+    />
+  );
   const inlineReadingReminder =
-    showReadingReminder && !isLaptopLayout ? (
-      <ReadingReminderFeedHero
-        className="pt-2"
-        title={readingReminderTitle}
-        subtitle={readingReminderSubtitle}
-        ctaLabel={readingReminderCtaLabel}
-        onCtaClick={onEnableHero}
-        onClose={onDismissHero}
-      />
-    ) : undefined;
+    showReadingReminder && !isLaptopLayout
+      ? readingReminderFeedHero
+      : undefined;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
@@ -813,14 +827,22 @@ export default function Feed<T>({
     <ActiveFeedContext.Provider value={feedContextValue}>
       {showReadingReminder && isLaptopLayout && !isSearchPageLaptop && (
         <TopHeroPortal>
-          <TopHero
-            className="order-first"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            ctaLabel={readingReminderCtaLabel}
-            onCtaClick={onEnableHero}
-            onClose={onDismissHero}
-          />
+          {readingReminderHabit ? (
+            <ReadingReminderHabitTopHero
+              className="order-first"
+              hero={readingReminderHabit}
+              onClose={onDismissHero}
+            />
+          ) : (
+            <TopHero
+              className="order-first"
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              ctaLabel={readingReminderCtaLabel}
+              onCtaClick={onEnableHero}
+              onClose={onDismissHero}
+            />
+          )}
         </TopHeroPortal>
       )}
       <FeedWrapperComponent {...containerProps}>
