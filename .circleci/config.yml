@@ -133,9 +133,9 @@ jobs:
       # since instead of the whole program.
       - restore_cache:
           keys:
-            - tsbuildinfo-v1-{{ .Branch }}-{{ .Revision }}
-            - tsbuildinfo-v1-{{ .Branch }}-
-            - tsbuildinfo-v1-main-
+            - tsbuildinfo-v2-{{ .Branch }}-{{ .Revision }}
+            - tsbuildinfo-v2-{{ .Branch }}-
+            - tsbuildinfo-v2-main-
       - run:
           name: Fetch base branch
           command: git fetch origin main
@@ -147,12 +147,15 @@ jobs:
           command: mkdir -p packages/shared/.tsbuildinfo packages/webapp/.tsbuildinfo packages/extension/.tsbuildinfo
           when: always
       - save_cache:
-          key: tsbuildinfo-v1-{{ .Branch }}-{{ .Revision }}
+          key: tsbuildinfo-v2-{{ .Branch }}-{{ .Revision }}
           paths:
             - ./packages/shared/.tsbuildinfo
             - ./packages/webapp/.tsbuildinfo
             - ./packages/extension/.tsbuildinfo
           when: always
+  # Full non-strict typecheck of every app package. TypeScript 7's native
+  # compiler checks each package in a few seconds, so one job covers all three.
+  # The name predates that and stays because branch protection requires it.
   typecheck_webapp:
     executor: node
     resource_class: large
@@ -160,9 +163,17 @@ jobs:
       - checkout
       - ensure_deps
       - run:
+          name: Typecheck shared
+          command: npm run typecheck
+          working_directory: packages/shared
+      - run:
           name: Typecheck webapp
           command: npm run typecheck
           working_directory: packages/webapp
+      - run:
+          name: Typecheck extension
+          command: npm run typecheck
+          working_directory: packages/extension
   build_extension:
     executor: node
     resource_class: medium

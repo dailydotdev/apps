@@ -6,8 +6,8 @@
   "scripts": {
     "lint:fix": "oxlint --fix --max-warnings 0 && oxfmt \"**/*.{js,jsx,ts,tsx}\"",
     "lint": "oxlint --max-warnings 0 && oxfmt --check \"**/*.{js,jsx,ts,tsx}\"",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "typecheck:strict": "tsc -p tsconfig.strict.json --noEmit",
+    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p tsconfig.json --noEmit",
+    "typecheck:strict": "node ../../node_modules/typescript7/bin/tsc -p tsconfig.strict.json --noEmit",
     "pretest": "npm run lint",
     "test": "jest --runInBand"
   },

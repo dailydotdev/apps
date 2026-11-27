@@ -14,15 +14,14 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react",
     "paths": {
-      // See packages/shared/tsconfig.json — this package compiles shared's
-      // sources under `moduleResolution: node`, which cannot follow the
-      // package `exports` subpath the bundler resolves at build time.
-      "edge-aura/react": ["../shared/node_modules/edge-aura/dist/react.d.ts"]
+      // See packages/shared/tsconfig.json: shared's sources import these.
+      "@growthbook/growthbook": ["../shared/node_modules/@growthbook/growthbook/dist/index.d.ts"],
+      "@growthbook/growthbook-react": ["../shared/node_modules/@growthbook/growthbook-react/dist/index.d.ts"]
     }
 	},
 	"include": [

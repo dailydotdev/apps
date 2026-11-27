@@ -442,9 +442,11 @@ function findStrictErrorViolations(files) {
   return violations;
 }
 
+// TypeScript 7's native compiler (the root `typescript7` alias) checks a
+// package in seconds instead of half a minute.
 function resolveTypeScriptBinary(packageDir) {
   try {
-    return require.resolve('typescript/bin/tsc', {
+    return require.resolve('typescript7/bin/tsc', {
       paths: [packageDir, repoRoot],
     });
   } catch (error) {

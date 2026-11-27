@@ -18,7 +18,8 @@ pnpm monorepo for the daily.dev app suite:
 - Jest run outside the package scripts needs `NODE_ENV=test`, otherwise React/RTL run as a production build.
 - Don't run `build` while a dev server runs; it breaks hot reload.
 - Run `node ./scripts/typecheck-strict-changed.js` on changed `.ts`/`.tsx` files; package-wide strict tsc has unrelated backlog.
-- The Vercel build skips type checking; the CI `typecheck_webapp` job is the only full webapp tsc, so after shared changes run `pnpm --filter webapp typecheck` before pushing.
+- The Vercel build skips type checking; the CI `typecheck_webapp` job is the only full tsc of shared, webapp and extension, so after shared changes run `pnpm --filter webapp typecheck` before pushing.
+- Typechecks run on TypeScript 7 (the native compiler, root `typescript7` alias), a few seconds per package. The packages' own `typescript` 5.x stays for Next.js, rspack, Storybook and editors, which need its JS API; keep tsconfigs valid for both.
 - After changing a shared component, run `pnpm --filter webapp test` too. Cross-package tests assert DOM structure and break silently otherwise.
 
 ## Conventions
