@@ -15,7 +15,7 @@ export default function useLogLifecycleEvents(
   durationEventsQueue: MutableRefObject<Map<string, LogEvent>>,
   sendBeacon: () => void,
 ): void {
-  const lifecycleCallbackRef = useRef<(event: CustomEvent) => void>();
+  const lifecycleCallbackRef = useRef<(event: CustomEvent) => void>(undefined);
   useEffect(() => {
     lifecycleCallbackRef.current = (event: CustomEvent) => {
       if (event.detail.newState === 'active') {

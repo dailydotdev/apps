@@ -62,7 +62,7 @@ const seo: NextSeoProps = {
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();
-  const container = useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement>(null);
   const referredKey = generateQueryKey(RequestKey.ReferredUsers, user);
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
@@ -194,7 +194,7 @@ const AccountInvitePage = (): ReactElement => {
             </div>
           }
           userInfoProps={{
-            scrollingContainer: container.current,
+            scrollingContainer: container.current ?? undefined,
             className: {
               container: 'px-0 py-3 items-center',
               textWrapper: 'flex-none',

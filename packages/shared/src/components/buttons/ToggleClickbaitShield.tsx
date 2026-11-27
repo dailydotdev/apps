@@ -10,7 +10,7 @@ import {
   ShieldPlusIcon,
   ShieldWarningIcon,
 } from '../icons';
-import type { IconSize } from '../Icon';
+import type { IconSize, IconProps } from '../Icon';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription, useClickbaitTries } from '../../hooks';
 import { SidebarSettingsFlags } from '../../graphql/settings';
@@ -64,7 +64,7 @@ export const ToggleClickbaitShield = ({
     variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
     iconSecondaryOnHover: true,
   };
-  const sizedIcon = (icon: ReactElement, className?: string) =>
+  const sizedIcon = (icon: ReactElement<IconProps>, className?: string) =>
     iconSize
       ? React.cloneElement(icon, { size: iconSize, className })
       : React.cloneElement(icon, { className });

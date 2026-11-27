@@ -1,4 +1,4 @@
-import type { ReactElement, RefAttributes } from 'react';
+import type { ComponentProps, ReactElement, RefAttributes } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { truncateTextClassNames } from '../utilities/common';
@@ -59,7 +59,7 @@ export enum TypographyColor {
   Boost = 'text-action-comment-default',
 }
 
-export type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
+export type AllowedTags = TypographyTag;
 type AllowedElements = HTMLTimeElement | HTMLParagraphElement;
 
 export type TypographyProps<Tag extends AllowedTags> = {
@@ -69,7 +69,7 @@ export type TypographyProps<Tag extends AllowedTags> = {
   bold?: boolean;
   center?: boolean;
   truncate?: boolean;
-} & JSX.IntrinsicElements[Tag];
+} & ComponentProps<Tag>;
 
 const tagToColor = {
   [TypographyTag.Link]: TypographyColor.Link,

@@ -11,8 +11,6 @@ import type {
   ImgHTMLAttributes,
   InputHTMLAttributes,
   PropsWithoutRef,
-  ReactHTML,
-  ReactSVG,
   RefAttributes,
   SVGAttributes,
   TimeHTMLAttributes,
@@ -99,13 +97,13 @@ function classed(
 >;
 
 function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(
-  type: keyof ReactHTML,
+  type: keyof HTMLElementTagNameMap,
   className: string | Record<string, string>,
   ...classes: string[]
 ): ClassedHTML<P, T>;
 
 function classed<P extends SVGAttributes<T>, T extends SVGElement>(
-  type: keyof ReactSVG,
+  type: keyof SVGElementTagNameMap,
   className: string | Record<string, string>,
   ...classes: string[]
 ): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;

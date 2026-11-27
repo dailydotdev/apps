@@ -1,4 +1,5 @@
 import type {
+  ComponentProps,
   HTMLAttributes,
   MouseEvent as ReactMouseEvent,
   ReactElement,
@@ -64,7 +65,7 @@ type IconButtonProps =
 
 type BaseButtonProps = CommonButtonProps & ColorButtonProps & IconButtonProps;
 
-export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
+export type AllowedTags = 'a' | 'button';
 export type AllowedElements = HTMLButtonElement | HTMLAnchorElement;
 export type ButtonElementType<Tag extends AllowedTags> = Tag extends 'a'
   ? HTMLAnchorElement
@@ -72,7 +73,7 @@ export type ButtonElementType<Tag extends AllowedTags> = Tag extends 'a'
 
 export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
   HTMLAttributes<AllowedElements> &
-  JSX.IntrinsicElements[T] & {
+  ComponentProps<T> & {
     ref?: Ref<ButtonElementType<T>>;
   };
 

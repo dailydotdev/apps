@@ -335,7 +335,7 @@ const AcquisitionFollowUp = ({
   onSkip,
   onSubmit,
 }: AcquisitionFollowUpProps): ReactElement => {
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [answer, setAnswer] = useState('');
   const headline = FOLLOW_UP_HEADLINES[channel];
   const hasAnswer = !!answer.trim();

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { HTMLAttributes, ReactElement, RefAttributes } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { LinkProps } from '../utilities/Link';
 import Link from '../utilities/Link';
@@ -17,13 +17,18 @@ export function LinkWithTooltip({
 }: LinkWithTooltipProps): ReactElement {
   const [element, setElement] = useState<Element>();
   const component = useMemo(
-    () =>
-      React.cloneElement(children, {
-        ...children.props,
+    () => {
+      const child = children as ReactElement<
+        HTMLAttributes<HTMLElement> & RefAttributes<Element>
+      >;
+
+      return React.cloneElement(child, {
+        ...child.props,
         'aria-label':
           typeof tooltip.content === 'string' ? tooltip.content : undefined,
         ref: (el: Element) => setElement(el),
-      }),
+      });
+    },
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [children],

@@ -95,7 +95,7 @@ function InteractivePopup({
     position: buttonPosition = 'right-2 top-2',
   } = closeButton;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const container = useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const { sidebarRendered } = useSidebarRendered();
   const validateSidebar =

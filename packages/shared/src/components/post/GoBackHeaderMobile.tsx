@@ -25,7 +25,7 @@ export const GoBackButton = ({
   showLogo?: boolean;
   compactLogo?: boolean;
   fallbackPath?: string;
-}): JSX.Element | null => {
+}): ReactElement | null => {
   const router = useRouter();
   const goHome = useCallback(() => router.push('/'), [router]);
   const featureTheme = useFeatureTheme();

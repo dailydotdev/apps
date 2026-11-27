@@ -3,6 +3,7 @@ import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
+import type { IconProps } from '../Icon';
 
 export interface SidebarListItemProps extends HTMLAttributes<
   HTMLButtonElement | HTMLAnchorElement
@@ -36,9 +37,9 @@ function SidebarListItem({
 
   const content = (
     <>
-      {React.cloneElement(icon as ReactElement, {
+      {React.cloneElement(icon as ReactElement<IconProps>, {
         secondary: isActive,
-        className: !isActive && 'text-text-secondary',
+        className: isActive ? undefined : 'text-text-secondary',
       })}
       <span
         className={classNames(

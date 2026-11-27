@@ -1,6 +1,6 @@
 import type {
-  ChangeEventHandler,
   ForwardedRef,
+  InputEventHandler,
   MouseEventHandler,
   MutableRefObject,
   ReactElement,
@@ -179,7 +179,7 @@ function MarkdownInput(
     clearDraft,
   }));
 
-  const onUpload: ChangeEventHandler<HTMLInputElement> = (e) => {
+  const onUpload: InputEventHandler<HTMLInputElement> = (e) => {
     if (!onUploadCommand || !e.currentTarget.files) {
       return;
     }

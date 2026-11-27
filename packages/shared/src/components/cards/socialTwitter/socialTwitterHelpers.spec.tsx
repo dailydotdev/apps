@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { sharePost } from '../../../../__tests__/fixture/post';
@@ -166,7 +167,10 @@ describe('getSocialTwitterMetadata', () => {
   });
 
   it('returns the fixed x.com metadata label', () => {
-    expect(getSocialTwitterMetadataLabel().props.children).toBe('From x.com');
+    expect(
+      (getSocialTwitterMetadataLabel() as ReactElement<{ children: string }>)
+        .props.children,
+    ).toBe('From x.com');
   });
 });
 

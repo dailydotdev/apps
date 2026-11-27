@@ -12,7 +12,7 @@ import {
 
 export const useScrollRestoration = (): void => {
   const { asPath, events } = useRouter();
-  const displayedEntry = useRef<string>();
+  const displayedEntry = useRef<string>(undefined);
   const isSwitchingView = useRef(false);
 
   useEffect(() => {

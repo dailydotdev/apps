@@ -15,6 +15,7 @@ import { IconSize } from '../Icon';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import type { IconProps } from '../Icon';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -134,7 +135,9 @@ export const OnboardingRegistrationForm = ({
   const isSinglePrimary = signupStyle === 'singlePrimary';
 
   // `secondary` is GitHub's filled octocat, so it reads at Google's weight.
-  const getProviderIcon = (icon: ReactElement): ReactElement => {
+  const getProviderIcon = (
+    icon: ReactElement<IconProps>,
+  ): ReactElement<IconProps> => {
     if (isSinglePrimary) {
       return cloneElement(icon, { size: IconSize.XSmall, secondary: true });
     }

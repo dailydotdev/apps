@@ -170,7 +170,7 @@ export default function BookmarkFeedLayout({
   // The selected post stays in the pane while a search or filter leaves it
   // out of the list, until another row is picked.
   const [selectedPost, setSelectedPost] = useState<Post>();
-  const currentRef = useRef<Post>();
+  const currentRef = useRef<Post>(undefined);
   const listRef = useRef<HTMLElement | null>(null);
   // The column scrolls on its own on a laptop, so the next page has to be
   // watched against it, and a ref alone would not re-run the observer

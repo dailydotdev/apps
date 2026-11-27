@@ -187,7 +187,7 @@ function AuthOptionsInner({
   const isStartups = isStartupsAuthTrigger(trigger);
   const signupIntent = isStartups ? SignupIntent.Company : undefined;
   const [socialError, setSocialError] = useState<string>();
-  const socialProviderRef = useRef<string>();
+  const socialProviderRef = useRef<string>(undefined);
   const onSocialError = (message: string) => {
     if (!isStartups) {
       displayToast(message);
@@ -500,7 +500,7 @@ function AuthOptionsInner({
   const completeSocialAuthRef =
     useRef<
       (user: SocialAuthBootUser, provider?: string | null) => Promise<void>
-    >();
+    >(undefined);
 
   const completeSocialAuth = async (
     bootUser: SocialAuthBootUser,

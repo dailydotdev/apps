@@ -59,10 +59,8 @@ export enum MarkdownCommand {
   Gif = 'gif',
 }
 
-export interface UseMarkdownInputProps extends Pick<
-  HTMLAttributes<HTMLTextAreaElement>,
-  'onSubmit'
-> {
+export interface UseMarkdownInputProps {
+  onSubmit?: FormEventHandler<HTMLTextAreaElement>;
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   postId?: string;
   sourceId?: string;
@@ -163,7 +161,7 @@ export const useMarkdownInput = ({
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const getCommand = useCallback((): TextareaCommand => {
     if (!command) {

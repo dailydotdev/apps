@@ -36,7 +36,7 @@ export function useDraftStorage({
   content,
   isDirty,
 }: UseDraftStorageProps) {
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pendingRef = useRef<PendingDraft | null>(null);
 
   const draftStorageKey = useMemo(() => {

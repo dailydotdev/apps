@@ -21,7 +21,7 @@ const usePrivilegedSession = ({
 }: UsePrivilegedSessionProps): UsePrivilegedSession => {
   const { openModal } = useLazyModal<LazyModal.VerifySession>();
   const { displayToast } = useToastNotification();
-  const onVerification = useRef<Func>();
+  const onVerification = useRef<Func>(undefined);
 
   const initializePrivilegedSession = useCallback(
     (redirect: string, onVerifiedProps?: () => void) => {

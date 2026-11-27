@@ -1,9 +1,4 @@
-import type {
-  ForwardedRef,
-  ReactElement,
-  ReactNode,
-  SyntheticEvent,
-} from 'react';
+import type { ForwardedRef, ReactElement, ReactNode } from 'react';
 import React, { forwardRef, useId } from 'react';
 import classNames from 'classnames';
 import { FieldInput } from './common';
@@ -239,7 +234,7 @@ function TextFieldComponent(
           disabled={disabled}
           required={required}
           {...props}
-          onInput={(e: SyntheticEvent<HTMLInputElement, InputEvent>) => {
+          onInput={(e) => {
             onInput(e);
             if (props.onInput) {
               props.onInput(e);

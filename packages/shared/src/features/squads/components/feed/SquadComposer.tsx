@@ -35,6 +35,7 @@ import {
 } from '../../lib/viewer';
 import { getSquadPendingPostsUrl, getSquadRulesUrl } from '../../lib/routes';
 import { useIsFirstPostShown } from '../firstPost/SquadFirstPost';
+import type { IconProps } from '../../../../components/Icon';
 
 const pendingStatus = [SourcePostModerationStatus.Pending];
 
@@ -69,7 +70,11 @@ const SquadOwnPendingPosts = (): ReactElement | null => {
   );
 };
 
-const shortcuts: { kind: ComposerKind; label: string; icon: ReactElement }[] = [
+const shortcuts: {
+  kind: ComposerKind;
+  label: string;
+  icon: ReactElement<IconProps>;
+}[] = [
   { kind: 'link', label: 'Share a link', icon: <LinkIcon /> },
   { kind: 'poll', label: 'Poll', icon: <PollIcon /> },
 ];

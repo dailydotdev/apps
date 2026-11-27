@@ -84,7 +84,7 @@ export const useFunnelTracking = ({
     [funnel, position],
   );
   const isFunnelCompletedRef = useRef(false);
-  const trackFunnelEventRef = useRef<TrackOnEvent | undefined>();
+  const trackFunnelEventRef = useRef<TrackOnEvent | undefined>(undefined);
 
   useEffect(() => {
     const didInit = !!trackFunnelEventRef.current;

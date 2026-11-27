@@ -30,11 +30,12 @@ import {
 import { SquadManageSection } from './routes';
 import type { SquadViewer } from './viewer';
 import { isStaffViewer } from './viewer';
+import type { IconProps } from '../../../components/Icon';
 
 export interface SquadManageItem {
   id: SquadManageSection;
   label: string;
-  icon: ReactElement;
+  icon: ReactElement<IconProps>;
   badge?: number;
   /**
    * A section the squad's plan doesn't include yet, shown locked with an
@@ -186,7 +187,7 @@ const isOpenSection = (squad: Squad, section: SquadManageSection): boolean =>
 
 const item = (
   id: SquadManageSection,
-  icon: ReactElement,
+  icon: ReactElement<IconProps>,
   badge?: number,
 ): SquadManageItem => ({ id, label: squadManageTitles[id], icon, badge });
 

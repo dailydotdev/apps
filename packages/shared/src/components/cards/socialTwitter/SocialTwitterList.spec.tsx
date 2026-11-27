@@ -166,6 +166,6 @@ it('should hide headline and tags for repost cards without repost text', async (
       className: 'w-full',
       textClampClass: 'line-clamp-10',
     }),
-    {},
+    undefined,
   );
 });

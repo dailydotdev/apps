@@ -68,7 +68,7 @@ export const getShareSubjectLogEvent = (
 });
 
 export type SnapshotSharePanelProps = SnapshotSubject & {
-  anchorRef: RefObject<HTMLElement>;
+  anchorRef: RefObject<HTMLElement | null>;
   /** Pointer and focus inside this element leave the panel open. */
   ignoreOutsideRef?: RefObject<HTMLElement>;
   image: Blob;
@@ -269,7 +269,7 @@ export function SnapshotSharePanel({
 
   return (
     <Popover open onOpenChange={(open) => !open && onClose()}>
-      <PopoverAnchor virtualRef={anchorRef} />
+      <PopoverAnchor virtualRef={anchorRef as RefObject<HTMLElement>} />
       <PopoverContent
         align="center"
         avoidCollisions

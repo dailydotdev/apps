@@ -18,7 +18,7 @@ export const useWidgetScroll = (): {
   className: string;
 } => {
   const node = useRef<HTMLDivElement | null>(null);
-  const observer = useRef<ResizeObserver>();
+  const observer = useRef<ResizeObserver>(undefined);
   const rest = useRef({ isAtTop: true, scrollHeight: 0 });
   const [edges, setEdges] = useState({ isAtTop: true, isAtEnd: true });
 

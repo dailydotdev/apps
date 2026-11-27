@@ -17,7 +17,7 @@ export interface UserListProps {
   afterContent?: (user: UserShortProfile, index: number) => ReactNode;
   initialItem?: ReactElement;
   isLoading?: boolean;
-  emptyPlaceholder?: JSX.Element;
+  emptyPlaceholder?: ReactElement;
   userInfoProps?: Omit<
     UserShortInfoProps,
     'user' | 'href' | 'tag' | 'children'

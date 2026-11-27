@@ -20,6 +20,7 @@ export enum ImageType {
 }
 
 export interface ImageProps extends ComponentPropsWithoutRef<'img'> {
+  src?: string;
   fallbackSrc?: string;
   type?: ImageType;
 }
@@ -60,8 +61,7 @@ const ImageComponent = (
   return (
     <img
       {...props}
-      /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
-      fetchpriority={fetchPriority}
+      fetchPriority={fetchPriority}
       ref={ref}
       alt={alt}
       src={src ?? finalFallbackSrc}

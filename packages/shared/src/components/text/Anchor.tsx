@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -6,7 +6,7 @@ export function Anchor({
   className,
   children,
   ...props
-}: JSX.IntrinsicElements['a']): ReactElement {
+}: ComponentProps<'a'>): ReactElement {
   return (
     <a
       {...props}

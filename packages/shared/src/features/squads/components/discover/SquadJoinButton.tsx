@@ -56,7 +56,7 @@ export const SquadJoinButton = ({
   const leaveSquad = useLeaveSquad({ squad });
   const isBlocked = squad.currentMember?.role === SourceMemberRole.Blocked;
 
-  const pendingJoin = useRef<Promise<Squad>>();
+  const pendingJoin = useRef<Promise<Squad>>(undefined);
 
   const setMembership = (member: SourceMember | undefined) => {
     const update = (current: Squad): Squad => {

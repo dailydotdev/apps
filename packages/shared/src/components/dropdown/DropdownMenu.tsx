@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import React, {
   createContext,
   useCallback,
@@ -70,7 +70,7 @@ export const DropdownMenuTrigger = React.forwardRef<
   const { toggle } = useContext(DropdownMenuRootContext);
   const isTouch = useRef(false);
 
-  if (!isValidElement(children)) {
+  if (!isValidElement<HTMLAttributes<HTMLElement>>(children)) {
     return undefined;
   }
 
@@ -114,7 +114,8 @@ export const DropdownMenuTrigger = React.forwardRef<
         {React.cloneElement(children, {
           onMouseEnter: () => setTooltipVisible(true),
           onMouseLeave: () => setTooltipVisible(false),
-          'aria-label': tooltip?.content,
+          'aria-label':
+            typeof tooltip?.content === 'string' ? tooltip.content : undefined,
           ...children?.props,
         })}
       </DropdownMenuTriggerRoot>
@@ -213,7 +214,7 @@ export const DropdownMenuContent = React.forwardRef<
     const closeRef = useRef(close);
     closeRef.current = close;
     const scrollRef = useRef<HTMLDivElement | null>(null);
-    const detachDrag = useRef<() => void>();
+    const detachDrag = useRef<() => void>(undefined);
     const setScrollRef = (node: HTMLDivElement | null) => {
       scrollRef.current = node;
       scrollFadeRef(node);

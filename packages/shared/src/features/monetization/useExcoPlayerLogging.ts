@@ -76,7 +76,7 @@ export const useExcoPlayerLogging = ({
 }: UseExcoPlayerLoggingProps): UseExcoPlayerLogging => {
   const { logEvent } = useLogContext();
   const [ad, setAd] = useState({ sequence: 0, isPlaying: false });
-  const adIdRef = useRef<string>();
+  const adIdRef = useRef<string>(undefined);
   const hasLoggedImpression = useRef(false);
 
   const getExtra = useCallback(

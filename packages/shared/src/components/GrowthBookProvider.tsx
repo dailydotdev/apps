@@ -100,7 +100,7 @@ export const GrowthBookProvider = ({
   });
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const callback = useRef<Context['trackingCallback']>();
+  const callback = useRef<Context['trackingCallback']>(undefined);
   const [gb] = useState<GrowthBook>(
     () =>
       new GrowthBook({

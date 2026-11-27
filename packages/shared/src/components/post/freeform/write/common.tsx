@@ -1,3 +1,4 @@
+import type { FormHTMLAttributes } from 'react';
 import classed from '../../../../lib/classed';
 import { BasePageContainer, pageBorders } from '../../../utilities';
 
@@ -7,4 +8,7 @@ export const WritePageContainer = classed(
   pageBorders,
 );
 
-export const WritePageMain = classed('form', 'flex flex-col');
+export const WritePageMain = classed<
+  FormHTMLAttributes<HTMLFormElement>,
+  HTMLFormElement
+>('form', 'flex flex-col');

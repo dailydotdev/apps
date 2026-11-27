@@ -127,7 +127,7 @@ export const Iubenda = (): ReactElement | null => {
   const enabled = isAuthReady && !isFunnel && !isIOSNative();
   const tcf = useTcfConsent();
   useConsentCookie(GdprConsentKey.Marketing);
-  const previousConsent = useRef<string>();
+  const previousConsent = useRef<string>(undefined);
   const queryClient = useQueryClient();
   const hadStoredConsent = useRef(Boolean(getStoredTcString()));
   const publisherConsentRequested = useRef(false);
@@ -144,7 +144,8 @@ export const Iubenda = (): ReactElement | null => {
   const consentKey = JSON.stringify(resolveAdRequestConsent(withTcf, tcf));
 
   // The config callback must not go stale when React re-renders.
-  const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
+  const onPreferenceRef =
+    useRef<(pref: IubendaPreference | null) => void>(undefined);
   onPreferenceRef.current = (pref) => {
     // No preference at all means iubenda found no consent regime for this
     // country: nothing was ever asked, so nothing is granted or revoked and

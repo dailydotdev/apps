@@ -1,9 +1,9 @@
 import classNames from 'classnames';
-import type { ReactElement, ReactNode } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import React, { forwardRef, useContext } from 'react';
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
-export type ModalBodyProps = JSX.IntrinsicElements['section'] & {
+export type ModalBodyProps = ComponentProps<'section'> & {
   children?: ReactNode;
   className?: string;
   view?: string;

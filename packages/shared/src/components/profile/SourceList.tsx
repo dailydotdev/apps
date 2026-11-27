@@ -27,7 +27,7 @@ export interface SourceListProps {
   sources: Source[];
   placeholderAmount?: number;
   isLoading?: boolean;
-  emptyPlaceholder?: JSX.Element;
+  emptyPlaceholder?: ReactElement;
   showFollow?: boolean;
   showBlock?: boolean;
 }

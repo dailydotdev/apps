@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactElement, ReactHTML, ReactNode } from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -35,7 +35,7 @@ export const getGroupedHoverContainer = <
   P extends HTMLAttributes<T>,
   T extends HTMLElement,
 >(
-  type: keyof ReactHTML = 'div',
+  type: keyof HTMLElementTagNameMap = 'div',
 ): ClassedHTML<P, T> => classed<P, T>(type, visibleOnGroupHover);
 
 export type Callback = (post: Post) => unknown;

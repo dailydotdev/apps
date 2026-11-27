@@ -1,5 +1,11 @@
 import classNames from 'classnames';
-import type { ReactElement, ReactNode, Ref } from 'react';
+import type {
+  Attributes,
+  ComponentProps,
+  ReactElement,
+  ReactNode,
+  Ref,
+} from 'react';
 import React, { forwardRef } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
@@ -26,10 +32,10 @@ import { formatCoresCurrency } from '../../lib/utils';
 import { Image } from '../image/Image';
 import { ButtonVariant } from '../buttons/Button';
 
-type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
-  ? JSX.IntrinsicElements[Tag]
+type PropsOf<Tag> = Tag extends keyof HTMLElementTagNameMap
+  ? ComponentProps<Tag>
   : Tag extends React.ComponentType<infer Props>
-    ? Props & JSX.IntrinsicAttributes
+    ? Props & Attributes
     : never;
 
 export interface UserInfoClassName {

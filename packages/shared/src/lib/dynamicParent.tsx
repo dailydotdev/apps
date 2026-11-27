@@ -3,7 +3,6 @@ import type {
   FunctionComponent,
   PropsWithChildren,
   ReactElement,
-  ReactHTML,
   ReactNode,
 } from 'react';
 import React from 'react';
@@ -22,7 +21,7 @@ export default function dynamicParent<
   PC extends PropsWithChildren<P> = PropsWithChildren<P>,
 >(
   loader: () => Promise<LoaderResult<PC>>,
-  placeholder: string | keyof ReactHTML | FunctionComponent<T>,
+  placeholder: string | keyof HTMLElementTagNameMap | FunctionComponent<T>,
 ): React.ComponentType<PC & T & { shouldLoad: boolean }> {
   return class DynamicParent extends React.Component<
     PC & T & { shouldLoad: boolean },
@@ -62,7 +61,7 @@ export default function dynamicParent<
       }
       return React.createElement(
         placeholder as
-          | keyof ReactHTML
+          | keyof HTMLElementTagNameMap
           | FunctionComponent<PC & T & { shouldLoad: boolean }>,
         this.props,
         children,

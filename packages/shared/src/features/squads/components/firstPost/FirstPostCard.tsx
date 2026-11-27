@@ -15,6 +15,7 @@ import {
 } from '../../../../styles/custom';
 import { StartupsFreeChip } from '../StartupsFreeChip';
 import { StartupsReachChart } from '../StartupsReachChart';
+import type { IconProps } from '../../../../components/Icon';
 
 /** Something the page needs before its free boost can start */
 export interface FirstPostBoostStep {
@@ -46,7 +47,7 @@ const Path = ({
   hint,
   children,
 }: {
-  icon: ReactElement;
+  icon: ReactElement<IconProps>;
   title: string;
   hint: string;
   children: ReactNode;

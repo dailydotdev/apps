@@ -59,8 +59,7 @@ it('logs a copy link on a monthly best-of page as an archive share', () => {
 
 it('server renders a month whose ranked posts include a freeform post with no image', () => {
   const { DOMParser } = global;
-  // @ts-expect-error Node has no DOMParser
-  delete global.DOMParser;
+  delete (global as { DOMParser?: typeof DOMParser }).DOMParser;
 
   try {
     expect(

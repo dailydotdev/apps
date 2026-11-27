@@ -104,12 +104,14 @@ const AxisLabel = ({
   percentage: number;
 }): ReactElement => {
   const [x, y] = pointAt(side, 1);
-  const anchor = {
-    top: 'middle',
-    bottom: 'middle',
-    left: 'end',
-    right: 'start',
-  }[side];
+  const anchor = (
+    {
+      top: 'middle',
+      bottom: 'middle',
+      left: 'end',
+      right: 'start',
+    } as const
+  )[side];
   const offsetX = { top: 0, bottom: 0, left: -10, right: 10 }[side];
   // Two lines (percentage over label) sit above the top axis and below the
   // bottom one; the side labels center on their axis.

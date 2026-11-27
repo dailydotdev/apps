@@ -19,7 +19,8 @@
   "packageManager": "pnpm@10.33.4+sha256.8e70ddc6649b18bc3d895cf3a908c0291ea4c38039ad8722c47e018daf1e9cfc",
   "pnpm": {
     "patchedDependencies": {
-      "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch"
+      "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch",
+      "react-markdown@8.0.7": "patches/react-markdown@8.0.7.patch"
     },
     "packageExtensions": {
       "@next/bundle-analyzer": {

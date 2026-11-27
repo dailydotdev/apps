@@ -39,7 +39,7 @@ export const PaddleBuyCoresContextProvider = ({
     id: string;
     value: number;
   }>();
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef<typeof logEvent>(undefined);
   logRef.current = logEvent;
 
   const { data: prices } = useQuery(

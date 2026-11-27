@@ -56,8 +56,7 @@ const LogoSvgElem = ({
     return (
       <img
         loading="eager"
-        /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
-        fetchpriority="high"
+        fetchPriority="high"
         src={src}
         className={className?.container}
         alt="daily.dev logo"

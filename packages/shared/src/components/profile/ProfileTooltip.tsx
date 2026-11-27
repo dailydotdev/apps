@@ -53,7 +53,7 @@ export function ProfileTooltip({
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
   const { logEvent } = useLogContext();
-  const handler = useRef<() => void>();
+  const handler = useRef<() => void>(undefined);
   const hasInitialUser = initialUser?.id === userId;
   const [id, setId] = useState<string | undefined>(
     eager && !hasInitialUser ? userId : undefined,

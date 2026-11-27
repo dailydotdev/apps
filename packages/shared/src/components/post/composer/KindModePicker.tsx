@@ -10,11 +10,12 @@ import {
 import { IconSize } from '../../Icon';
 import { ArrowIcon, EditIcon, LinkIcon, PollIcon } from '../../icons';
 import type { ComposerKind } from './types';
+import type { IconProps } from '../../Icon';
 
 interface KindOption {
   kind: ComposerKind;
   label: string;
-  icon: ReactElement;
+  icon: ReactElement<IconProps>;
 }
 
 const ALL_KIND_OPTIONS: KindOption[] = [

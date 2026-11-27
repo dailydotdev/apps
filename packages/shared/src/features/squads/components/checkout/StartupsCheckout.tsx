@@ -507,7 +507,7 @@ const PaymentPanel = ({
     origin: Origin.StartupsCheckout,
     logExtra: { plan, source_id: company.id },
   });
-  const openedRef = useRef<string>();
+  const openedRef = useRef<string>(undefined);
   const [isTimedOut, setTimedOut] = useState(false);
   const seats = SQUAD_PLAN_SEATS[plan];
   // Paddle knows the real amount once a discount or tax is applied
