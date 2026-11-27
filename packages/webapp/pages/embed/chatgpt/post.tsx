@@ -1,7 +1,13 @@
 import type { ReactElement, RefObject } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { useVotePost } from '@dailydotdev/shared/src/hooks/vote/useVotePost';
+import type { VoteEntityPayload } from '@dailydotdev/shared/src/hooks/vote/types';
+import { voteMutationHandlers } from '@dailydotdev/shared/src/hooks/vote/types';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -30,23 +36,50 @@ interface ToolPost {
   readTime?: number | null;
   numUpvotes?: number;
   numComments?: number;
+  userState?: { vote: UserVote } | null;
+  upvoted?: boolean;
 }
+
+type ToolData = ToolPost | ToolPost[];
 
 interface HostGlobals {
-  toolOutput?: { data?: ToolPost | ToolPost[] } | null;
+  toolOutput?: { data?: ToolData } | null;
   theme?: 'light' | 'dark';
   displayMode?: 'inline' | 'fullscreen' | 'pip';
+  userId?: string;
 }
 
-interface OpenAi extends HostGlobals {
+type ToolResultMeta = Record<string, unknown> | null | undefined;
+
+interface ToolCallResult {
+  isError?: boolean;
+}
+
+interface OpenAi extends Omit<HostGlobals, 'userId'> {
+  toolResponseMetadata?: ToolResultMeta;
   openExternal?: (options: { href: string }) => void;
+  callTool?: (
+    name: string,
+    args: Record<string, unknown>,
+  ) => Promise<ToolCallResult>;
 }
 
 const MCP_APPS_PROTOCOL_VERSION = '2026-01-26';
 const INITIALIZE_REQUEST_ID = 1;
 const UTM_MEDIUM = 'mcp_app';
+const USER_ID_META = 'dailydev/userId';
+const VOTE_TOOL = 'putPostsByIdVote';
+const TOOL_DATA_KEY = ['mcp-app', 'tool-data'];
+const HOST_REQUEST_TIMEOUT_MS = 10000;
+const TIMED_OUT: ToolCallResult = { isError: true };
 let nextRequestId = INITIALIZE_REQUEST_ID + 1;
 let mcpHostName: string | undefined;
+const pendingRequests = new Map<number, (result: ToolCallResult) => void>();
+
+const getUserId = (meta: ToolResultMeta): string | undefined => {
+  const userId = meta?.[USER_ID_META];
+  return typeof userId === 'string' ? userId : undefined;
+};
 
 const getOpenAi = (): OpenAi | undefined =>
   (globalThis as { openai?: OpenAi }).openai;
@@ -76,6 +109,7 @@ const useHostGlobals = (): HostGlobals => {
           toolOutput: openAi.toolOutput,
           theme: openAi.theme,
           displayMode: openAi.displayMode,
+          userId: getUserId(openAi.toolResponseMetadata),
         });
       }
     };
@@ -85,7 +119,14 @@ const useHostGlobals = (): HostGlobals => {
         return;
       }
 
-      const { id, method, params, result } = event.data;
+      const { id, method, params, result, error } = event.data;
+      const pending = pendingRequests.get(id);
+      if (pending) {
+        pendingRequests.delete(id);
+        pending(error ? { isError: true } : result);
+        return;
+      }
+
       if (id === INITIALIZE_REQUEST_ID && result) {
         mcpHostName = result.hostInfo?.name;
         merge({
@@ -97,7 +138,11 @@ const useHostGlobals = (): HostGlobals => {
       }
 
       if (method === 'ui/notifications/tool-result') {
-        merge({ toolOutput: params?.structuredContent });
+        merge({
+          toolOutput: params?.structuredContent,
+          // eslint-disable-next-line no-underscore-dangle
+          userId: getUserId(params?._meta),
+        });
         return;
       }
 
@@ -170,6 +215,52 @@ const withAttribution = (href: string): string => {
   return url.toString();
 };
 
+const withTimeout = (
+  promise: Promise<ToolCallResult>,
+  onTimeout?: () => void,
+): Promise<ToolCallResult> => {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<ToolCallResult>((resolve) => {
+    timeout = setTimeout(() => {
+      onTimeout?.();
+      resolve(TIMED_OUT);
+    }, HOST_REQUEST_TIMEOUT_MS);
+  });
+
+  return Promise.race([promise, timedOut]).finally(() => clearTimeout(timeout));
+};
+
+const requestFromHost = (
+  method: string,
+  params: Record<string, unknown>,
+): Promise<ToolCallResult> => {
+  const id = nextRequestId;
+  nextRequestId += 1;
+
+  const response = new Promise<ToolCallResult>((resolve) => {
+    pendingRequests.set(id, resolve);
+  });
+  postToHost({ id, method, params });
+
+  return withTimeout(response, () => pendingRequests.delete(id));
+};
+
+const callServerTool = async (
+  name: string,
+  args: Record<string, unknown>,
+): Promise<boolean> => {
+  try {
+    const openAi = getOpenAi();
+    const result = openAi?.callTool
+      ? await withTimeout(openAi.callTool(name, args))
+      : await requestFromHost('tools/call', { name, arguments: args });
+
+    return !result?.isError;
+  } catch {
+    return false;
+  }
+};
+
 const openLink = (link: string): void => {
   const openAi = getOpenAi();
   const href = withAttribution(link);
@@ -196,8 +287,9 @@ const openPost = (post: Post): void => openLink(post.commentsPermalink);
 
 const noop = (): void => {};
 
-const anonymousAuth: AuthContextData = {
-  isLoggedIn: false,
+const getAuth = (userId?: string): AuthContextData => ({
+  isLoggedIn: !!userId,
+  ...(userId && { user: { id: userId } as LoggedUser }),
   shouldShowLogin: false,
   showLogin: noop,
   closeLogin: noop,
@@ -208,13 +300,32 @@ const anonymousAuth: AuthContextData = {
   getRedirectUri: () => '',
   isAuthReady: true,
   isAuthReadyOrCached: true,
-};
+});
 
 const featuresReady: FeaturesReadyContextValue = {
   ready: true,
   settled: true,
   getFeatureValue: ((feature) =>
     feature.defaultValue) as FeaturesReadyContextValue['getFeatureValue'],
+};
+
+const getVote = (post: ToolPost): UserVote =>
+  post.userState?.vote ?? (post.upvoted ? UserVote.Up : UserVote.None);
+
+const updateToolPost = (
+  data: ToolData,
+  id: string,
+  update: (post: VoteEntityPayload) => Partial<VoteEntityPayload>,
+): ToolData => {
+  const apply = (post: ToolPost): ToolPost =>
+    post.id === id
+      ? {
+          ...post,
+          ...update({ ...post, userState: { vote: getVote(post) } }),
+        }
+      : post;
+
+  return Array.isArray(data) ? data.map(apply) : apply(data);
 };
 
 const toCardPost = (post: ToolPost): Post =>
@@ -237,14 +348,21 @@ const toCardPost = (post: ToolPost): Post =>
     readTime: post.readTime ?? undefined,
     numUpvotes: post.numUpvotes ?? 0,
     numComments: post.numComments ?? 0,
+    userState: { vote: getVote(post) },
   }) as Post;
 
-const ChatGptPostCard = ({ post }: { post: ToolPost }): ReactElement => (
+const ChatGptPostCard = ({
+  post,
+  onUpvote,
+}: {
+  post: ToolPost;
+  onUpvote: (post: Post) => unknown;
+}): ReactElement => (
   <ArticleGrid
     post={toCardPost(post)}
     onPostClick={openPost}
     onPostAuxClick={openPost}
-    onUpvoteClick={openPost}
+    onUpvoteClick={onUpvote}
     onDownvoteClick={openPost}
     onCommentClick={openPost}
     onBookmarkClick={openPost}
@@ -257,13 +375,38 @@ const ChatGptPostCard = ({ post }: { post: ToolPost }): ReactElement => (
 const ChatGptPosts = ({
   data,
   displayMode,
-}: Pick<HostGlobals, 'displayMode'> & {
-  data: ToolPost | ToolPost[];
+  userId,
+}: Pick<HostGlobals, 'displayMode' | 'userId'> & {
+  data: ToolData;
 }): ReactElement => {
+  const client = useQueryClient();
+  const { toggleUpvote } = useVotePost({
+    mutationFn: async ({ id, vote }) => {
+      if (!(await callServerTool(VOTE_TOOL, { id, vote }))) {
+        throw new Error('Vote failed');
+      }
+    },
+    onMutate: ({ id, vote }) => {
+      const previous = client.getQueryData<ToolData>(TOOL_DATA_KEY);
+      client.setQueryData<ToolData>(
+        TOOL_DATA_KEY,
+        (current) =>
+          current && updateToolPost(current, id, voteMutationHandlers[vote]),
+      );
+
+      return () => client.setQueryData(TOOL_DATA_KEY, previous);
+    },
+  });
+
+  const onUpvote = (post: Post) =>
+    userId
+      ? toggleUpvote({ payload: post, origin: Origin.Feed })
+      : openPost(post);
+
   if (!Array.isArray(data)) {
     return (
       <div className="mx-auto w-72">
-        <ChatGptPostCard post={data} />
+        <ChatGptPostCard post={data} onUpvote={onUpvote} />
       </div>
     );
   }
@@ -272,7 +415,7 @@ const ChatGptPosts = ({
     return (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4 p-4">
         {data.map((post) => (
-          <ChatGptPostCard key={post.id} post={post} />
+          <ChatGptPostCard key={post.id} post={post} onUpvote={onUpvote} />
         ))}
       </div>
     );
@@ -282,7 +425,7 @@ const ChatGptPosts = ({
     <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
       {data.map((post) => (
         <div key={post.id} className="w-72 shrink-0 snap-start">
-          <ChatGptPostCard post={post} />
+          <ChatGptPostCard post={post} onUpvote={onUpvote} />
         </div>
       ))}
     </div>
@@ -290,9 +433,20 @@ const ChatGptPosts = ({
 };
 
 export default function ChatGptPostEmbed(): ReactElement {
-  const { toolOutput, theme, displayMode } = useHostGlobals();
+  const { toolOutput, theme, displayMode, userId } = useHostGlobals();
   const sizeRef = useHostSize();
-  const data = toolOutput?.data;
+  const client = useQueryClient();
+  const { data } = useQuery<ToolData>({
+    queryKey: TOOL_DATA_KEY,
+    queryFn: skipToken,
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    if (toolOutput?.data) {
+      client.setQueryData(TOOL_DATA_KEY, toolOutput.data);
+    }
+  }, [client, toolOutput]);
 
   useEffect(() => {
     if (theme) {
@@ -320,7 +474,7 @@ export default function ChatGptPostEmbed(): ReactElement {
 
   return (
     <AlertContextProvider loadedAlerts>
-      <AuthContext.Provider value={anonymousAuth}>
+      <AuthContext.Provider value={getAuth(userId)}>
         <FeaturesReadyContext.Provider value={featuresReady}>
           <SettingsContextProvider>
             <style>
@@ -329,7 +483,13 @@ export default function ChatGptPostEmbed(): ReactElement {
               }
             </style>
             <div ref={sizeRef}>
-              {data && <ChatGptPosts data={data} displayMode={displayMode} />}
+              {data && (
+                <ChatGptPosts
+                  data={data}
+                  displayMode={displayMode}
+                  userId={userId}
+                />
+              )}
             </div>
           </SettingsContextProvider>
         </FeaturesReadyContext.Provider>

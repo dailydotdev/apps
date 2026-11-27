@@ -60,12 +60,13 @@ export type UseVotePostRollback = () => void;
 export type UseVoteProps = {
   entity: UserVoteEntity;
   onMutate?: (props: UseVoteMutationProps) => UseVotePostRollback | undefined;
+  mutationFn?: (props: UseVoteMutationProps) => Promise<unknown>;
   variables?: unknown;
 };
 
 export type UseVotePostProps = {
   variables?: unknown;
-} & Pick<UseVoteProps, 'onMutate'>;
+} & Pick<UseVoteProps, 'onMutate' | 'mutationFn'>;
 
 export const createVoteMutationKey = ({
   entity,

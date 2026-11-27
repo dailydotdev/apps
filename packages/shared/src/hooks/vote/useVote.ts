@@ -16,7 +16,12 @@ import { VOTE_MUTATION } from '../../graphql/users';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 
-const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
+const useVote = ({
+  onMutate,
+  mutationFn,
+  entity,
+  variables,
+}: UseVoteProps): UseVote => {
   const { requestMethod = gqlRequest } = useRequestProtocol();
   const { user, showLogin } = useContext(AuthContext);
   const mutationKey = createVoteMutationKey({ entity, variables });
@@ -24,13 +29,15 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
 
   const { mutateAsync: onVoteEntity, isPending: isLoading } = useMutation({
     mutationKey,
-    mutationFn: (mutationProps: UseVoteMutationProps) => {
-      if (mutationProps.entity === UserVoteEntity.Post) {
-        completeAction(ActionType.VotePost);
-      }
+    mutationFn:
+      mutationFn ??
+      ((mutationProps: UseVoteMutationProps) => {
+        if (mutationProps.entity === UserVoteEntity.Post) {
+          completeAction(ActionType.VotePost);
+        }
 
-      return requestMethod(VOTE_MUTATION, mutationProps);
-    },
+        return requestMethod(VOTE_MUTATION, mutationProps);
+      }),
 
     onMutate,
     onError: (err, _, rollback?: () => void) => rollback?.(),
