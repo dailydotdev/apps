@@ -8,6 +8,11 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { useVotePost } from '@dailydotdev/shared/src/hooks/vote/useVotePost';
 import type { VoteEntityPayload } from '@dailydotdev/shared/src/hooks/vote/types';
 import { voteMutationHandlers } from '@dailydotdev/shared/src/hooks/vote/types';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -351,23 +356,27 @@ const toCardPost = (post: ToolPost): Post =>
     userState: { vote: getVote(post) },
   }) as Post;
 
+interface CardHandlers {
+  onUpvote: (post: Post) => unknown;
+  onDownvote: (post: Post) => unknown;
+  onOpen: (post: Post) => void;
+}
+
 const ChatGptPostCard = ({
   post,
   onUpvote,
-}: {
-  post: ToolPost;
-  onUpvote: (post: Post) => unknown;
-}): ReactElement => (
+  onDownvote,
+  onOpen,
+}: CardHandlers & { post: ToolPost }): ReactElement => (
   <ArticleGrid
     post={toCardPost(post)}
     onPostClick={openPost}
     onPostAuxClick={openPost}
     onUpvoteClick={onUpvote}
-    onDownvoteClick={openPost}
+    onDownvoteClick={onDownvote}
     onCommentClick={openPost}
-    onBookmarkClick={openPost}
-    onShare={openPost}
-    onCopyLinkClick={(_, item: Post) => openPost(item)}
+    onBookmarkClick={onOpen}
+    onCopyLinkClick={(_, item: Post) => onOpen(item)}
     openNewTab
   />
 );
@@ -380,7 +389,7 @@ const ChatGptPosts = ({
   data: ToolData;
 }): ReactElement => {
   const client = useQueryClient();
-  const { toggleUpvote } = useVotePost({
+  const { toggleUpvote, toggleDownvote } = useVotePost({
     mutationFn: async ({ id, vote }) => {
       if (!(await callServerTool(VOTE_TOOL, { id, vote }))) {
         throw new Error('Vote failed');
@@ -398,15 +407,29 @@ const ChatGptPosts = ({
     },
   });
 
-  const onUpvote = (post: Post) =>
-    userId
-      ? toggleUpvote({ payload: post, origin: Origin.Feed })
-      : openPost(post);
+  const onOpen = (post: Post) => {
+    client.setQueryData(generateQueryKey(RequestKey.PostActions, post), {
+      interaction: 'none',
+      previousInteraction: 'none',
+    });
+    openPost(post);
+  };
+  const handlers: CardHandlers = {
+    onUpvote: (post) =>
+      userId
+        ? toggleUpvote({ payload: post, origin: Origin.Feed })
+        : onOpen(post),
+    onDownvote: (post) =>
+      userId
+        ? toggleDownvote({ payload: post, origin: Origin.Feed })
+        : onOpen(post),
+    onOpen,
+  };
 
   if (!Array.isArray(data)) {
     return (
       <div className="mx-auto w-72">
-        <ChatGptPostCard post={data} onUpvote={onUpvote} />
+        <ChatGptPostCard post={data} {...handlers} />
       </div>
     );
   }
@@ -415,7 +438,7 @@ const ChatGptPosts = ({
     return (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4 p-4">
         {data.map((post) => (
-          <ChatGptPostCard key={post.id} post={post} onUpvote={onUpvote} />
+          <ChatGptPostCard key={post.id} post={post} {...handlers} />
         ))}
       </div>
     );
@@ -425,7 +448,7 @@ const ChatGptPosts = ({
     <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
       {data.map((post) => (
         <div key={post.id} className="w-72 shrink-0 snap-start">
-          <ChatGptPostCard post={post} onUpvote={onUpvote} />
+          <ChatGptPostCard post={post} {...handlers} />
         </div>
       ))}
     </div>
@@ -443,10 +466,21 @@ export default function ChatGptPostEmbed(): ReactElement {
   });
 
   useEffect(() => {
+    if (userId) {
+      client.setQueryData(
+        generateQueryKey(RequestKey.Actions, { id: userId }),
+        {
+          actions: [
+            { type: ActionType.HideBlockPanel, completedAt: new Date() },
+          ],
+          serverLoaded: true,
+        },
+      );
+    }
     if (toolOutput?.data) {
       client.setQueryData(TOOL_DATA_KEY, toolOutput.data);
     }
-  }, [client, toolOutput]);
+  }, [client, toolOutput, userId]);
 
   useEffect(() => {
     if (theme) {
