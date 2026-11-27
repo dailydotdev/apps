@@ -120,7 +120,7 @@ const useHostGlobals = (): HostGlobals => {
       }
 
       const { id, method, params, result, error } = event.data;
-      const pending = pendingRequests.get(id);
+      const pending = method ? undefined : pendingRequests.get(id);
       if (pending) {
         pendingRequests.delete(id);
         pending(error ? { isError: true } : result);
