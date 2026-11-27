@@ -1,0 +1,326 @@
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
+import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common/ModalHeader';
+import {
+  ModalKind,
+  ModalSize,
+} from '@dailydotdev/shared/src/components/modals/common/types';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ShieldCheckIcon,
+  GiftIcon,
+  MailIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import VerifyExperienceModal from '@dailydotdev/shared/src/components/modals/VerifyExperienceModal';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
+import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
+import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
+import { Image, ImageType } from '@dailydotdev/shared/src/components/image/Image';
+import { FeedWidgetSurface } from '@dailydotdev/shared/src/features/feedWidgets/FeedWidgetFrame';
+
+// react-modal hides the app root from screen readers while open, and the
+// shared Modal points it at Next's root, which Storybook doesn't have.
+if (typeof document !== 'undefined' && !document.getElementById('__next')) {
+  const root = document.createElement('div');
+  root.id = '__next';
+  document.body.appendChild(root);
+}
+
+// Real companies from the company table that have verified members, to
+// show the badge works for any employer.
+const companies = [
+  {
+    name: 'Google',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s--S6zPbHD8--/f_auto/v1725262174/companies/google',
+  },
+  {
+    name: 'Microsoft',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s--RCg9CN2x--/f_auto/v1724917153/companies/microsoft',
+  },
+  {
+    name: 'Amazon',
+    image:
+      'https://daily-now-res.cloudinary.com/image/upload/s--yE0b9Mhz--/f_auto/v1725357243/companies/OiNYYeZQ_400x400',
+  },
+  {
+    name: 'Meta',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s--Gyqx2xMJ--/f_auto/v1731153028/companies/meta',
+  },
+  {
+    name: 'Spotify',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s--MFBPdz-Z--/f_auto/v1724959205/companies/spotify',
+  },
+  {
+    name: 'Shopify',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s--HIsiXx1a--/f_auto/v1725006297/companies/shopify',
+  },
+  {
+    name: 'Stripe',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s--O0Pomokl--/f_auto/v1726673397/companies/stripe',
+  },
+  {
+    name: 'Atlassian',
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/s---mQsnJll--/f_auto/v1725303227/companies/atlassian',
+  },
+];
+
+type Company = (typeof companies)[number];
+
+const CYCLE_MS = 2200;
+const FADE_MS = 300;
+
+/**
+ * Steps through the companies, fading between them. Holds on the first one
+ * when the viewer prefers reduced motion.
+ */
+const useCyclingCompany = (): { company: Company; isShown: boolean } => {
+  const [index, setIndex] = useState(0);
+  const [isShown, setIsShown] = useState(true);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return undefined;
+    }
+
+    let swap: ReturnType<typeof setTimeout>;
+    const tick = setInterval(() => {
+      setIsShown(false);
+      swap = setTimeout(() => {
+        setIndex((current) => (current + 1) % companies.length);
+        setIsShown(true);
+      }, FADE_MS);
+    }, CYCLE_MS);
+
+    return () => {
+      clearInterval(tick);
+      clearTimeout(swap);
+    };
+  }, []);
+
+  return { company: companies[index], isShown };
+};
+
+const fade = (isShown: boolean): string =>
+  classNames(
+    'transition-opacity duration-300',
+    isShown ? 'opacity-100' : 'opacity-0',
+  );
+
+/** Falls back to the building placeholder if a logo fails to load. */
+const CompanyImage = ({
+  company,
+  className,
+}: {
+  company: Company;
+  className: string;
+}): ReactElement => (
+  <Image
+    type={ImageType.Organization}
+    src={company.image}
+    alt=""
+    className={classNames('shrink-0 rounded-full bg-white object-cover', className)}
+  />
+);
+
+/**
+ * The company logos taking turns, for when we have no logo for the member's
+ * company.
+ */
+export const CyclingCompanyLogo = ({
+  className,
+}: {
+  className: string;
+}): ReactElement => {
+  const { company, isShown } = useCyclingCompany();
+
+  return (
+    <span className={fade(isShown)}>
+      <CompanyImage company={company} className={className} />
+    </span>
+  );
+};
+
+// The feed widgets' corner glow (feedWidgets/widgets/material.tsx), in the
+// avocado green the production popover tags verification with.
+const verifiedGlow = {
+  backgroundImage:
+    'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)',
+};
+
+/**
+ * The signed-in member as others will see them once verified: their name,
+ * picture and current job title, from the same data production has.
+ */
+const NamePreview = ({
+  company,
+  isShown,
+}: {
+  company: Company;
+  isShown: boolean;
+}): ReactElement => {
+  const { user } = useAuthContext();
+  const { experiences } = useUserExperiencesByType(
+    UserExperienceType.Work,
+    user?.id ?? '',
+  );
+  const currentJob = experiences?.find(({ endedAt }) => !endedAt);
+
+  return (
+    <FeedWidgetSurface>
+      <div className="relative isolate flex flex-col">
+        <span
+          aria-hidden
+          // Up to the card's top edge, so the glow starts at the corner.
+          className="pointer-events-none absolute -inset-x-4 -bottom-3 -top-3 -z-1"
+          style={verifiedGlow}
+        />
+        <div className="flex items-center gap-3 px-4">
+          {user && <ProfilePicture user={user} size={ProfileImageSize.Large} />}
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <div className="flex items-center gap-1">
+              <span className="truncate font-bold text-text-primary typo-callout">
+                {user?.name}
+              </span>
+              <span
+                className={classNames(
+                  'flex items-center gap-1',
+                  fade(isShown),
+                )}
+              >
+                <CompanyImage company={company} className="size-4" />
+                <span className="truncate text-text-secondary typo-footnote">
+                  {company.name}
+                </span>
+              </span>
+            </div>
+            {currentJob?.title && (
+              <span className="truncate text-text-tertiary typo-caption1">
+                {currentJob.title}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </FeedWidgetSurface>
+  );
+};
+
+const benefits = (
+  company: Company,
+  isShown: boolean,
+): Array<{ icon: ReactNode; title: string; note: string }> => [
+  {
+    icon: (
+      <span className={fade(isShown)}>
+        <CompanyImage company={company} className="size-5" />
+      </span>
+    ),
+    title: 'Stand out',
+    note: 'Your company shows next to your name.',
+  },
+  {
+    icon: <ShieldCheckIcon size={IconSize.Small} />,
+    title: 'Get taken seriously',
+    note: 'Verified voices get more trust.',
+  },
+  {
+    icon: <GiftIcon size={IconSize.Small} />,
+    title: '30 seconds and free',
+    note: 'Just your work email, kept private.',
+  },
+];
+
+export type VerifyStep = 'benefits' | 'form';
+
+/**
+ * The one modal every entry point opens. It leads with what the badge gets
+ * you; "Verify with work email" then opens the production
+ * VerifyExperienceModal, unchanged: one form for the email and the code, and
+ * a toast for the result. Benefits copy is a placeholder.
+ */
+export const VerifyBadgeModal = ({
+  initialStep = 'benefits',
+  onRequestClose,
+}: {
+  initialStep?: VerifyStep;
+  onRequestClose: () => void;
+}): ReactElement => {
+  const [step, setStep] = useState<VerifyStep>(initialStep);
+  const { company, isShown } = useCyclingCompany();
+
+  if (step === 'form') {
+    return <VerifyExperienceModal isOpen onRequestClose={onRequestClose} />;
+  }
+
+  return (
+    <Modal
+      isOpen
+      kind={ModalKind.FixedCenter}
+      size={ModalSize.Small}
+      isDrawerOnMobile
+      onRequestClose={onRequestClose}
+    >
+      <ModalHeader title="Get your verified badge" />
+      <ModalBody>
+        <div className="flex flex-col gap-4">
+          <NamePreview company={company} isShown={isShown} />
+          <ul className="flex flex-col gap-3">
+            {benefits(company, isShown).map(({ icon, title, note }) => (
+              <li key={title} className="flex gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-primary">
+                  {icon}
+                </span>
+                <div className="flex min-w-0 flex-col">
+                  <Typography type={TypographyType.Callout} bold>
+                    {title}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {note}
+                  </Typography>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant={ButtonVariant.Primary}
+              icon={<MailIcon />}
+              onClick={() => setStep('form')}
+            >
+              Verify with work email
+            </Button>
+            <Button variant={ButtonVariant.Tertiary} onClick={onRequestClose}>
+              Not now
+            </Button>
+          </div>
+        </div>
+      </ModalBody>
+    </Modal>
+  );
+};
