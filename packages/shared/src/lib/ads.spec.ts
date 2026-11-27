@@ -1,3 +1,5 @@
+import { BOOT_LOCAL_KEY } from '../contexts/common';
+import { storageWrapper as storage } from './storageWrapper';
 import ad from '../../__tests__/fixture/ad';
 import { SourceType } from '../graphql/sources';
 import { AdConsentExists } from '../features/monetization/adConsent';
@@ -21,9 +23,13 @@ jest.mock('../features/monetization/adPageView', () => ({
 
 describe('ads', () => {
   const originalFetch = global.fetch;
+  const originalVersion = process.env.CURRENT_VERSION;
 
   beforeEach(() => {
+    storage.removeItem(BOOT_LOCAL_KEY);
+    delete process.env.CURRENT_VERSION;
     global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
       json: jest.fn().mockResolvedValue([ad]),
       headers: {
         get: (name: string) =>
@@ -33,6 +39,12 @@ describe('ads', () => {
   });
 
   afterEach(() => {
+    storage.removeItem(BOOT_LOCAL_KEY);
+    if (originalVersion === undefined) {
+      delete process.env.CURRENT_VERSION;
+    } else {
+      process.env.CURRENT_VERSION = originalVersion;
+    }
     global.fetch = originalFetch;
     jest.clearAllMocks();
   });
@@ -100,6 +112,49 @@ describe('ads', () => {
   });
 
   describe('fetchAdByPlacement', () => {
+    it.each([
+      AdPlacement.Feed,
+      AdPlacement.PostSidebar,
+      AdPlacement.PostComment,
+      AdPlacement.SquadDirectory,
+    ])(
+      'sends client and build version headers for %s ads',
+      async (placement) => {
+        process.env.CURRENT_VERSION = '3.45.0';
+        storage.setItem(BOOT_LOCAL_KEY, JSON.stringify({ isAndroidApp: true }));
+
+        await fetchAdByPlacement({
+          placement,
+          refresh: { platform: 'android', count: 1 },
+        });
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            headers: {
+              'X-Daily-Client': 'android',
+              'X-Daily-Version': '3.45.0',
+              'X-Page-View-Id': 'page-view',
+            },
+          }),
+        );
+      },
+    );
+
+    it.each([undefined, ''])(
+      'omits an unavailable build version (%s)',
+      async (version) => {
+        if (version !== undefined) {
+          process.env.CURRENT_VERSION = version;
+        }
+
+        await fetchAdByPlacement({ placement: AdPlacement.Feed });
+
+        const [, options] = jest.mocked(global.fetch).mock.calls[0];
+        expect(options?.headers).not.toHaveProperty('X-Daily-Version');
+      },
+    );
+
     it('rejects a non-JSON initial failure so the query can retry it', async () => {
       const failure = new SyntaxError('Unexpected token <');
       jest.mocked(global.fetch).mockResolvedValue({
@@ -202,7 +257,13 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a?active=true&allow_post_boost=true&allow_squad_boost=true',
-        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+        {
+          credentials: 'include',
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
+        },
       );
       expect(result).toEqual({ ...ad, generationId: 'gen-123' });
     });
@@ -214,7 +275,13 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a/post',
-        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+        {
+          credentials: 'include',
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
+        },
       );
     });
 
@@ -226,7 +293,13 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a/squads_directory?allow_squad_boost=true',
-        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+        {
+          credentials: 'include',
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
+        },
       );
     });
 
@@ -242,7 +315,13 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a?active=false&gdpr=1&gdpr_consent=tc-string&addtl_consent=1%7E1.2',
-        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+        {
+          credentials: 'include',
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
+        },
       );
     });
 
@@ -278,7 +357,10 @@ describe('ads', () => {
 
         expect(global.fetch).toHaveBeenCalledWith(url, {
           credentials: 'include',
-          headers: { 'X-Page-View-Id': 'page-view' },
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
         });
       },
     );
@@ -321,7 +403,10 @@ describe('ads', () => {
 
         expect(global.fetch).toHaveBeenCalledWith(url, {
           credentials: 'include',
-          headers: { 'X-Page-View-Id': 'page-view' },
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
         });
       },
     );
@@ -334,7 +419,13 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a/post?gdpr=0',
-        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+        {
+          credentials: 'include',
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
+        },
       );
     });
 
@@ -349,6 +440,7 @@ describe('ads', () => {
         {
           credentials: 'include',
           headers: {
+            'X-Daily-Client': 'webapp',
             'X-Page-View-Id': 'shared-view',
           },
         },
@@ -382,7 +474,13 @@ describe('ads', () => {
       });
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a/post?gdpr=1&gdpr_consent=tc-string',
-        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+        {
+          credentials: 'include',
+          headers: {
+            'X-Daily-Client': 'webapp',
+            'X-Page-View-Id': 'page-view',
+          },
+        },
       );
     });
 
@@ -407,6 +505,7 @@ describe('ads', () => {
           expect.any(String),
           expect.objectContaining({
             headers: {
+              'X-Daily-Client': 'webapp',
               'X-Page-View-Id': 'page-view',
               'X-User-Agent-Client-Hints': JSON.stringify(hints),
             },

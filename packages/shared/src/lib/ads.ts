@@ -1,4 +1,5 @@
 import { apiUrl } from './config';
+import { getAdRequestHeaders } from './adRequestHeaders';
 import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
@@ -191,7 +192,7 @@ const fetchAdRequest = async ({
   pageViewId?: string;
   throwOnError?: boolean;
 }): Promise<{ ad: Ad | null; failed: boolean }> => {
-  const headers: Record<string, string> = {};
+  const headers = getAdRequestHeaders();
   if (pageViewId) {
     headers['X-Page-View-Id'] = pageViewId;
   }

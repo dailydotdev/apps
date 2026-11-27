@@ -1,6 +1,7 @@
 import type { AdMacroContext } from '../adMacros';
 import { AdPlacement, appendConsentParams } from '../../../lib/ads';
 import { apiUrl } from '../../../lib/config';
+import { getAdRequestHeaders } from '../../../lib/adRequestHeaders';
 
 /**
  * The placement lives on the ad server's `/v2/a/:placement` route, not the
@@ -9,7 +10,7 @@ import { apiUrl } from '../../../lib/config';
  * 404s into an empty row rather than failing loudly.
  *
  * The response carries the whole bar — pinned, top tier and community together
- * — so the composition is the ad server's call and the request carries nothing
+ * — so the composition is the ad server's call and the query carries nothing
  * but consent. How many of them the row draws is decided later, off the
  * measured width. The reader comes from the `da2` cookie, which is what
  * `credentials` is for.
@@ -21,7 +22,10 @@ export const fetchSponsorStripAds = async (
   const query = appendConsentParams(new URLSearchParams(), consent).toString();
   const res = await fetch(
     `${apiUrl}/v2/a/${AdPlacement.SponsorStrip}${query ? `?${query}` : ''}`,
-    { credentials: 'include' },
+    {
+      credentials: 'include',
+      headers: getAdRequestHeaders(),
+    },
   );
 
   const response: unknown = await res.json();

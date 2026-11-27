@@ -1,3 +1,5 @@
+import { BOOT_LOCAL_KEY } from '../../../contexts/common';
+import { storageWrapper as storage } from '../../../lib/storageWrapper';
 import { apiUrl } from '../../../lib/config';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { parseSponsors } from './sponsorStripCreative';
@@ -23,14 +25,42 @@ const bar = {
 };
 
 const mockFetch = jest.fn();
+const originalVersion = process.env.CURRENT_VERSION;
 
 beforeEach(() => {
+  storage.removeItem(BOOT_LOCAL_KEY);
+  delete process.env.CURRENT_VERSION;
   jest.clearAllMocks();
   global.fetch = mockFetch;
   mockFetch.mockResolvedValue({ json: async () => bar });
 });
 
+afterEach(() => {
+  storage.removeItem(BOOT_LOCAL_KEY);
+  if (originalVersion === undefined) {
+    delete process.env.CURRENT_VERSION;
+  } else {
+    process.env.CURRENT_VERSION = originalVersion;
+  }
+});
+
 const requestedUrl = (): string => mockFetch.mock.calls[0][0] as string;
+
+it('sends client and build version headers for native sponsor requests', async () => {
+  process.env.CURRENT_VERSION = '3.45.0';
+
+  storage.setItem(BOOT_LOCAL_KEY, JSON.stringify({ isAndroidApp: true }));
+
+  await fetchSponsorStripAds();
+
+  expect(mockFetch).toHaveBeenCalledWith(expect.any(String), {
+    credentials: 'include',
+    headers: {
+      'X-Daily-Client': 'android',
+      'X-Daily-Version': '3.45.0',
+    },
+  });
+});
 
 // The `/v1/a` paths the other placements use are three hardcoded aliases on the
 // ad server; the bar only exists on `/v2/a/:placement`, and asking the wrong
