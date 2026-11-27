@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+const transform = require('../shared/jest.transform');
+
 module.exports = {
   roots: ['<rootDir>'],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
@@ -13,6 +16,7 @@ module.exports = {
     '<rootDir>/__tests__/helpers/',
     '<rootDir>/__tests__/fixture/',
   ],
+  transform,
   transformIgnorePatterns: [
     '/node_modules/(?!.*(@dailydotdev|@tiptap|prosemirror-|node-emoji|@sindresorhus|@marsidev))',
   ],

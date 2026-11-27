@@ -60,6 +60,8 @@
   "devDependencies": {
     "@next/bundle-analyzer": "16.3.8",
     "@svgr/webpack": "^5.5.0",
+    "@swc/core": "1.15.18",
+    "@swc/jest": "0.2.39",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
@@ -71,7 +73,6 @@
     "@types/react-modal": "^3.16.3",
     "@types/testing-library__jest-dom": "^5.14.9",
     "autoprefixer": "^10.4.27",
-    "babel-jest": "^29.7.0",
     "esbuild": "^0.25.11",
     "fake-indexeddb": "^3.1.7",
     "identity-obj-proxy": "^3.0.0",

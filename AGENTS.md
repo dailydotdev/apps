@@ -16,6 +16,7 @@ pnpm monorepo for the daily.dev app suite:
 ## Verification
 
 - Jest run outside the package scripts needs `NODE_ENV=test`, otherwise React/RTL run as a production build.
+- Jest compiles with SWC (`packages/shared/jest.transform.js`). Exports are live getters, so reading one before its module finishes evaluating throws a TDZ error instead of returning `undefined`. In `jest.mock` factories, copy `Object.getOwnPropertyDescriptors(jest.requireActual(...))` rather than spreading the actual module, and declare helpers a factory calls as `function`s, not `const`s.
 - Don't run `build` while a dev server runs; it breaks hot reload.
 - Run `node ./scripts/typecheck-strict-changed.js` on changed `.ts`/`.tsx` files; package-wide strict tsc has unrelated backlog.
 - The Vercel build skips type checking; the CI `typecheck_webapp` job is the only full webapp tsc, so after shared changes run `pnpm --filter webapp typecheck` before pushing.
