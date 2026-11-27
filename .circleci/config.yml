@@ -155,7 +155,8 @@ jobs:
           when: always
   # Full non-strict typecheck of every app package. TypeScript 7's native
   # compiler checks each package in a few seconds, so one job covers all three.
-  typecheck:
+  # The name predates that and stays because branch protection requires it.
+  typecheck_webapp:
     executor: node
     resource_class: large
     steps:
@@ -191,6 +192,6 @@ workflows:
       - test_webapp
       - lint
       - typecheck_strict_changed
-      - typecheck
+      - typecheck_webapp
       - test_shared
       - build_extension
