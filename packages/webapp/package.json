@@ -15,8 +15,8 @@
     "start": "next start",
     "lint:fix": "oxlint --fix --max-warnings 0 && oxfmt \"**/*.{js,jsx,ts,tsx}\"",
     "lint": "oxlint --max-warnings 0 && oxfmt --check \"**/*.{js,jsx,ts,tsx}\"",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "typecheck:strict": "tsc -p tsconfig.strict.json --noEmit",
+    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p tsconfig.json --noEmit",
+    "typecheck:strict": "node ../../node_modules/typescript7/bin/tsc -p tsconfig.strict.json --noEmit",
     "pretest": "npm run lint",
     "test": "jest --runInBand",
     "deploy": "vercel"
@@ -71,7 +71,6 @@
     "@types/react-modal": "^3.16.3",
     "@types/testing-library__jest-dom": "^5.14.9",
     "autoprefixer": "^10.4.27",
-    "babel-jest": "^29.7.0",
     "esbuild": "^0.25.11",
     "fake-indexeddb": "^3.1.7",
     "identity-obj-proxy": "^3.0.0",

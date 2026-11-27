@@ -45,10 +45,19 @@ jest.mock('../useToastNotification', () => ({
   useToastNotification: jest.fn(),
 }));
 
-jest.mock('../../contexts/LogContext', () => ({
-  ...(jest.requireActual('../../contexts/LogContext') as Iterable<unknown>),
-  useLogContext: jest.fn(),
-}));
+jest.mock('../../contexts/LogContext', () =>
+  // Copy the export getters instead of spreading them: a spread reads every
+  // export while the module may still be mid-evaluation in an import cycle.
+  Object.defineProperties(
+    {},
+    {
+      ...Object.getOwnPropertyDescriptors(
+        jest.requireActual('../../contexts/LogContext'),
+      ),
+      useLogContext: { value: jest.fn(), enumerable: true },
+    },
+  ),
+);
 
 jest.mock('../../contexts/AuthContext', () => ({
   ...(jest.requireActual('../../contexts/AuthContext') as Iterable<unknown>),

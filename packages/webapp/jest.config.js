@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const transform = require('../shared/jest.transform');
 
 module.exports = {
   roots: ['<rootDir>'],
@@ -15,14 +16,7 @@ module.exports = {
     '<rootDir>/__tests__/helpers/',
     '<rootDir>/__tests__/fixture/',
   ],
-  transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': [
-      'babel-jest',
-      {
-        presets: ['next/babel'],
-      },
-    ],
-  },
+  transform,
   transformIgnorePatterns: [
     '/node_modules/(?!.*(@dailydotdev|@tiptap|prosemirror-))',
   ],

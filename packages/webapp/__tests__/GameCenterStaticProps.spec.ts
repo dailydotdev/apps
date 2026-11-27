@@ -63,10 +63,15 @@ jest.mock('@dailydotdev/shared/src/contexts/SettingsContext', () => {
     '@dailydotdev/shared/src/contexts/SettingsContext',
   );
 
-  return {
-    ...actual,
-    useSettingsContext: jest.fn(),
-  };
+  // Copy the export getters instead of spreading them: a spread reads every
+  // export while the module may still be mid-evaluation in an import cycle.
+  return Object.defineProperties(
+    {},
+    {
+      ...Object.getOwnPropertyDescriptors(actual),
+      useSettingsContext: { value: jest.fn(), enumerable: true },
+    },
+  );
 });
 
 jest.mock(

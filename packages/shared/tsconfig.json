@@ -14,16 +14,18 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    // TypeScript 6+ no longer loads every @types package by default.
+    "types": ["jest", "testing-library__jest-dom"],
     "paths": {
-      // `moduleResolution: node` predates package `exports` maps, so TS cannot
-      // follow edge-aura's "./react" subpath on its own. Bundlers do read the
-      // map, so the import specifier stays `edge-aura/react` and only the
-      // type lookup is pointed at the file behind it.
-      "edge-aura/react": ["./node_modules/edge-aura/dist/react.d.ts"]
+      // @growthbook's package.json "exports" maps have no "types" condition, so
+      // `moduleResolution: bundler` cannot find their declarations and would
+      // type every import from them as `any`. Point TS at the files directly.
+      "@growthbook/growthbook": ["./node_modules/@growthbook/growthbook/dist/index.d.ts"],
+      "@growthbook/growthbook-react": ["./node_modules/@growthbook/growthbook-react/dist/index.d.ts"]
     }
   },
   "include": [

@@ -24,14 +24,26 @@ jest.mock('../../hooks/usePersistentContext', () => ({
   default: () => [mockLegacy, mockSetLegacy, true, false],
 }));
 
-jest.mock('../../contexts/SettingsContext', () => ({
-  ...jest.requireActual('../../contexts/SettingsContext'),
-  useSettingsContext: () => ({
-    flags: { sidebarShortcuts: mockStored },
-    updateFlag: mockUpdateFlag,
-    isRemoteSettingsLoaded: mockRemoteSettingsLoaded,
-  }),
-}));
+jest.mock('../../contexts/SettingsContext', () =>
+  // Copy the export getters instead of spreading them: a spread reads every
+  // export while the module may still be mid-evaluation in an import cycle.
+  Object.defineProperties(
+    {},
+    {
+      ...Object.getOwnPropertyDescriptors(
+        jest.requireActual('../../contexts/SettingsContext'),
+      ),
+      useSettingsContext: {
+        value: () => ({
+          flags: { sidebarShortcuts: mockStored },
+          updateFlag: mockUpdateFlag,
+          isRemoteSettingsLoaded: mockRemoteSettingsLoaded,
+        }),
+        enumerable: true,
+      },
+    },
+  ),
+);
 
 jest.mock('../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: jest.fn() }),
