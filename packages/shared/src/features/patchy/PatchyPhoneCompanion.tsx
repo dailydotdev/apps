@@ -4,7 +4,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
@@ -16,6 +15,7 @@ import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
+  cluster,
   motion as shellMotion,
   topButton,
 } from '../../components/shell/constants';
@@ -32,10 +32,6 @@ import type { PatchyMotion } from './patchyIdle';
 import { PatchyRailIcon } from './PatchyRailIcon';
 import { usePatchyEnabled } from './usePatchyEnabled';
 import { usePatchyRail } from './usePatchyRail';
-
-// He is in the server HTML, where a layout effect only warns.
-const useClientLayoutEffect =
-  typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 interface PatchyPhoneState {
   patchy: {
@@ -68,14 +64,12 @@ interface PatchyPhoneCompanionValue extends PatchyPhoneState {
   setAnchor: (
     update: (anchor: PatchyAnchor | null) => PatchyAnchor | null,
   ) => void;
-  // He floats over the page, so the pill hides its own copy of him.
+  // A page without a spot for him: he's reacting just below the header.
   isFloating: boolean;
   // The header keeps a spot for him among its actions.
   hasActionsSpot: boolean;
-  // The header is away, or still sliding back in under him.
-  isHeaderAway: boolean;
-  // The header is away; tapping him brings it back.
-  canTap: boolean;
+  // The header is away: he waits in his dock until it's back.
+  isDocked: boolean;
 }
 
 const PatchyPhoneCompanionContext =
@@ -104,22 +98,27 @@ export const usePatchyAnchor = (
   );
 };
 
-// His icon in the header's actions (40px) and the corner fallback.
+// His icon in the header's actions (40px).
 const SPOT = 40;
-const rowHeight = topButton.size + 14;
 
-const screenTop = 'var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px)';
+// The dock he moves to while the header is away: a round button of the
+// bar's material in the bottom-left corner, on the back-to-top button's row
+// and centred on it, so the two frame the bottom stack. It's out of the
+// way of the page's text, and at the bottom it never bands iOS 26 Safari's
+// status area the way a fixed box at the top does.
+const DOCK = cluster.compact;
+const dockBottom = `calc(${cluster.floor} + ${
+  cluster.rest + cluster.gap - (DOCK - topButton.size) / 2
+}px)`;
 
-// Without a spot in the header: the top-right of its row while it's away,
-// just below it while it's up, so he never covers its buttons.
-const getCornerStyle = (isHeaderAway: boolean): CSSProperties => ({
-  top: isHeaderAway
-    ? `calc(${screenTop} + ${(rowHeight - SPOT) / 2}px)`
-    : `calc(${screenTop} + var(--shell-top, 0px) + ${topButton.gap}px)`,
+// Without a spot in the header he reacts just below it, so he never covers
+// its buttons.
+const belowStyle: CSSProperties = {
+  top: `calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px) + var(--shell-top, 0px) + ${topButton.gap}px)`,
   right: topButton.inset,
   width: SPOT,
   height: SPOT,
-});
+};
 
 const CompanionIcon = ({
   companion: { patchy, state, hasReadToday, goalProgress },
@@ -142,139 +141,79 @@ const CompanionIcon = ({
   />
 );
 
-interface SpotRect {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
-
-// Where his spot stands with the header up, from layout offsets up to the
-// fixed header. Offsets ignore the header's slide, so this reads the same
-// mid-slide, scrolled away or at rest. getBoundingClientRect doesn't:
-// iOS reports fixed boxes off during momentum scroll. Null while the header
-// is out of the layout (display: none once it's away on iOS).
-const measureSpot = (element: HTMLElement): SpotRect | null => {
-  if (!element.offsetParent || !element.offsetWidth) {
-    return null;
-  }
-  let left = 0;
-  let top = 0;
-  let node: HTMLElement | null = element;
-  while (node) {
-    left += node.offsetLeft;
-    top += node.offsetTop;
-    node = node.offsetParent as HTMLElement | null;
-  }
-  return {
-    left,
-    top,
-    width: element.offsetWidth,
-    height: element.offsetHeight,
-  };
-};
-
-const isSameSpot = (a: SpotRect | null, b: SpotRect): boolean =>
-  !!a &&
-  a.left === b.left &&
-  a.top === b.top &&
-  a.width === b.width &&
-  a.height === b.height;
-
-// The Patchy that floats over the page. With a spot in the header (the pill
-// on home, a post's actions) he's part of the header and slides with it;
-// this one only drops in to react while it's away, at that same spot, and
-// stays until it has slid back in under him. Without a spot he reacts below
-// the header, or in the top-right of its row once it's away. A tap while
-// the header is away brings it back. He leaves the layout when he's not
-// shown: iOS 26 Safari paints its status area solid while a fixed box with
-// a background stands at the top.
-export const PatchyFloatingFace = (): ReactElement | null => {
+// While the header is away he waits in his dock, reactions and all, and a
+// tap brings the header (and his spot in it) back. Shown and hidden by
+// fading, like the back-to-top button, so he never pops.
+export const PatchyDock = (): ReactElement | null => {
   const companion = usePatchyPhoneCompanion();
   const { logEvent } = useLogContext();
-  const [rect, setRect] = useState<SpotRect | null>(null);
-  const element = companion?.anchor?.element;
-  const isFloating = !!companion?.isFloating;
-  const isHeaderAway = !!companion?.isHeaderAway;
-
-  // Measured when the spot or the row it sits in changes size (a menu
-  // docking next to it), and again as the header starts to leave, while it's
-  // still in the layout: actions that portal in later and the top ad strip
-  // move the spot without resizing anything. While the header is out of the
-  // layout the last spot holds.
-  useClientLayoutEffect(() => {
-    if (!element) {
-      setRect(null);
-      return undefined;
-    }
-    const measure = () => {
-      const next = measureSpot(element);
-      if (next) {
-        setRect((current) => (isSameSpot(current, next) ? current : next));
-      }
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    if (element.parentElement) {
-      observer.observe(element.parentElement);
-    }
-    window.addEventListener('resize', measure);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', measure);
-    };
-  }, [element, isHeaderAway]);
+  const isDocked = !!companion?.isDocked;
 
   const onClick = useCallback(() => {
     revealShell();
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.Patchy,
-      extra: JSON.stringify({ origin: 'peek' }),
+      extra: JSON.stringify({ origin: 'dock' }),
     });
   }, [logEvent]);
 
-  if (!companion || !isFloating) {
+  if (!companion) {
     return null;
   }
-  const { anchor, canTap } = companion;
-  const isPill = anchor?.kind === 'pill';
-  const spot = anchor && rect ? rect : null;
-  let position: string = isHeaderAway ? 'corner' : 'below';
-  if (spot && anchor) {
-    position = anchor.kind;
-  }
-  const icon = (
-    <CompanionIcon
-      companion={companion}
-      // Over the pill he's the pill's face, streak ring and all.
-      showStreak={isPill}
-    />
-  );
 
   return (
     <button
       type="button"
-      disabled={!canTap}
-      aria-hidden={!canTap || undefined}
       aria-label="Show header"
+      aria-hidden={!isDocked}
+      tabIndex={isDocked ? 0 : -1}
       onClick={onClick}
-      data-position={position}
-      className="fixed flex items-center justify-center rounded-full tablet:hidden"
+      data-position="dock"
+      data-docked={isDocked ? 'yes' : 'no'}
+      className={classNames(
+        'shell-material shell-material-action shell-press shell-patchy-dock fixed flex items-center justify-center rounded-full tablet:hidden',
+        isDocked
+          ? 'pointer-events-auto opacity-100'
+          : 'pointer-events-none translate-y-2 opacity-0',
+      )}
       style={{
-        ...(spot ?? getCornerStyle(isHeaderAway)),
-        // Over the header he stands in front of it.
-        zIndex: 76,
-        pointerEvents: canTap ? 'auto' : 'none',
+        left: cluster.inset,
+        bottom: dockBottom,
+        width: DOCK,
+        height: DOCK,
+        zIndex: 3,
+        transitionProperty: 'opacity, translate, transform, scale',
+        transitionDuration: `${shellMotion.enter}ms`,
+        transitionTimingFunction: shellMotion.interaction,
       }}
     >
-      {isPill ? (
-        icon
-      ) : (
-        <span className="flex scale-125 rounded-full">{icon}</span>
-      )}
+      <CompanionIcon companion={companion} showStreak />
     </button>
+  );
+};
+
+// A page whose header keeps no spot for him: he only comes out to react,
+// just below the header while it's up. He leaves the layout when he's not
+// shown: iOS 26 Safari paints its status area solid while a fixed box with
+// a background stands at the top.
+export const PatchyFloatingFace = (): ReactElement | null => {
+  const companion = usePatchyPhoneCompanion();
+  if (!companion?.isFloating) {
+    return null;
+  }
+
+  return (
+    <span
+      aria-hidden
+      data-position="below"
+      className="pointer-events-none fixed flex items-center justify-center rounded-full tablet:hidden"
+      style={{ ...belowStyle, zIndex: 76 }}
+    >
+      <span className="flex scale-125 rounded-full">
+        <CompanionIcon companion={companion} showStreak={false} />
+      </span>
+    </span>
   );
 };
 
@@ -293,10 +232,7 @@ const PatchyActionsSpot = (): ReactElement | null => {
         ref={ref}
         aria-hidden
         data-testid="patchy-actions-spot"
-        className={classNames(
-          'flex shrink-0 items-center justify-center tablet:hidden',
-          companion.isFloating && 'invisible',
-        )}
+        className="flex shrink-0 items-center justify-center tablet:hidden"
         style={{ width: SPOT, height: SPOT, order: -1 }}
       >
         <span className="flex scale-125 rounded-full">
@@ -393,18 +329,6 @@ export const PatchyPhoneCompanion = ({
 
   const hasHeader = !config?.hidden;
   const isScrolledAway = hasHeader && p >= 0.99;
-  // The header takes its slide to come back; he floats over it until it
-  // stands still again, then the pill takes over at the same spot.
-  const [isSettling, setSettling] = useState(false);
-  useEffect(() => {
-    if (isScrolledAway) {
-      setSettling(true);
-      return undefined;
-    }
-    const timer = window.setTimeout(() => setSettling(false), shellMotion.snap);
-    return () => window.clearTimeout(timer);
-  }, [isScrolledAway]);
-  const isHeaderAway = isScrolledAway || isSettling;
 
   const value = useMemo((): PatchyPhoneCompanionValue | null => {
     if (!brain) {
@@ -412,29 +336,29 @@ export const PatchyPhoneCompanion = ({
     }
     const isPill = anchor?.kind === 'pill';
     const { isReacting } = brain.patchy;
-    // With a spot in the header he's in it and slides with it; he only
-    // floats to react while it's away (standing there for the whole scroll
-    // he covered the page's text, and kept a fixed box at the top, which
-    // bands iOS 26 Safari's status area).
-    const isFloating = isReacting && (!anchor || isHeaderAway);
+    // He's always somewhere while the header is away: in his dock. With
+    // the header up he stands in his spot in it (the pill, a post's
+    // actions), or comes out just below it to react on pages that keep him
+    // no spot.
+    const isDocked = isScrolledAway;
     return {
       ...brain,
       anchor,
       setAnchor,
-      isFloating,
+      isFloating: isReacting && !anchor && !isDocked,
       // Only a post keeps a spot for him: he reads along there for the whole
       // visit, so the header's other actions never shift for a reaction.
       hasActionsSpot: hasHeader && !isPill && brain.patchy.isReading,
-      isHeaderAway,
-      canTap: isScrolledAway,
+      isDocked,
     };
-  }, [brain, anchor, hasHeader, isHeaderAway, isScrolledAway]);
+  }, [brain, anchor, hasHeader, isScrolledAway]);
 
   return (
     <PatchyPhoneCompanionContext.Provider value={value}>
       {isEnabled && <PatchyPhoneBrain onChange={setBrain} />}
       {value?.hasActionsSpot && <PatchyActionsSpot />}
       <PatchyFloatingFace />
+      <PatchyDock />
       {children}
     </PatchyPhoneCompanionContext.Provider>
   );

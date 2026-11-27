@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import type { StreakQuestsSectionProps } from '../../components/sidebar/sections/StreakQuestsSection';
 import { StreakQuestsSection } from '../../components/sidebar/sections/StreakQuestsSection';
@@ -42,22 +41,19 @@ const OwnPatchyHeaderIcon = (): ReactElement => {
   );
 };
 
-// Shares the phone companion when the shell has one, so the pill and the
-// floating face are the same Patchy: the pill marks his spot, and while he
-// floats over it (the header scrolled away) it hides its own copy.
+// Shares the phone companion when the shell has one, so the pill and his
+// dock are the same Patchy: he stands in the pill while the header is up and
+// waits in the dock while it's away.
 export const PatchyHeaderIcon = (): ReactElement => {
   const companion = usePatchyPhoneCompanion();
   const anchorRef = usePatchyAnchor('pill');
   if (!companion) {
     return <OwnPatchyHeaderIcon />;
   }
-  const { patchy, state, hasReadToday, goalProgress, isFloating } = companion;
+  const { patchy, state, hasReadToday, goalProgress } = companion;
 
   return (
-    <span
-      ref={anchorRef}
-      className={classNames('flex', isFloating && 'invisible')}
-    >
+    <span ref={anchorRef} className="flex">
       <PatchyRailIcon
         face={patchy.face}
         motion={patchy.motion}
