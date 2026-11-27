@@ -23,14 +23,39 @@ const bar = {
 };
 
 const mockFetch = jest.fn();
+const originalVersion = process.env.CURRENT_VERSION;
 
 beforeEach(() => {
+  delete process.env.CURRENT_VERSION;
   jest.clearAllMocks();
   global.fetch = mockFetch;
   mockFetch.mockResolvedValue({ json: async () => bar });
 });
 
+afterEach(() => {
+  if (originalVersion === undefined) {
+    delete process.env.CURRENT_VERSION;
+  } else {
+    process.env.CURRENT_VERSION = originalVersion;
+  }
+});
+
 const requestedUrl = (): string => mockFetch.mock.calls[0][0] as string;
+
+it('sends client and build version headers for native sponsor requests', async () => {
+  process.env.CURRENT_VERSION = '3.45.0';
+
+  await fetchSponsorStripAds(undefined, undefined, 'ios');
+
+  expect(mockFetch).toHaveBeenCalledWith(expect.any(String), {
+    credentials: 'include',
+    headers: {
+      'X-Daily-Client': 'ios',
+      'X-Daily-Version': '3.45.0',
+      'X-App-Version': '3.45.0',
+    },
+  });
+});
 
 // The `/v1/a` paths the other placements use are three hardcoded aliases on the
 // ad server; the bar only exists on `/v2/a/:placement`, and asking the wrong

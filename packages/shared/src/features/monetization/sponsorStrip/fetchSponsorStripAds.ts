@@ -1,6 +1,7 @@
 import type { AdMacroContext } from '../adMacros';
 import { AdPlacement, appendConsentParams } from '../../../lib/ads';
 import { apiUrl } from '../../../lib/config';
+import { getAdRequestHeaders } from '../../../lib/adRequestHeaders';
 
 /**
  * The placement lives on the ad server's `/v2/a/:placement` route, not the
@@ -17,11 +18,15 @@ import { apiUrl } from '../../../lib/config';
 export const fetchSponsorStripAds = async (
   consent?: AdMacroContext,
   onFetched?: (response: unknown) => void,
+  clientPlatform?: string,
 ): Promise<unknown> => {
   const query = appendConsentParams(new URLSearchParams(), consent).toString();
   const res = await fetch(
     `${apiUrl}/v2/a/${AdPlacement.SponsorStrip}${query ? `?${query}` : ''}`,
-    { credentials: 'include' },
+    {
+      credentials: 'include',
+      headers: getAdRequestHeaders(clientPlatform),
+    },
   );
 
   const response: unknown = await res.json();

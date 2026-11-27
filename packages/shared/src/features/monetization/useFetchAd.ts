@@ -48,6 +48,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
       }
       return resolveAd(
         await fetchAdByPlacement({
+          clientPlatform: getAdRefreshPlatform(isAndroidApp),
           ...resolveAdFetchOptions({
             placement,
             active,
