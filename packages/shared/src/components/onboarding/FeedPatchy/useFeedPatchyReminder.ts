@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { usePushNotificationMutation } from '../../../hooks/notifications/usePushNotificationMutation';
-import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
+import type { PushPermissionOutcome } from '../../../hooks/notifications/usePushPermissionOutcome';
+import { usePushPermissionOutcome } from '../../../hooks/notifications/usePushPermissionOutcome';
 import { usePersonalizedDigest } from '../../../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../../graphql/users';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -9,24 +9,20 @@ import {
   NotificationPromptSource,
   TargetType,
 } from '../../../lib/log';
-import { isIOSNative } from '../../../lib/func';
 
 /** How the reminder ended, once a time was picked. */
-export type ReminderOutcome = 'granted' | 'denied' | 'dismissed';
+export type ReminderOutcome = PushPermissionOutcome;
 
 export type FeedMethod = 'drag' | 'tap';
-
-/** Web only: the iOS app asks through its own bridge and has no Notification. */
-const getWebPermission = (): NotificationPermission | undefined =>
-  isIOSNative() ? undefined : globalThis.Notification?.permission;
 
 // Logs the same events as the control's reading-reminder step, so the two
 // arms read side by side; only the commitment itself is new. `variant` names
 // the experiment arm in every event.
 export const useFeedPatchyReminder = (variant = 'feed_patchy') => {
   const { logEvent } = useLogContext();
-  const { isSubscribed } = usePushNotificationContext();
-  const { onEnablePush } = usePushNotificationMutation();
+  const { isBlocked, requestPush } = usePushPermissionOutcome(
+    NotificationPromptSource.ReadingReminder,
+  );
   const { subscribePersonalizedDigest } = usePersonalizedDigest();
   const isLogged = useRef(false);
 
@@ -59,32 +55,6 @@ export const useFeedPatchyReminder = (variant = 'feed_patchy') => {
     });
   }, [logEvent, variant]);
 
-  /** Notifications are refused on this device: no prompt would show. */
-  const isBlocked = useCallback(() => getWebPermission() === 'denied', []);
-
-  const getOutcome = useCallback(async (): Promise<ReminderOutcome> => {
-    if (isSubscribed) {
-      return 'granted';
-    }
-
-    if (isBlocked()) {
-      return 'denied';
-    }
-
-    const isGranted = await onEnablePush(
-      NotificationPromptSource.ReadingReminder,
-    );
-
-    if (isGranted) {
-      return 'granted';
-    }
-
-    // iOS has no way to close its alert without an answer.
-    return isIOSNative() || getWebPermission() === 'denied'
-      ? 'denied'
-      : 'dismissed';
-  }, [isBlocked, isSubscribed, onEnablePush]);
-
   // As the control: the time is saved first, then the device asks, unless it
   // already knows the answer. The answer is logged too, refusals included,
   // which the push context alone does not record.
@@ -99,7 +69,7 @@ export const useFeedPatchyReminder = (variant = 'feed_patchy') => {
         type: UserPersonalizedDigestType.ReadingReminder,
       });
 
-      const outcome = await getOutcome();
+      const outcome = await requestPush();
       logEvent({
         event_name: LogEvent.ReadingReminderPermission,
         extra: JSON.stringify({ outcome, variant }),
@@ -107,7 +77,7 @@ export const useFeedPatchyReminder = (variant = 'feed_patchy') => {
 
       return outcome;
     },
-    [getOutcome, logEvent, subscribePersonalizedDigest, variant],
+    [requestPush, logEvent, subscribePersonalizedDigest, variant],
   );
 
   return {

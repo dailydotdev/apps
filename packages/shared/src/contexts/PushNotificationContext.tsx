@@ -96,6 +96,8 @@ const isExpectedSyncError = (err: unknown): boolean => {
   return !!getApiError(err as ApiErrorResult, ApiError.Unauthenticated);
 };
 const nativePushStateTimeoutMs = 5000;
+// Long enough to read and answer the iOS alert.
+const nativePushSubscribeTimeoutMs = 60000;
 
 function OneSignalSubProvider({
   children,
@@ -410,21 +412,25 @@ function NativeAppleSubProvider({
 
   const subscribe = useCallback(
     async (source: NotificationPromptSource) => {
-      const promise = promisifyEventListener('push-subscribe', (event) => {
-        const subscribed = !!event?.detail;
-        client.setQueryData(key, subscribed);
-        if (subscribed) {
-          logEvent({
-            event_name: LogEvent.ClickEnableNotification,
-            extra: JSON.stringify({
-              origin: source,
-              provider: 'apple',
-              permission: 'granted',
-            }),
-          });
-        }
-        return subscribed;
-      });
+      const promise = promisifyEventListener(
+        'push-subscribe',
+        (event) => {
+          const subscribed = !!event?.detail;
+          client.setQueryData(key, subscribed);
+          if (subscribed) {
+            logEvent({
+              event_name: LogEvent.ClickEnableNotification,
+              extra: JSON.stringify({
+                origin: source,
+                provider: 'apple',
+                permission: 'granted',
+              }),
+            });
+          }
+          return subscribed;
+        },
+        { timeout: { ms: nativePushSubscribeTimeoutMs, value: false } },
+      );
       postWebKitMessage(WebKitMessageHandlers.PushSubscribe, null);
       return promise;
     },

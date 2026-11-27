@@ -3,7 +3,12 @@ import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { SendType } from '../usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useReadingReminderHero } from './useReadingReminderHero';
-import { featureReadingReminderHeroCopy } from '../../lib/featureManagement';
+import {
+  featureReadingReminderHeroCopy,
+  featureReadingReminderHeroVariant,
+  ReadingReminderHeroVariant,
+} from '../../lib/featureManagement';
+import { ActionType } from '../../graphql/actions';
 import { useConditionalFeature } from '../useConditionalFeature';
 
 const mockUseAuthContext = jest.fn();
@@ -12,6 +17,9 @@ const mockUsePersonalizedDigest = jest.fn();
 const mockPersistentContext = jest.fn();
 const mockUseViewSize = jest.fn();
 const mockUsePushNotificationMutation = jest.fn();
+const mockUsePushNotificationContext = jest.fn();
+const mockUseActions = jest.fn();
+const mockRequestPush = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
@@ -49,6 +57,18 @@ jest.mock('./usePushNotificationMutation', () => ({
   usePushNotificationMutation: () => mockUsePushNotificationMutation(),
 }));
 
+jest.mock('./usePushPermissionOutcome', () => ({
+  usePushPermissionOutcome: () => ({ requestPush: mockRequestPush }),
+}));
+
+jest.mock('../../contexts/PushNotificationContext', () => ({
+  usePushNotificationContext: () => mockUsePushNotificationContext(),
+}));
+
+jest.mock('../useActions', () => ({
+  useActions: () => mockUseActions(),
+}));
+
 jest.mock('../useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
 }));
@@ -58,8 +78,12 @@ describe('useReadingReminderHero', () => {
   const subscribePersonalizedDigest = jest.fn(() => Promise.resolve(null));
   const onEnablePush = jest.fn(() => Promise.resolve(true));
   const setLastSeen = jest.fn(() => Promise.resolve());
+  const completeAction = jest.fn(() => Promise.resolve());
+  const checkHasCompleted = jest.fn(() => false);
+  let variant = ReadingReminderHeroVariant.Control;
 
   beforeEach(() => {
+    variant = ReadingReminderHeroVariant.Control;
     jest.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
@@ -75,6 +99,10 @@ describe('useReadingReminderHero', () => {
         };
       }
 
+      if (feature.id === featureReadingReminderHeroVariant.id) {
+        return { value: variant, isLoading: false };
+      }
+
       return {
         value: true,
         isLoading: false,
@@ -88,6 +116,17 @@ describe('useReadingReminderHero', () => {
     mockPersistentContext.mockReturnValue([null, setLastSeen, true]);
     mockUseViewSize.mockReturnValue(true);
     mockUsePushNotificationMutation.mockReturnValue({ onEnablePush });
+    mockUsePushNotificationContext.mockReturnValue({
+      isPushSupported: true,
+      isInitialized: true,
+      isSubscribed: false,
+    });
+    mockUseActions.mockReturnValue({
+      checkHasCompleted,
+      completeAction,
+      isActionsFetched: true,
+    });
+    mockRequestPush.mockResolvedValue('granted');
   });
 
   it('should show for invalid persisted timestamps', () => {
@@ -191,5 +230,102 @@ describe('useReadingReminderHero', () => {
     });
 
     expect(setLastSeen).toHaveBeenCalledWith('dismissed');
+  });
+
+  it('should not show where push cannot work', () => {
+    mockUsePushNotificationContext.mockReturnValue({
+      isPushSupported: false,
+      isInitialized: true,
+      isSubscribed: false,
+    });
+
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    expect(result.current.shouldShow).toBe(false);
+    expect(setLastSeen).not.toHaveBeenCalled();
+  });
+
+  it('should carry a close on this device over to the account', () => {
+    mockPersistentContext.mockReturnValue(['dismissed', setLastSeen, true]);
+
+    renderHook(() => useReadingReminderHero());
+
+    expect(completeAction).toHaveBeenCalledWith(
+      ActionType.DismissReadingReminderHero,
+    );
+  });
+
+  describe('habit variant', () => {
+    beforeEach(() => {
+      variant = ReadingReminderHeroVariant.Habit;
+    });
+
+    it('should wait for the account actions', () => {
+      mockUseActions.mockReturnValue({
+        checkHasCompleted,
+        completeAction,
+        isActionsFetched: false,
+      });
+
+      const { result } = renderHook(() => useReadingReminderHero());
+
+      expect(result.current.shouldShow).toBe(false);
+      expect(setLastSeen).not.toHaveBeenCalled();
+    });
+
+    it('should not show once closed on another device', () => {
+      checkHasCompleted.mockReturnValueOnce(true);
+
+      const { result } = renderHook(() => useReadingReminderHero());
+
+      expect(result.current.shouldShow).toBe(false);
+    });
+
+    it('should close on the account', async () => {
+      const { result } = renderHook(() => useReadingReminderHero());
+
+      await act(async () => {
+        await result.current.onDismiss();
+      });
+
+      expect(setLastSeen).toHaveBeenCalledWith('dismissed');
+      expect(completeAction).toHaveBeenCalledWith(
+        ActionType.DismissReadingReminderHero,
+      );
+    });
+
+    it('should save the reminder only once push is allowed', async () => {
+      const { result } = renderHook(() => useReadingReminderHero());
+
+      await act(async () => {
+        await expect(result.current.onSchedule(20)).resolves.toBe('granted');
+      });
+
+      expect(onEnablePush).not.toHaveBeenCalled();
+      expect(subscribePersonalizedDigest).toHaveBeenCalledWith({
+        type: UserPersonalizedDigestType.ReadingReminder,
+        sendType: SendType.Daily,
+        hour: 20,
+      });
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.ScheduleReadingReminder,
+        extra: JSON.stringify({ hour: 20, timezone: 'UTC', variant }),
+      });
+    });
+
+    it('should save nothing when push is refused', async () => {
+      mockRequestPush.mockResolvedValue('denied');
+      const { result } = renderHook(() => useReadingReminderHero());
+
+      await act(async () => {
+        await expect(result.current.onSchedule(20)).resolves.toBe('denied');
+      });
+
+      expect(subscribePersonalizedDigest).not.toHaveBeenCalled();
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.ReadingReminderPermission,
+        extra: JSON.stringify({ outcome: 'denied', hour: 20, variant }),
+      });
+    });
   });
 });

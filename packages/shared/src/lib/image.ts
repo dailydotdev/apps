@@ -481,6 +481,10 @@ export const cloudinaryHijackingCoverArt =
 export const cloudinaryPatchyWaiting =
   'https://media.daily.dev/image/upload/s--U0ZcltHH--/f_auto/v1791728711/public/patchy-waiting';
 
+// TODO: the reading Patchy art from #7493 until it is uploaded to
+// media.daily.dev.
+export const cloudinaryPatchyReading = cloudinaryPatchyWaiting;
+
 export const cloudinaryPatchyFed =
   'https://media.daily.dev/image/upload/s--d_F_spil--/f_auto/v1791728711/public/patchy-bone';
 

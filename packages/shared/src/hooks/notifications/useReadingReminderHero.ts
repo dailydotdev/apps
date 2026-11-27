@@ -10,15 +10,28 @@ import usePersistentContext, {
 } from '../usePersistentContext';
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
+import type { PushPermissionOutcome } from './usePushPermissionOutcome';
+import { usePushPermissionOutcome } from './usePushPermissionOutcome';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import { featureReadingReminderHeroCopy } from '../../lib/featureManagement';
+import {
+  featureReadingReminderHeroCopy,
+  featureReadingReminderHeroVariant,
+  ReadingReminderHeroVariant,
+} from '../../lib/featureManagement';
 import { useConditionalFeature } from '../useConditionalFeature';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { useActions } from '../useActions';
+import { ActionType } from '../../graphql/actions';
+import { DEFAULT_READING_REMINDER_HOUR } from '../../lib/readingReminderHour';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
+  variant: ReadingReminderHeroVariant;
   title: string;
   subtitle: string;
   onEnable: () => Promise<void>;
+  /** Asks for push first and saves the reminder only once it's allowed. */
+  onSchedule: (hour: number) => Promise<PushPermissionOutcome>;
   onDismiss: () => Promise<void>;
 }
 
@@ -27,7 +40,6 @@ interface UseReadingReminderHeroProps {
   enabled?: boolean;
 }
 
-const DEFAULT_READING_REMINDER_HOUR = 9;
 const READING_REMINDER_DISMISSED = 'dismissed';
 
 const isDismissedValue = (lastSeen: string | null): boolean =>
@@ -72,6 +84,9 @@ export const useReadingReminderHero = ({
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
+  const { requestPush } = usePushPermissionOutcome(
+    NotificationPromptSource.ReadingReminder,
+  );
   const {
     getPersonalizedDigest,
     isLoading: isDigestLoading,
@@ -89,12 +104,32 @@ export const useReadingReminderHero = ({
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
   const isDismissed = isDismissedValue(lastSeen);
 
+  const {
+    isPushSupported,
+    isInitialized: isPushInitialized,
+    isSubscribed: isPushSubscribed,
+  } = usePushNotificationContext();
+  const canReceivePush =
+    isPushInitialized && (isPushSupported || isPushSubscribed);
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const isDismissedOnAccount =
+    isActionsFetched &&
+    checkHasCompleted(ActionType.DismissReadingReminderHero);
+
+  // Closes from before the account kept them carry over to it.
+  useEffect(() => {
+    if (isDismissed && isActionsFetched && !isDismissedOnAccount) {
+      completeAction(ActionType.DismissReadingReminderHero);
+    }
+  }, [completeAction, isActionsFetched, isDismissed, isDismissedOnAccount]);
+
   const isMobile = useViewSize(ViewSize.MobileL);
   const isEligibleViewSize = !requireMobile || isMobile;
   const shouldEvaluate =
     enabled &&
     isEligibleViewSize &&
     isLoggedIn &&
+    canReceivePush &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&
     !isRegisteredToday &&
@@ -103,10 +138,25 @@ export const useReadingReminderHero = ({
     feature: featureReadingReminderHeroCopy,
     shouldEvaluate,
   });
+  const { value: variantValue, isLoading: isVariantLoading } =
+    useConditionalFeature({
+      feature: featureReadingReminderHeroVariant,
+      shouldEvaluate,
+    });
+  const variant = variantValue as ReadingReminderHeroVariant;
+  // The variant closes on the account, so it waits until that is known.
+  const isClosedForVariant =
+    variant !== ReadingReminderHeroVariant.Control &&
+    (!isActionsFetched || isDismissedOnAccount);
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
-  const shouldShowBase = shouldEvaluate && !hasSeenToday && isFetched;
+  const shouldShowBase =
+    shouldEvaluate &&
+    !hasSeenToday &&
+    isFetched &&
+    !isVariantLoading &&
+    !isClosedForVariant;
 
   useEffect(() => {
     if (!shouldShowBase || hasShownInSession) {
@@ -139,9 +189,44 @@ export const useReadingReminderHero = ({
     });
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
+  const onSchedule = useCallback(
+    async (hour: number): Promise<PushPermissionOutcome> => {
+      const outcome = await requestPush();
+      logEvent({
+        event_name: LogEvent.ReadingReminderPermission,
+        extra: JSON.stringify({ outcome, hour, variant }),
+      });
+
+      if (outcome !== 'granted') {
+        return outcome;
+      }
+
+      await subscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.ReadingReminder,
+        sendType: SendType.Daily,
+        hour,
+      });
+      logEvent({
+        event_name: LogEvent.ScheduleReadingReminder,
+        extra: JSON.stringify({
+          hour,
+          timezone:
+            user?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+          variant,
+        }),
+      });
+
+      return outcome;
+    },
+    [logEvent, requestPush, subscribePersonalizedDigest, user, variant],
+  );
+
   const onDismiss = useCallback(async () => {
     await setLastSeen(READING_REMINDER_DISMISSED);
-  }, [setLastSeen]);
+    if (variant !== ReadingReminderHeroVariant.Control) {
+      await completeAction(ActionType.DismissReadingReminderHero);
+    }
+  }, [completeAction, setLastSeen, variant]);
 
   const shouldShow =
     !isSubscribedToReadingReminder &&
@@ -150,9 +235,11 @@ export const useReadingReminderHero = ({
 
   return {
     shouldShow,
+    variant,
     title: copy.title,
     subtitle: copy.subtitle,
     onEnable,
+    onSchedule,
     onDismiss,
   };
 };

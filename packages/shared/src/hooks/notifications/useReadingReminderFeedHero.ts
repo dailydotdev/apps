@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { NotificationCtaPlacement } from '../../lib/log';
+import { LogEvent, NotificationCtaPlacement } from '../../lib/log';
 import { webappUrl } from '../../lib/constants';
+import { ReadingReminderHeroVariant } from '../../lib/featureManagement';
+import { getUserInitialTimezone } from '../../lib/timezones';
+import { getCurrentHour } from '../../lib/readingReminderHour';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useReadingReminderHero } from './useReadingReminderHero';
 import {
   getReadingReminderCtaParams,
@@ -17,6 +22,32 @@ import usePersistentContext, {
   PersistentContextKeys,
 } from '../usePersistentContext';
 
+const SAVED_STEP_MS = 2500;
+
+export type ReadingReminderHeroStep =
+  | 'offer'
+  | 'picking'
+  | 'asking'
+  | 'saved'
+  | 'denied'
+  | 'paused';
+
+export type ReadingReminderHourSource = 'now' | 'picked';
+
+export interface ReadingReminderHabitHero {
+  step: ReadingReminderHeroStep;
+  /** Keeps "Turn on your daily reading reminder" in the offer. */
+  hasReminderCopy: boolean;
+  /** The hour now in the reader's timezone. */
+  currentHour: number;
+  /** The hour being saved, once one was sent. */
+  savedHour?: number;
+  onSend: (hour: number, source: ReadingReminderHourSource) => Promise<void>;
+  onPickTime: () => void;
+  /** Asks for push again: after a block, or for a paused reminder. */
+  onRetry: () => Promise<void>;
+}
+
 interface UseReadingReminderFeedHeroProps {
   // When true, the top-hero placement is suppressed entirely (including
   // its impression event). Used when a parent layout owns the top hero
@@ -31,20 +62,35 @@ interface UseReadingReminderFeedHero {
   ctaLabel?: string;
   onEnableHero: () => Promise<void>;
   onDismissHero: () => Promise<void>;
+  /** The redesigned card, when this reader gets it. */
+  habit?: ReadingReminderHabitHero;
 }
 
 export const useReadingReminderFeedHero = ({
   disableTopHero = false,
 }: UseReadingReminderFeedHeroProps = {}): UseReadingReminderFeedHero => {
   const { pathname } = useRouter();
-  const { shouldShow, title, subtitle, onEnable, onDismiss } =
-    useReadingReminderHero({
-      requireMobile: false,
-    });
+  const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const isHomePage = pathname === webappUrl;
-  const shouldEvaluateReminderPlacement = isHomePage && shouldShow;
+  const {
+    shouldShow,
+    variant,
+    title,
+    subtitle,
+    onEnable,
+    onSchedule,
+    onDismiss,
+  } = useReadingReminderHero({
+    requireMobile: false,
+    // Only where the card can show, so a day isn't used up without it.
+    enabled: isHomePage && !disableTopHero,
+  });
+  const isHabit = variant !== ReadingReminderHeroVariant.Control;
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const [isDismissed, setIsDismissed] = useState(false);
+  const [step, setStep] = useState<ReadingReminderHeroStep>('offer');
+  const [savedHour, setSavedHour] = useState<number>();
   const [isPushPromptDismissed, setIsPushPromptDismissed, isPushPromptFetched] =
     usePersistentContext<boolean>(
       PersistentContextKeys.ReadingReminderPushPromptDismissed,
@@ -65,26 +111,80 @@ export const useReadingReminderFeedHero = ({
     }
   }, [shouldShow]);
 
-  const canShowReminderPlacements = shouldEvaluateReminderPlacement;
-  const shouldShowTopHero =
-    !disableTopHero && canShowReminderPlacements && !isDismissed;
+  // Saving ends eligibility at once, so the confirmation holds the slot.
+  const isSaved = step === 'saved';
+  useEffect(() => {
+    if (!isSaved) {
+      return undefined;
+    }
 
-  useNotificationCtaImpression(
-    getReadingReminderCtaParams(NotificationCtaPlacement.TopHero),
-    shouldShowTopHero,
+    const timeout = setTimeout(() => {
+      setIsDismissed(true);
+      setStep('offer');
+    }, SAVED_STEP_MS);
+    return () => clearTimeout(timeout);
+  }, [isSaved]);
+
+  const shouldShowTopHero =
+    !disableTopHero && isHomePage && (shouldShow || isSaved) && !isDismissed;
+
+  const ctaParams = useMemo(() => {
+    const params = getReadingReminderCtaParams(
+      NotificationCtaPlacement.TopHero,
+    );
+    return isHabit ? { ...params, extra: { variant } } : params;
+  }, [isHabit, variant]);
+
+  useNotificationCtaImpression(ctaParams, shouldShowTopHero);
+
+  const currentHour = useMemo(
+    () =>
+      getCurrentHour(getUserInitialTimezone({ userTimezone: user?.timezone })),
+    // Read again each time the card shows.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user?.timezone, shouldShowTopHero],
   );
 
   const onEnableHero = useCallback(async () => {
-    logClick(getReadingReminderCtaParams(NotificationCtaPlacement.TopHero));
+    logClick(ctaParams);
     await onEnable();
     setIsDismissed(true);
-  }, [logClick, onEnable]);
+  }, [ctaParams, logClick, onEnable]);
 
   const onDismissHero = useCallback(async () => {
     setIsDismissed(true);
-    logDismiss(getReadingReminderCtaParams(NotificationCtaPlacement.TopHero));
+    logDismiss(ctaParams);
     await onDismiss();
-  }, [logDismiss, onDismiss]);
+  }, [ctaParams, logDismiss, onDismiss]);
+
+  const onSend = useCallback(
+    async (hour: number, source: ReadingReminderHourSource) => {
+      logClick({ ...ctaParams, extra: { ...ctaParams.extra, hour, source } });
+      setSavedHour(hour);
+      setStep('asking');
+      const outcome = await onSchedule(hour);
+      if (outcome === 'granted') {
+        setStep('saved');
+        return;
+      }
+
+      setStep(outcome === 'denied' ? 'denied' : 'offer');
+    },
+    [ctaParams, logClick, onSchedule],
+  );
+
+  const onPickTime = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.PickReadingReminderTime,
+      extra: JSON.stringify({ variant }),
+    });
+    setStep('picking');
+  }, [logEvent, variant]);
+
+  const onRetry = useCallback(
+    () => onSend(savedHour ?? currentHour, 'picked'),
+    [currentHour, onSend, savedHour],
+  );
 
   const { onEnable: onEnablePush } = pushPrompt;
   const onEnablePushHero = useCallback(async () => {
@@ -106,6 +206,14 @@ export const useReadingReminderFeedHero = ({
       ctaLabel: readingReminderPushPromptCopy.cta,
       onEnableHero: onEnablePushHero,
       onDismissHero: onDismissPushHero,
+      habit: {
+        step: 'paused',
+        hasReminderCopy: false,
+        currentHour,
+        onSend,
+        onPickTime,
+        onRetry: onEnablePushHero,
+      },
     };
   }
 
@@ -115,5 +223,17 @@ export const useReadingReminderFeedHero = ({
     subtitle,
     onEnableHero,
     onDismissHero,
+    ...(isHabit && {
+      habit: {
+        step,
+        hasReminderCopy:
+          variant === ReadingReminderHeroVariant.HabitReminderCopy,
+        currentHour,
+        savedHour,
+        onSend,
+        onPickTime,
+        onRetry,
+      },
+    }),
   };
 };

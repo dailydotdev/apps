@@ -55,6 +55,7 @@ import {
   featureHeroCards,
 } from '../lib/featureManagement';
 import { useConditionalFeature } from './useConditionalFeature';
+import type { ReadingReminderHabitHero } from './notifications/useReadingReminderFeedHero';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
 import {
   SUPPORTED_WIDE_POST_TYPES,
@@ -197,6 +198,7 @@ export type FeedBannerInsertions = {
     ctaLabel?: string;
     onEnable: () => Promise<void>;
     onDismiss: () => Promise<void>;
+    habit?: ReadingReminderHabitHero;
   };
 };
 
@@ -1037,6 +1039,7 @@ export default function useFeed<T>(
       ctaLabel: heroFeedHero.ctaLabel,
       onEnable: heroFeedHero.onEnableHero,
       onDismiss: heroFeedHero.onDismissHero,
+      habit: heroFeedHero.habit,
     },
   };
 
