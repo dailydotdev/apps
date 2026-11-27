@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+const transform = require('./jest.transform');
+
 module.exports = {
   roots: ['<rootDir>'],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
@@ -12,6 +15,7 @@ module.exports = {
     '<rootDir>/__tests__/helpers/',
     '<rootDir>/__tests__/fixture/',
   ],
+  transform,
   transformIgnorePatterns: ['/node_modules/(?!.*(@tiptap|prosemirror-))'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {

@@ -38,9 +38,6 @@
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.29.3",
-    "@babel/preset-react": "^7.28.5",
-    "@babel/preset-typescript": "^7.28.5",
     "@rspack/cli": "^1.7.10",
     "@rspack/core": "^1.7.10",
     "@svgr/webpack": "^5.5.0",
@@ -56,9 +53,6 @@
     "@types/testing-library__jest-dom": "^5.14.9",
     "@types/webextension-polyfill": "^0.10.5",
     "autoprefixer": "^10.4.27",
-    "babel-jest": "^29.7.0",
-    "babel-plugin-dynamic-import-node": "^2.3.3",
-    "babel-plugin-react-remove-properties": "^0.3.1",
     "caniuse-lite": "^1.0.30001791",
     "cross-env": "^7.0.3",
     "css-loader": "^5.2.7",

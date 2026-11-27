@@ -24,7 +24,8 @@ jest.mock('../../contexts/AuthContext', () => ({
 
 // Every icon compiles to the same bare <svg> under the svgr mock, so stand them
 // up as identifiable stubs — the mapping from path to icon is what's under test.
-const iconStub = (name: string) => {
+// A function declaration, so it is hoisted above the jest.mock factories.
+function iconStub(name: string) {
   // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
   const react = require('react');
   // eslint-disable-next-line react/display-name
@@ -33,7 +34,7 @@ const iconStub = (name: string) => {
       'data-testid': `icon-${name}`,
       'data-secondary': String(!!secondary),
     });
-};
+}
 
 jest.mock('../icons', () => ({
   __esModule: true,
