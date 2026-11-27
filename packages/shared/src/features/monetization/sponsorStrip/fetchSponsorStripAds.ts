@@ -10,7 +10,7 @@ import { getAdRequestHeaders } from '../../../lib/adRequestHeaders';
  * 404s into an empty row rather than failing loudly.
  *
  * The response carries the whole bar — pinned, top tier and community together
- * — so the composition is the ad server's call and the request carries nothing
+ * — so the composition is the ad server's call and the query carries nothing
  * but consent. How many of them the row draws is decided later, off the
  * measured width. The reader comes from the `da2` cookie, which is what
  * `credentials` is for.
@@ -18,14 +18,13 @@ import { getAdRequestHeaders } from '../../../lib/adRequestHeaders';
 export const fetchSponsorStripAds = async (
   consent?: AdMacroContext,
   onFetched?: (response: unknown) => void,
-  clientPlatform?: string,
 ): Promise<unknown> => {
   const query = appendConsentParams(new URLSearchParams(), consent).toString();
   const res = await fetch(
     `${apiUrl}/v2/a/${AdPlacement.SponsorStrip}${query ? `?${query}` : ''}`,
     {
       credentials: 'include',
-      headers: getAdRequestHeaders(clientPlatform),
+      headers: getAdRequestHeaders(),
     },
   );
 

@@ -1,3 +1,5 @@
+import { BOOT_LOCAL_KEY } from '../contexts/common';
+import { storageWrapper as storage } from './storageWrapper';
 import ad from '../../__tests__/fixture/ad';
 import { SourceType } from '../graphql/sources';
 import { AdConsentExists } from '../features/monetization/adConsent';
@@ -24,6 +26,7 @@ describe('ads', () => {
   const originalVersion = process.env.CURRENT_VERSION;
 
   beforeEach(() => {
+    storage.removeItem(BOOT_LOCAL_KEY);
     delete process.env.CURRENT_VERSION;
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -36,6 +39,7 @@ describe('ads', () => {
   });
 
   afterEach(() => {
+    storage.removeItem(BOOT_LOCAL_KEY);
     if (originalVersion === undefined) {
       delete process.env.CURRENT_VERSION;
     } else {
@@ -117,10 +121,10 @@ describe('ads', () => {
       'sends client and build version headers for %s ads',
       async (placement) => {
         process.env.CURRENT_VERSION = '3.45.0';
+        storage.setItem(BOOT_LOCAL_KEY, JSON.stringify({ isAndroidApp: true }));
 
         await fetchAdByPlacement({
           placement,
-          clientPlatform: 'android',
           refresh: { platform: 'android', count: 1 },
         });
 
@@ -130,7 +134,6 @@ describe('ads', () => {
             headers: {
               'X-Daily-Client': 'android',
               'X-Daily-Version': '3.45.0',
-              'X-App-Version': '3.45.0',
               'X-Page-View-Id': 'page-view',
             },
           }),
@@ -149,7 +152,6 @@ describe('ads', () => {
 
         const [, options] = jest.mocked(global.fetch).mock.calls[0];
         expect(options?.headers).not.toHaveProperty('X-Daily-Version');
-        expect(options?.headers).not.toHaveProperty('X-App-Version');
       },
     );
 

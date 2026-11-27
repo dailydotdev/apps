@@ -72,7 +72,6 @@ export const useAdQuery = ({
   const { entityRef, isPending: isEntityPending } = useAdEntityRef(enabled);
   const fetchOptions = useMemo(
     () => ({
-      clientPlatform: getAdRefreshPlatform(isAndroidApp),
       ...resolveAdFetchOptions({
         placement,
         active,

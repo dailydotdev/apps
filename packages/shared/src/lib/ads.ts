@@ -73,7 +73,6 @@ export interface FetchAdByPlacementOptions {
    */
   registered?: boolean;
   pageViewId?: string;
-  clientPlatform?: string;
   refresh?: AdRefreshRequest;
   entity?: AdEntityTarget;
   onTransition?: (transition: AdSlotFetchTransition) => void;
@@ -186,16 +185,14 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
-  clientPlatform,
   throwOnError = false,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
-  clientPlatform?: string;
   throwOnError?: boolean;
 }): Promise<{ ad: Ad | null; failed: boolean }> => {
-  const headers = getAdRequestHeaders(clientPlatform);
+  const headers = getAdRequestHeaders();
   if (pageViewId) {
     headers['X-Page-View-Id'] = pageViewId;
   }
@@ -309,16 +306,12 @@ export const fetchAdByPlacement = async ({
   consent,
   registered,
   pageViewId,
-  clientPlatform,
   refresh,
   entity,
   onTransition,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   const fetchSlot = (options: Parameters<typeof fetchAdRequest>[0]) =>
-    fetchAdSlot(
-      { ...options, clientPlatform },
-      { onTransition, throwOnError: !!refresh?.count },
-    );
+    fetchAdSlot(options, { onTransition, throwOnError: !!refresh?.count });
 
   switch (placement) {
     case AdPlacement.PostComment:

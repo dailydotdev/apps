@@ -1,7 +1,5 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { getAdRefreshPlatform } from '../refresh/adRefresh';
 import { useAdSlotFetch } from '../useAdSlotFetch';
 import { AdPlacement } from '../../../lib/ads';
 import { disabledRefetch, shuffleArray } from '../../../lib/func';
@@ -114,7 +112,6 @@ const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
 };
 
 export const useSponsorStripAds = (): UseSponsorStripAds => {
-  const { isAndroidApp } = useAuthContext();
   const consent = useAdMacroContext(true) ?? undefined;
   const { resolveAd } = useAdLifecycle();
   const onFetch = useAdSlotFetch(consent ?? null);
@@ -128,11 +125,7 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       consent?.consentString ?? '',
     ],
     queryFn: async () => {
-      const response = await fetchSponsorStripAds(
-        consent,
-        undefined,
-        getAdRefreshPlatform(isAndroidApp),
-      );
+      const response = await fetchSponsorStripAds(consent);
       const creatives = parseSponsors(response);
       creatives.forEach((creative) =>
         onFetch({
