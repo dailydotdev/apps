@@ -7,7 +7,12 @@
 // plain properties instead. Marking SWC's export getters configurable lets
 // jest-mock swap the getter for the mock and restore it afterwards. The flag
 // is added on the same line so inline source maps stay accurate.
+const { createHash } = require('crypto');
+const { readFileSync } = require('fs');
 const { createTransformer } = require('@swc/jest');
+
+// Part of the cache key, so editing this file invalidates cached transforms.
+const ownSource = readFileSync(__filename, 'utf8');
 
 // Matches the single-export form `defineProperty(exports, "x", {` and the
 // `_export` / `_export_star` helpers' `defineProperty(target, name, {`.
@@ -27,6 +32,11 @@ module.exports = {
 
     return {
       ...transformer,
+      getCacheKey: (...args) =>
+        createHash('sha1')
+          .update(transformer.getCacheKey(...args))
+          .update(ownSource)
+          .digest('hex'),
       process: (...args) => makeConfigurable(transformer.process(...args)),
       processAsync: async (...args) =>
         makeConfigurable(await transformer.processAsync(...args)),
