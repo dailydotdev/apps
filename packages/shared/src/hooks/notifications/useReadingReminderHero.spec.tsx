@@ -58,6 +58,8 @@ jest.mock('./usePushNotificationMutation', () => ({
 }));
 
 jest.mock('./usePushPermissionOutcome', () => ({
+  getPushPermissionOutcome: (isGranted: boolean) =>
+    isGranted ? 'granted' : 'dismissed',
   usePushPermissionOutcome: () => ({ requestPush: mockRequestPush }),
 }));
 
@@ -85,29 +87,34 @@ describe('useReadingReminderHero', () => {
   beforeEach(() => {
     variant = ReadingReminderHeroVariant.Control;
     jest.clearAllMocks();
+    checkHasCompleted.mockReturnValue(false);
 
     mockUseAuthContext.mockReturnValue({
       isLoggedIn: true,
       user: { timezone: 'UTC' },
     });
     mockUseLogContext.mockReturnValue({ logEvent });
-    (useConditionalFeature as jest.Mock).mockImplementation(({ feature }) => {
-      if (feature.id === featureReadingReminderHeroCopy.id) {
+    (useConditionalFeature as jest.Mock).mockImplementation(
+      ({ feature, shouldEvaluate }) => {
+        if (feature.id === featureReadingReminderHeroCopy.id) {
+          return {
+            value: featureReadingReminderHeroCopy.defaultValue,
+            isLoading: false,
+          };
+        }
+
+        if (feature.id === featureReadingReminderHeroVariant.id) {
+          return shouldEvaluate
+            ? { value: variant, isLoading: false }
+            : { value: feature.defaultValue, isLoading: true };
+        }
+
         return {
-          value: featureReadingReminderHeroCopy.defaultValue,
+          value: true,
           isLoading: false,
         };
-      }
-
-      if (feature.id === featureReadingReminderHeroVariant.id) {
-        return { value: variant, isLoading: false };
-      }
-
-      return {
-        value: true,
-        isLoading: false,
-      };
-    });
+      },
+    );
     mockUsePersonalizedDigest.mockReturnValue({
       getPersonalizedDigest: jest.fn(() => null),
       isLoading: false,
@@ -217,6 +224,10 @@ describe('useReadingReminderHero', () => {
     );
     expect(setLastSeen).toHaveBeenCalledTimes(2);
     expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.ReadingReminderPermission,
+      extra: JSON.stringify({ outcome: 'granted', hour: 9, variant }),
+    });
+    expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.ScheduleReadingReminder,
       extra: JSON.stringify({ hour: 9, timezone: 'UTC' }),
     });
@@ -273,12 +284,32 @@ describe('useReadingReminderHero', () => {
       expect(setLastSeen).not.toHaveBeenCalled();
     });
 
-    it('should not show once closed on another device', () => {
-      checkHasCompleted.mockReturnValueOnce(true);
+    it('should leave readers closed on another device out of the experiment', () => {
+      checkHasCompleted.mockReturnValue(true);
 
       const { result } = renderHook(() => useReadingReminderHero());
 
-      expect(result.current.shouldShow).toBe(false);
+      expect(useConditionalFeature).toHaveBeenCalledWith(
+        expect.objectContaining({
+          feature: featureReadingReminderHeroVariant,
+          shouldEvaluate: false,
+        }),
+      );
+      expect(result.current.variant).toBe(ReadingReminderHeroVariant.Control);
+      expect(result.current.shouldShow).toBe(true);
+    });
+
+    it('should keep the arm once the reminder is saved', () => {
+      const { result, rerender } = renderHook(() => useReadingReminderHero());
+      mockUsePersonalizedDigest.mockReturnValue({
+        getPersonalizedDigest: jest.fn(() => ({ preferredHour: 20 })),
+        isLoading: false,
+        subscribePersonalizedDigest,
+      });
+
+      rerender();
+
+      expect(result.current.variant).toBe(variant);
     });
 
     it('should close on the account', async () => {

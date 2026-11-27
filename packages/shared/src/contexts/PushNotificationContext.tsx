@@ -97,7 +97,7 @@ const isExpectedSyncError = (err: unknown): boolean => {
 };
 const nativePushStateTimeoutMs = 5000;
 // Long enough to read and answer the iOS alert.
-const nativePushSubscribeTimeoutMs = 60000;
+export const nativePushSubscribeTimeoutMs = 60000;
 
 function OneSignalSubProvider({
   children,
@@ -412,27 +412,36 @@ function NativeAppleSubProvider({
 
   const subscribe = useCallback(
     async (source: NotificationPromptSource) => {
-      const promise = promisifyEventListener(
+      const onAnswer = (subscribed: boolean) => {
+        client.setQueryData(key, subscribed);
+        if (subscribed) {
+          logEvent({
+            event_name: LogEvent.ClickEnableNotification,
+            extra: JSON.stringify({
+              origin: source,
+              provider: 'apple',
+              permission: 'granted',
+            }),
+          });
+        }
+        return subscribed;
+      };
+      const promise = promisifyEventListener<boolean | null, boolean>(
         'push-subscribe',
-        (event) => {
-          const subscribed = !!event?.detail;
-          client.setQueryData(key, subscribed);
-          if (subscribed) {
-            logEvent({
-              event_name: LogEvent.ClickEnableNotification,
-              extra: JSON.stringify({
-                origin: source,
-                provider: 'apple',
-                permission: 'granted',
-              }),
-            });
-          }
-          return subscribed;
-        },
-        { timeout: { ms: nativePushSubscribeTimeoutMs, value: false } },
+        (event) => onAnswer(!!event?.detail),
+        { timeout: { ms: nativePushSubscribeTimeoutMs, value: null } },
       );
       postWebKitMessage(WebKitMessageHandlers.PushSubscribe, null);
-      return promise;
+      const subscribed = await promise;
+      if (subscribed === null) {
+        globalThis.addEventListener(
+          'push-subscribe',
+          (event) => onAnswer(!!(event as CustomEvent<boolean>).detail),
+          { once: true },
+        );
+      }
+
+      return !!subscribed;
     },
     [client, key, logEvent],
   );

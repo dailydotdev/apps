@@ -11,7 +11,10 @@ import usePersistentContext, {
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import type { PushPermissionOutcome } from './usePushPermissionOutcome';
-import { usePushPermissionOutcome } from './usePushPermissionOutcome';
+import {
+  getPushPermissionOutcome,
+  usePushPermissionOutcome,
+} from './usePushPermissionOutcome';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import {
   featureReadingReminderHeroCopy,
@@ -138,25 +141,30 @@ export const useReadingReminderHero = ({
     feature: featureReadingReminderHeroCopy,
     shouldEvaluate,
   });
+  // Readers closed on the account stay out, so the arms hide the same people.
   const { value: variantValue, isLoading: isVariantLoading } =
     useConditionalFeature({
       feature: featureReadingReminderHeroVariant,
-      shouldEvaluate,
+      shouldEvaluate:
+        shouldEvaluate && isActionsFetched && !isDismissedOnAccount,
     });
-  const variant = variantValue as ReadingReminderHeroVariant;
-  // The variant closes on the account, so it waits until that is known.
-  const isClosedForVariant =
-    variant !== ReadingReminderHeroVariant.Control &&
-    (!isActionsFetched || isDismissedOnAccount);
+  // Saving ends eligibility, so the arm is kept for the confirmation.
+  const [enrolledVariant, setEnrolledVariant] =
+    useState<ReadingReminderHeroVariant>();
+  useEffect(() => {
+    if (!isVariantLoading && !enrolledVariant) {
+      setEnrolledVariant(variantValue as ReadingReminderHeroVariant);
+    }
+  }, [enrolledVariant, isVariantLoading, variantValue]);
+  const variant =
+    enrolledVariant ?? (variantValue as ReadingReminderHeroVariant);
+  const isVariantSettled =
+    isActionsFetched && (isDismissedOnAccount || !isVariantLoading);
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
   const shouldShowBase =
-    shouldEvaluate &&
-    !hasSeenToday &&
-    isFetched &&
-    !isVariantLoading &&
-    !isClosedForVariant;
+    shouldEvaluate && !hasSeenToday && isFetched && isVariantSettled;
 
   useEffect(() => {
     if (!shouldShowBase || hasShownInSession) {
@@ -177,7 +185,18 @@ export const useReadingReminderHero = ({
       hour: DEFAULT_READING_REMINDER_HOUR,
     });
 
-    await onEnablePush(NotificationPromptSource.ReadingReminder);
+    const isGranted = await onEnablePush(
+      NotificationPromptSource.ReadingReminder,
+    );
+    // Logged like the variants, so both arms share the push metric.
+    logEvent({
+      event_name: LogEvent.ReadingReminderPermission,
+      extra: JSON.stringify({
+        outcome: getPushPermissionOutcome(isGranted),
+        hour: DEFAULT_READING_REMINDER_HOUR,
+        variant,
+      }),
+    });
     await setLastSeen(new Date().toISOString());
 
     logEvent({
@@ -187,7 +206,14 @@ export const useReadingReminderHero = ({
         timezone,
       }),
     });
-  }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
+  }, [
+    logEvent,
+    onEnablePush,
+    setLastSeen,
+    subscribePersonalizedDigest,
+    user,
+    variant,
+  ]);
 
   const onSchedule = useCallback(
     async (hour: number): Promise<PushPermissionOutcome> => {

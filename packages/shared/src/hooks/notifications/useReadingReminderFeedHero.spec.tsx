@@ -24,6 +24,11 @@ jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: jest.fn() }),
 }));
 
+const mockDisplayToast = jest.fn();
+jest.mock('../useToastNotification', () => ({
+  useToastNotification: () => ({ displayToast: mockDisplayToast }),
+}));
+
 jest.mock('next/router', () => ({
   useRouter: () => mockUseRouter(),
 }));
@@ -255,6 +260,18 @@ describe('useReadingReminderFeedHero', () => {
       });
 
       expect(result.current.habit?.step).toBe('offer');
+    });
+
+    it('should let the reader retry when the save fails', async () => {
+      onSchedule.mockRejectedValueOnce(new Error('network'));
+      const { result } = renderHabit();
+
+      await act(async () => {
+        await result.current.habit?.onSend(13, 'picked');
+      });
+
+      expect(mockDisplayToast).toHaveBeenCalledTimes(1);
+      expect(result.current.habit?.step).toBe('picking');
     });
   });
 });

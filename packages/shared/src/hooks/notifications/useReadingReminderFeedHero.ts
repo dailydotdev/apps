@@ -7,6 +7,8 @@ import { getUserInitialTimezone } from '../../lib/timezones';
 import { getCurrentHour } from '../../lib/readingReminderHour';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import { useToastNotification } from '../useToastNotification';
+import { labels } from '../../lib/labels';
 import { useReadingReminderHero } from './useReadingReminderHero';
 import {
   getReadingReminderCtaParams,
@@ -88,6 +90,7 @@ export const useReadingReminderFeedHero = ({
   });
   const isHabit = variant !== ReadingReminderHeroVariant.Control;
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
+  const { displayToast } = useToastNotification();
   const [isDismissed, setIsDismissed] = useState(false);
   const [step, setStep] = useState<ReadingReminderHeroStep>('offer');
   const [savedHour, setSavedHour] = useState<number>();
@@ -137,12 +140,8 @@ export const useReadingReminderFeedHero = ({
 
   useNotificationCtaImpression(ctaParams, shouldShowTopHero);
 
-  const currentHour = useMemo(
-    () =>
-      getCurrentHour(getUserInitialTimezone({ userTimezone: user?.timezone })),
-    // Read again each time the card shows.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user?.timezone, shouldShowTopHero],
+  const currentHour = getCurrentHour(
+    getUserInitialTimezone({ userTimezone: user?.timezone }),
   );
 
   const onEnableHero = useCallback(async () => {
@@ -162,15 +161,20 @@ export const useReadingReminderFeedHero = ({
       logClick({ ...ctaParams, extra: { ...ctaParams.extra, hour, source } });
       setSavedHour(hour);
       setStep('asking');
-      const outcome = await onSchedule(hour);
-      if (outcome === 'granted') {
-        setStep('saved');
-        return;
-      }
+      try {
+        const outcome = await onSchedule(hour);
+        if (outcome === 'granted') {
+          setStep('saved');
+          return;
+        }
 
-      setStep(outcome === 'denied' ? 'denied' : 'offer');
+        setStep(outcome === 'denied' ? 'denied' : 'offer');
+      } catch {
+        displayToast(labels.error.generic);
+        setStep(source === 'picked' ? 'picking' : 'offer');
+      }
     },
-    [ctaParams, logClick, onSchedule],
+    [ctaParams, displayToast, logClick, onSchedule],
   );
 
   const onPickTime = useCallback(() => {
