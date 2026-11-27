@@ -467,7 +467,7 @@ export const ConversationThread = ({
   const isLoadError = peerQuery.isError || threadQuery.isError;
   // Decided on the first load only, so the intro stays put once the first
   // message lands instead of vanishing under it.
-  const startedEmptyRef = useRef<boolean>();
+  const startedEmptyRef = useRef<boolean>(undefined);
   if (startedEmptyRef.current === undefined && threadQuery.isSuccess) {
     startedEmptyRef.current = archived.length === 0;
   }

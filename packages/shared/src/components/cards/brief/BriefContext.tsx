@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import type { Attributes, FC } from 'react';
 import React, { useMemo } from 'react';
 import { createContextProvider } from '@kickass-coderz/react';
 import type { Post } from '../../../graphql/posts';
@@ -47,7 +47,7 @@ const [BriefContextProvider, useBriefContext] = createContextProvider(
   },
 );
 
-function withBriefContext<T extends JSX.IntrinsicAttributes>(Component: FC<T>) {
+function withBriefContext<T extends Attributes>(Component: FC<T>) {
   return function WithBriefContextComponent(props: T) {
     return (
       <BriefContextProvider>

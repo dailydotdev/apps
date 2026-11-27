@@ -1,7 +1,6 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { ReactElement } from 'react-markdown/lib/react-markdown';
 import styles from './Card.module.css';
 import classed from '../../../lib/classed';
 import type { Post } from '../../../graphql/posts';

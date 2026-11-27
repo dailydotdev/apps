@@ -33,7 +33,7 @@ const promptOptions: PromptOptions = {
 const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const [container, setContainer] = useState<HTMLDivElement>();
   const { showPrompt } = usePrompt();
-  const formRef = useRef<HTMLFormElement>();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const openPrompt = async (
     e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,

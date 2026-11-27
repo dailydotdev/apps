@@ -481,9 +481,9 @@ const BoostsTable = ({
  */
 const useBlinkLinkedRow = (campaignId?: string): string | undefined => {
   const [blinkingId, setBlinkingId] = useState<string>();
-  const doneIdRef = useRef<string>();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const frameRef = useRef<number>();
+  const doneIdRef = useRef<string>(undefined);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const frameRef = useRef<number>(undefined);
 
   // Re-renders don't cancel a pending blink, only leaving the page does
   useEffect(

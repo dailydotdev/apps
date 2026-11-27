@@ -7,3 +7,4 @@ blockExoticSubdeps: true
 
 patchedDependencies:
   graphql-request@3.7.0: patches/graphql-request@3.7.0.patch
+  react-markdown@8.0.7: patches/react-markdown@8.0.7.patch

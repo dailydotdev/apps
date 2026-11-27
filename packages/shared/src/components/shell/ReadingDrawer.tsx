@@ -188,7 +188,7 @@ export function ReadingDrawer({
   const returnTo = useRef(0);
   const openedAt = useRef(0);
   const closedBy = useRef<CloseReason>(CloseReason.Back);
-  const logClose = useRef<() => void>();
+  const logClose = useRef<() => void>(undefined);
   logClose.current = () =>
     logEvent({
       event_name: LogEvent.CloseReadingDrawer,
@@ -201,9 +201,9 @@ export function ReadingDrawer({
     });
   const arrived = useRef(false);
   const linkAfterClose = useRef<string | null>(null);
-  const sink = useRef<() => void>();
-  const rise = useRef<() => void>();
-  const glide = useRef<(to: number) => void>();
+  const sink = useRef<() => void>(undefined);
+  const rise = useRef<() => void>(undefined);
+  const glide = useRef<(to: number) => void>(undefined);
 
   useClientLayoutEffect(() => {
     setIsAvailable(isPhone && !isOptedOut && supportsReading());

@@ -135,7 +135,7 @@ export const OpportunityEditContentModal = ({
     rest.onRequestClose?.(event);
   };
 
-  const markdownRef = useRef<MarkdownRef>();
+  const markdownRef = useRef<MarkdownRef>(null);
 
   if (!opportunity) {
     return <Loader />;
@@ -223,7 +223,7 @@ export const OpportunityEditContentModal = ({
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
             onClick={() => {
-              markdownRef.current.setInput('');
+              markdownRef.current?.setInput('');
               setValue(`content.${contentName}.content`, '');
 
               onSubmit();

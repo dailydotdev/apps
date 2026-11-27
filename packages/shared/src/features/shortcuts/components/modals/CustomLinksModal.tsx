@@ -39,7 +39,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
     setShowPermissionsModal,
   } = useShortcuts();
 
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef<typeof logEvent>(undefined);
   logRef.current = logEvent;
 
   const displayRevoke = !isManual && hasTopSites !== null;

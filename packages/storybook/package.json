@@ -15,8 +15,8 @@
     "extension": "workspace:*",
     "jotai": "^2.20.0",
     "next": "15.5.27",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
@@ -27,7 +27,7 @@
     "@svgr/plugin-jsx": "^5.5.0",
     "@svgr/plugin-svgo": "^5.5.0",
     "@types/node": "^22.9.1",
-    "@types/react": "18.3.12",
+    "@types/react": "19.3.0",
     "@types/webextension-polyfill": "^0.10.5",
     "@vitejs/plugin-react": "^4.7.0",
     "classnames": "^2.5.1",

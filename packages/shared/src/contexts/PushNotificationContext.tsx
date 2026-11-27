@@ -101,7 +101,7 @@ function OneSignalSubProvider({
   children,
 }: PushNotificationContextProviderProps): ReactElement {
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const optInPromiseRef = useRef<Promise<boolean>>();
+  const optInPromiseRef = useRef<Promise<boolean>>(undefined);
   // OneSignal can re-emit `permissionChange` on every focus when it cannot
   // persist its state (e.g. IndexedDB blocked), and opt-in then fails with
   // "Missing app ID" each time. Stop retrying and logging after the first

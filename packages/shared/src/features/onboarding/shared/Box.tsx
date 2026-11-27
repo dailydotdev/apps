@@ -68,7 +68,7 @@ export const BoxList = ({
 export interface BoxContentImageProps extends BoxBaseProps {
   title: string;
   content: string;
-  image: Pick<ComponentProps<'img'>, 'src' | 'alt' | 'className'>;
+  image: Pick<ComponentProps<'img'>, 'alt' | 'className'> & { src?: string };
   typographyClasses?: Record<'title' | 'content', string>;
 }
 

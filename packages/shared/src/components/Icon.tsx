@@ -85,12 +85,12 @@ const IconWrapper = ({
   return (
     <div className={wrapperClassName}>
       {Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
+        if (React.isValidElement<Props>(child)) {
           // so that className is no exposed from outside since components
           // like Button override it for icons
           const { className } = rest as { className: string };
 
-          return React.cloneElement<Props>(child as ReactElement, {
+          return React.cloneElement(child, {
             size,
             className: classNames(child.props.className, className),
           });

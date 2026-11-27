@@ -51,7 +51,7 @@ export const useNativeBridge = (): void => {
   const queryClient = useQueryClient();
   const { isAndroidApp } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
-  const lastStreak = useRef<number>();
+  const lastStreak = useRef<number>(undefined);
   const [inWrapper, setInWrapper] = useState(false);
 
   useEffect(() => {

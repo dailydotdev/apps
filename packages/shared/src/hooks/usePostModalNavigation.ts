@@ -68,8 +68,8 @@ export const usePostModalNavigation = ({
   const pmid = router.query?.pmid as string;
   const { logEvent } = useLogContext();
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-  const scrollPositionOnFeed = useRef<number>();
-  const cancelRestore = useRef<() => void>();
+  const scrollPositionOnFeed = useRef<number>(undefined);
+  const cancelRestore = useRef<() => void>(undefined);
 
   useEffect(() => () => cancelRestore.current?.(), []);
 

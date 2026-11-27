@@ -77,7 +77,7 @@ export function ShareActions({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [open, setOpen] = useState(false);
   const [copying, shareOrCopy] = useShareOrCopyLink({ link, text, cid });
-  const closeTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const closeTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const onCopy = () => {
     onShare?.(ShareProvider.CopyLink);

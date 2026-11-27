@@ -25,7 +25,7 @@ export const useTypingNotifier = (
   const { user } = useAuthContext();
   const isComposingRef = useRef(false);
   const composingSentAtRef = useRef(0);
-  const pauseTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const pauseTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const send = useCallback(
     (state: DmChatState) => {

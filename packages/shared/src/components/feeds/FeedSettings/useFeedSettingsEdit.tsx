@@ -311,7 +311,7 @@ export const useFeedSettingsEdit = ({
     },
   });
 
-  const cleanupRef = useRef<() => void>();
+  const cleanupRef = useRef<() => void>(undefined);
   cleanupRef.current = () => {
     queryClient.removeQueries({
       queryKey: getFeedSettingsQueryKey(user, feedId),

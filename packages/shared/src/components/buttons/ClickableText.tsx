@@ -1,8 +1,8 @@
-import type { ReactElement, Ref } from 'react';
+import type { ComponentProps, ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 
-type AvailableTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
+type AvailableTags = 'a' | 'button';
 
 export interface BaseClickableTextProps {
   disabled?: boolean;
@@ -14,7 +14,7 @@ export interface BaseClickableTextProps {
 }
 
 export type ClickableTextProps<Tag extends AvailableTags> =
-  BaseClickableTextProps & JSX.IntrinsicElements[Tag];
+  BaseClickableTextProps & ComponentProps<Tag>;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 function ClickableTextComponent<Tag extends AvailableTags>(

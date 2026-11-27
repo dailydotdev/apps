@@ -23,8 +23,7 @@ export const HorizonArt = ({ variant }: HorizonArtProps): ReactElement => (
     /* Both variants are in the DOM at every width — `display: none` does not
        stop an <img> loading — so they resolve to one deduped request and must
        carry one hint between them. */
-    /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
-    fetchpriority="high"
+    fetchPriority="high"
     src={signupWallHorizon}
   />
 );

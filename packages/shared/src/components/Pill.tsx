@@ -16,7 +16,7 @@ const pillSizeToClassName: Record<PillSize, string> = {
 
 export type PillProps = {
   label: ReactNode;
-  tag?: keyof Pick<JSX.IntrinsicElements, 'a' | 'div'>;
+  tag?: 'a' | 'div';
   size?: PillSize;
   className?: string;
   alignment?: string;

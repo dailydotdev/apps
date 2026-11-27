@@ -57,7 +57,7 @@ export class ErrorBoundary extends Component<
         error,
         stack: error?.stack,
         componentStack: errorInfo.componentStack,
-        digest: errorInfo.digest,
+        digest: (errorInfo as ErrorInfo & { digest?: string | null }).digest,
         feature,
         domMutation: isDomMutationError || undefined,
       }),

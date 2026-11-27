@@ -94,8 +94,8 @@ export function SnapshotButton({
   const [isFlashing, setIsFlashing] = useState(false);
   const [copiedImage, setCopiedImage] = useState<Blob>();
   const [isJustCopied, setIsJustCopied] = useState(false);
-  const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
-  const copiedTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const flashTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const copiedTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const subject: SnapshotSubject | undefined = post
     ? { post, share }

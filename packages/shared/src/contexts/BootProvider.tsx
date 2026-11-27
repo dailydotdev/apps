@@ -154,7 +154,7 @@ export const BootDataProvider = ({
   const [initialLoad, setInitialLoad] = useState<boolean>();
   const [cachedBootData, setCachedBootDataState] =
     useState<Partial<BootCacheData>>();
-  const cachedBootDataRef = useRef<Partial<BootCacheData>>();
+  const cachedBootDataRef = useRef<Partial<BootCacheData>>(undefined);
   // Checked once on load, so the feed doesn't lose its query as the cached
   // token nears expiry while boot is in flight
   const [validTokenCache, setValidTokenCache] =
@@ -198,7 +198,7 @@ export const BootDataProvider = ({
   const isExtension = checkIsExtension();
   const logged = cachedBootData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
-  const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
+  const lastAppliedChangeRef = useRef<Partial<BootCacheData>>(undefined);
 
   const {
     data: remoteData,

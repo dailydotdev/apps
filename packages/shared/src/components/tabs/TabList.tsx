@@ -10,7 +10,7 @@ import React, {
 import type { RenderTab } from './common';
 import type { TabProps } from './TabContainer';
 
-export type AllowedTabTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
+export type AllowedTabTags = 'a' | 'button';
 
 export enum TabListVariant {
   // Solid fill behind the active tab (the long-standing look).

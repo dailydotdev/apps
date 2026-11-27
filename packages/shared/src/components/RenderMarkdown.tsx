@@ -166,7 +166,7 @@ const RenderMarkdown = ({
           return <ol>{children}</ol>;
         },
         img({ node, src, alt, ...props }) {
-          if (src && isVideoUrl(src)) {
+          if (typeof src === 'string' && isVideoUrl(src)) {
             const type = getVideoMimeType(src);
             return (
               // eslint-disable-next-line jsx-a11y/media-has-caption

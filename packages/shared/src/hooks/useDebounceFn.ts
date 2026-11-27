@@ -8,9 +8,9 @@ export default function useDebounceFn<T = unknown>(
   delay: number,
   minimumTime?: number,
 ): [StartFn<T>, CancelEvent] {
-  const timeoutRef = useRef<number>();
+  const timeoutRef = useRef<number>(undefined);
   const callbackRef = useRef(callback);
-  const lastExecutionRef = useRef<Date>();
+  const lastExecutionRef = useRef<Date>(undefined);
 
   useEffect(() => {
     callbackRef.current = callback;

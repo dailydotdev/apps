@@ -144,7 +144,7 @@ export const useTranslation: UseTranslation = ({
   queryType = 'post',
   clickbaitShieldEnabled: clickbaitShieldEnabledProp,
 }) => {
-  const abort = useRef<AbortController>();
+  const abort = useRef<AbortController>(undefined);
   const { user, accessToken, isLoggedIn } = useAuthContext();
   const { flags } = useSettingsContext();
   const queryClient = useQueryClient();

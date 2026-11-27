@@ -4,7 +4,7 @@ import { isSpecialKeyPressed } from '../lib/func';
 type Keypress = [string, (e: KeyboardEvent) => unknown];
 
 interface OptionalParameters {
-  disableOnTags?: (keyof JSX.IntrinsicElements)[];
+  disableOnTags?: (keyof HTMLElementTagNameMap)[];
   disabledModalOpened?: boolean;
 }
 
@@ -27,7 +27,7 @@ export const useKeyboardNavigation = (
         (e.path as HTMLElement[]) ||
         [];
       const tagName =
-        base?.tagName?.toLowerCase() as keyof JSX.IntrinsicElements;
+        base?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap;
       if (optional?.disableOnTags?.includes(tagName)) {
         return;
       }

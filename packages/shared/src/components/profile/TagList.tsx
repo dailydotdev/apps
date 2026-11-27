@@ -20,7 +20,7 @@ export interface TagListProps {
   tags: ContentPreference[];
   placeholderAmount?: number;
   isLoading?: boolean;
-  emptyPlaceholder?: JSX.Element;
+  emptyPlaceholder?: ReactElement;
   showBlock?: boolean;
   showFollow?: boolean;
 }

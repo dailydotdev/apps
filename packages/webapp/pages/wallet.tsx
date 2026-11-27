@@ -373,7 +373,7 @@ const WalletPagePlaceholder = (): ReactElement => (
 const WalletHeader = ({
   buyCoresButton,
 }: {
-  buyCoresButton: ReactElement | null;
+  buyCoresButton: ReactElement<{ className?: string }> | null;
 }): ReactElement | null => {
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
@@ -402,7 +402,7 @@ const WalletHeader = ({
 const TabletHeader = ({
   buyCoresButton,
 }: {
-  buyCoresButton: ReactElement | null;
+  buyCoresButton: ReactElement<{ className?: string }> | null;
 }): ReactElement | null => {
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();

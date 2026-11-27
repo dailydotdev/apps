@@ -1,0 +1,20 @@
+diff --git a/lib/complex-types.d.ts b/lib/complex-types.d.ts
+index f67d04acc5dd441c35b002d00b44f4cbc247903b..b62cadff4d7061039bd719cb9095832c2aa301b0 100644
+--- a/lib/complex-types.d.ts
++++ b/lib/complex-types.d.ts
+@@ -1,4 +1,4 @@
+-import type {ReactNode, ComponentType, ComponentPropsWithoutRef} from 'react'
++import type {ReactNode, ComponentType, ComponentPropsWithoutRef, JSX} from 'react'
+ import type {Position} from 'unist'
+ import type {Element} from 'hast'
+ export type ReactMarkdownProps = {
+diff --git a/lib/complex-types.ts b/lib/complex-types.ts
+index 5319a88b622d6f14833f932a6eb36a1ff1378698..efd64bfbf781e0be9011b5cf5706d8978a54ab7f 100644
+--- a/lib/complex-types.ts
++++ b/lib/complex-types.ts
+@@ -1,4 +1,4 @@
+-import type {ReactNode, ComponentType, ComponentPropsWithoutRef} from 'react'
++import type {ReactNode, ComponentType, ComponentPropsWithoutRef, JSX} from 'react'
+ import type {Position} from 'unist'
+ import type {Element} from 'hast'
+ 

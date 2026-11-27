@@ -186,7 +186,7 @@ const useHostGlobals = (): HostGlobals => {
   return globals;
 };
 
-const useHostSize = (): RefObject<HTMLDivElement> => {
+const useHostSize = (): RefObject<HTMLDivElement | null> => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

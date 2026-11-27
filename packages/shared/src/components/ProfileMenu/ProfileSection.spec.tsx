@@ -30,15 +30,15 @@ describe('ProfileSection', () => {
     expect(ProfileSectionItem).toHaveBeenCalledTimes(3);
     expect(ProfileSectionItem).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Item 1' }),
-      expect.anything(),
+      undefined,
     );
     expect(ProfileSectionItem).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Item 2' }),
-      expect.anything(),
+      undefined,
     );
     expect(ProfileSectionItem).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Item 3' }),
-      expect.anything(),
+      undefined,
     );
   });
 

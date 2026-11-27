@@ -27,7 +27,7 @@ export const useTimedAnimation = ({
   onAnimationEnd,
 }: UseTimedAnimationProps): UseTimedAnimation => {
   const [timer, setTimer] = useState(0);
-  const interval = useRef<number>();
+  const interval = useRef<number>(undefined);
   const hasStartedAnimation = useRef(false);
   const [animationEnd] = useDebounceFn(
     onAnimationEnd ?? (() => undefined),

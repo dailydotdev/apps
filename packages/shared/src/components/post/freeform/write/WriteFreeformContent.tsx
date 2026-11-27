@@ -59,7 +59,7 @@ export function WriteFreeformContent({
     isUpdatingDraft,
     formRef: propRef,
   } = useWritePostContext();
-  const formRef = useRef<HTMLFormElement>();
+  const formRef = useRef<HTMLFormElement>(null);
   useImperativeHandle(propRef, () => formRef?.current);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { hasStrippedEmojis, onEmojiFreeInput, resetEmojiHint } =

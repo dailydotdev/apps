@@ -27,7 +27,7 @@ export function ExcoPlayerFrame({
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const isReadyRef = useRef(false);
-  const readyTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const readyTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const src = getExcoFrameUrl({ playerId, playlistId });
 
   const fail = useCallback((reason: ExcoPlayerFailure, error?: string) => {

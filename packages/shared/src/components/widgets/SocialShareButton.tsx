@@ -24,7 +24,7 @@ export const SocialShareButton = ({
   size = ButtonSize.Large,
   ...props
 }: SocialShareButtonProps): ReactElement => {
-  const button = useRef<HTMLButtonElement>();
+  const button = useRef<HTMLButtonElement>(null);
   const buttonProps =
     href &&
     ({

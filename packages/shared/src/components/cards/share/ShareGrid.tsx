@@ -63,7 +63,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
-  const containerRef = useRef<HTMLDivElement>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const { title } = useSmartTitle(post);
   const { sharedPost } = post;
   const isDeleted = sharedPost?.id === DeletedPostId;

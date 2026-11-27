@@ -405,7 +405,7 @@ const JobPage = ({
   // Use prop ID if provided (when used as component), otherwise use router query (when used as page)
   const id = propId || (routerId as string);
 
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef<typeof logEvent>(undefined);
   const hasLoggedRef = useRef(false);
   logRef.current = logEvent;
 

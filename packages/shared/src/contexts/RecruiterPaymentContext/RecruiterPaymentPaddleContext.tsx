@@ -31,7 +31,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
 
   const [selectedProduct, setSelectedProduct] =
     useState<RecruiterProductOption>();
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef<typeof logEvent>(undefined);
   logRef.current = logEvent;
 
   const { paddle, openCheckout, appliedDiscountId } = usePaddlePayment({

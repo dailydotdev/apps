@@ -22,7 +22,7 @@ export const useMarkThreadRead = ({
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const readKey = `${peerId}:${lastIncomingId ?? ''}`;
-  const markedKeyRef = useRef<string>();
+  const markedKeyRef = useRef<string>(undefined);
   const pendingRef = useRef<{
     timer?: ReturnType<typeof setTimeout>;
     flush?: () => void;

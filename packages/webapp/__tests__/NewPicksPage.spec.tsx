@@ -152,7 +152,7 @@ it('should open for a viewer outside the rollout who came from a picks page', as
   await waitFor(() => expect(title('Post 2')).toBeTruthy());
 
   expect(replace).not.toHaveBeenCalled();
-  expect(screen.getByText('1 of 5 selected')).toBeInTheDocument();
+  expect(await screen.findByText('1 of 5 selected')).toBeInTheDocument();
   expect(screen.getByText('from the picks you opened')).toBeInTheDocument();
   expect(screen.getByRole('textbox')).toHaveFocus();
   await waitFor(() =>

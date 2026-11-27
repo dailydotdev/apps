@@ -64,10 +64,10 @@ function ImageInput({
   fileSizeLimitMB = 2,
   uploadButton = false,
 }: ImageInputProps): ReactElement {
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState(initialValue || fallbackImage);
   const onClick = () => {
-    inputRef.current.click();
+    inputRef.current?.click();
   };
 
   const { onFileChange: handleFile } = useFileInput({
@@ -103,7 +103,9 @@ function ImageInput({
   const onClose = () => {
     setImage(null);
     onChange?.(null, null);
-    inputRef.current.value = '';
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   };
 
   const onError = () => setImage(fallbackImage);

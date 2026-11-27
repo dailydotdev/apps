@@ -214,7 +214,7 @@ export const LfgComposer = ({ post }: LfgComposerProps): ReactElement => {
     !(isActionsFetched && checkHasCompleted(ActionType.LfgHouseRules));
 
   // The unsaved-changes prompt's Save publishes, which is defined below.
-  const publishRef = useRef<() => Promise<void>>();
+  const publishRef = useRef<() => Promise<void>>(undefined);
   const { allowNavigation } = useDirtyForm(isDirty, {
     onSave: () => publishRef.current?.(),
   });

@@ -250,6 +250,22 @@ const strictSkipList = new Set([
   // `z` export. Pre-existing strict violations (optional preview, squad and
   // post fields) live on unrelated lines.
   'packages/shared/src/components/post/write/ShareLink.tsx',
+  // React 19 upgrade: touched only for the new React types (useRef initial
+  // values, DOM ref null-ness, ReactElement prop typing). Pre-existing strict
+  // violations (optional props, ref null checks, the growthbook exports map)
+  // live on unrelated lines.
+  'packages/shared/src/components/fields/ImageInput.tsx',
+  'packages/shared/src/components/fields/TextField.tsx',
+  'packages/shared/src/components/GrowthBookProvider.tsx',
+  'packages/shared/src/components/modals/NewSourceModal.tsx',
+  'packages/shared/src/components/opportunity/OpportunityEditModal/OpportunityEditContentModal.tsx',
+  'packages/shared/src/components/profile/TagList.tsx',
+  'packages/shared/src/components/RenderMarkdown.tsx',
+  'packages/shared/src/components/widgets/SocialShareButton.tsx',
+  'packages/shared/src/features/onboarding/shared/Box.tsx',
+  'packages/shared/src/hooks/log/useLogLifecycleEvents.ts',
+  'packages/shared/src/hooks/log/useLogPageView.ts',
+  'packages/shared/src/hooks/useAuthForms.ts',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

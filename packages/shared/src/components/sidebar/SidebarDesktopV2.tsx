@@ -1129,7 +1129,7 @@ export const SidebarDesktopV2 = ({
     railDragClickGuardRef.current = false;
     return true;
   }, []);
-  const railDragClickGuardCleanupRef = useRef<() => void>();
+  const railDragClickGuardCleanupRef = useRef<() => void>(undefined);
   const releaseRailDragClickGuard = useCallback(() => {
     railDragClickGuardCleanupRef.current?.();
     const disarm = () => {

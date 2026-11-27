@@ -14,7 +14,7 @@ const PlusWebapp = (): ReactElement => {
   const { flags } = marketingCta || {};
   const { openCheckout, productOptions, isPricesPending } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>();
-  const checkoutRef = useRef();
+  const checkoutRef = useRef<HTMLDivElement>(null);
   const [showCheckout, setShowCheckout] = useState(false);
 
   useEffect(() => {

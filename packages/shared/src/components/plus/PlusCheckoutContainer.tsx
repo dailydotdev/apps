@@ -11,7 +11,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 
 export type PlusCheckoutContainerProps = {
-  checkoutRef?: React.LegacyRef<HTMLDivElement>;
+  checkoutRef?: React.Ref<HTMLDivElement>;
   className?: {
     container?: string;
     element?: string;

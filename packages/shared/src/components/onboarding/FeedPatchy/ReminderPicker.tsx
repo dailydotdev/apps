@@ -122,7 +122,7 @@ export const ReminderPicker = forwardRef(function ReminderPicker(
   // repeated keys build on it rather than on a value still catching up.
   const target = useRef<number | null>(null);
   const [isEditingTimezone, setIsEditingTimezone] = useState(false);
-  const targetTimeout = useRef<number>();
+  const targetTimeout = useRef<number>(undefined);
 
   // Mount on the starting hour before paint. After that the ruler leads and
   // the hour follows it.

@@ -8,7 +8,7 @@ export const useLogOpportunityNudgeImpression = (
 ) => {
   const { logEvent } = useLogContext();
   const { alerts } = useAlertsContext();
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef<typeof logEvent>(undefined);
   const hasLoggedRef = useRef(false);
   const hasOpportunityAlert = !!alerts.opportunityId;
 

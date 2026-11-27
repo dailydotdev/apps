@@ -79,7 +79,7 @@ const getFeedLabel = (label: string, link: string) => (
 );
 
 export default function NewSourceModal(props: ModalProps): ReactElement {
-  const scrapeFormRef = useRef<HTMLFormElement>();
+  const scrapeFormRef = useRef<HTMLFormElement>(null);
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);

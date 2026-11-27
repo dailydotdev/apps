@@ -67,7 +67,8 @@ function RecruiterPage(): ReactElement {
 
   // Use a ref so the modal always calls the latest version of this function
   // This avoids stale closures since the modal captures the callback when opened
-  const handleJobSubmitRef = useRef<(submission: PendingSubmission) => void>();
+  const handleJobSubmitRef =
+    useRef<(submission: PendingSubmission) => void>(undefined);
   handleJobSubmitRef.current = (submission: PendingSubmission) => {
     setPendingSubmission(submission);
     closeModal();

@@ -115,7 +115,7 @@ const resumeSlotState = (id?: string): SlotState => {
 };
 
 const useSlotState = (id?: string): MutableRefObject<SlotState> => {
-  const state = useRef<SlotState>();
+  const state = useRef<SlotState>(undefined);
   const stateId = useRef(id);
 
   if (!state.current) {

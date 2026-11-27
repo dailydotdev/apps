@@ -40,7 +40,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
-  const containerRef = useRef<HTMLDivElement>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);

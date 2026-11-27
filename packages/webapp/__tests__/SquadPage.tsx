@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import React from 'react';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
@@ -132,7 +133,7 @@ const mockSquad = (
 };
 
 const renderWithBoot = (
-  page: JSX.Element,
+  page: ReactElement,
   user: LoggedUser | null = defaultUser,
 ): RenderResult =>
   render(
@@ -159,7 +160,7 @@ const renderSquadPage = (
       SquadPage.layoutProps as unknown as Parameters<
         typeof SquadPage.getLayout
       >[2],
-    ) as JSX.Element,
+    ) as ReactElement,
     user,
   );
 
@@ -411,7 +412,7 @@ describe('squad page before the viewer query lands', () => {
             SquadPage.layoutProps as unknown as Parameters<
               typeof SquadPage.getLayout
             >[2],
-          ) as JSX.Element
+          ) as ReactElement
         }
       </TestBootProvider>,
     );
@@ -753,7 +754,7 @@ describe('squad manage area', () => {
     renderWithBoot(
       SquadManageSectionPage.getLayout(
         <SquadManageSectionPage handle={squad.handle} section={section} />,
-      ) as JSX.Element,
+      ) as ReactElement,
     );
 
   it('lists the paid sections locked for a free company page', async () => {

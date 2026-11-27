@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
 import { LinkModal } from './LinkModal';
+import type { IconProps } from '../../Icon';
 
 export interface RichTextToolbarProps {
   editor: Editor;
@@ -55,7 +56,7 @@ interface ToolbarItem {
   id: string;
   tooltip: string;
   label: string;
-  icon: ReactElement;
+  icon: ReactElement<IconProps>;
   isActive: boolean;
   onClick: () => void;
   disabled?: boolean;
@@ -73,7 +74,7 @@ const ToolbarDivider = (): ReactElement => (
 
 interface ToolbarButtonProps {
   tooltip: string;
-  icon: ReactElement;
+  icon: ReactElement<IconProps>;
   isActive: boolean;
   onClick: () => void;
   disabled?: boolean;

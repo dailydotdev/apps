@@ -93,9 +93,12 @@ jest.mock('../tooltips/SimpleTooltip', () => ({
     children,
   }: React.PropsWithChildren<{ content: React.ReactNode }>) => {
     const react = jest.requireActual('react') as typeof React;
-    return react.cloneElement(children as React.ReactElement, {
-      'aria-label': String(content),
-    });
+    return react.cloneElement(
+      children as React.ReactElement<{ 'aria-label'?: string }>,
+      {
+        'aria-label': String(content),
+      },
+    );
   },
 }));
 

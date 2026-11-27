@@ -1,4 +1,4 @@
-import type { MutableRefObject } from 'react';
+import type { RefObject } from 'react';
 import { useCallback, useRef } from 'react';
 import { del as deleteCache } from 'idb-keyval';
 import { formToJson } from '../../lib/form';
@@ -23,7 +23,7 @@ interface UseDiscardPostProps {
 
 interface UseDiscardPost
   extends UseExitConfirmation, Pick<WritePostProps, 'draft' | 'updateDraft'> {
-  formRef: MutableRefObject<HTMLFormElement | undefined>;
+  formRef: RefObject<HTMLFormElement | null>;
   isDraftReady: boolean;
   clearDraft: () => void;
   isUpdatingDraft: boolean;
@@ -33,7 +33,7 @@ export const useDiscardPost = ({
   post,
   draftIdentifier,
 }: UseDiscardPostProps = {}): UseDiscardPost => {
-  const formRef = useRef<HTMLFormElement>();
+  const formRef = useRef<HTMLFormElement>(null);
   const draftKey = generateWritePostKey(draftIdentifier ?? post?.id);
   const [draft, updateDraft, isDraftReady, isUpdatingDraft] =
     usePersistentContext<Partial<WriteForm>>(draftKey, {});
