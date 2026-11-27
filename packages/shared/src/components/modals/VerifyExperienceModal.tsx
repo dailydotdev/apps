@@ -11,7 +11,7 @@ import {
   ADD_USER_COMPANY_MUTATION,
   VERIFY_USER_COMPANY_CODE_MUTATION,
 } from '../../graphql/users';
-import type { UserCompany } from '../../lib/userCompany';
+import type { Company, UserCompany } from '../../lib/userCompany';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
@@ -35,6 +35,8 @@ interface VerifyExperienceModalProps extends ModalProps {
   workEmail?: string;
 }
 
+const noop = (): void => undefined;
+
 function VerifyExperienceModal({
   onRequestClose,
   workEmail: initialWorkEmail,
@@ -47,7 +49,7 @@ function VerifyExperienceModal({
   const [code, setCode] = useState<string>();
   const [workEmail, setWorkEmail] = useState<string>(initialWorkEmail || '');
   const [codeSent, setCodeSent] = useState(false);
-  const { timer, setTimer, runTimer } = useTimer(null, 0);
+  const { timer, setTimer, runTimer } = useTimer(noop, 0);
 
   const { mutate: onSubmitCode } = useMutation({
     mutationFn: () =>
@@ -77,6 +79,13 @@ function VerifyExperienceModal({
     onSuccess: (data) => {
       const verifiedCompany = data.verifyUserCompanyCode;
       const isCompanyVerified = !!verifiedCompany.company;
+      // A company we don't have yet comes back as null while it's reviewed,
+      // so no job can match it; a job without a company must not match it.
+      const isVerifiedBy = (company?: Company | null) =>
+        !!company &&
+        !!verifiedCompany.company &&
+        (company.id === verifiedCompany.company.id ||
+          company.name === verifiedCompany.company.name);
 
       queryClient.setQueryData<UserCompany[]>(
         generateQueryKey(RequestKey.UserCompanies, user),
@@ -100,10 +109,7 @@ function VerifyExperienceModal({
 
           if ('work' in currentData) {
             const updatedWorkEdges = currentData.work.edges.map((edge) => {
-              if (
-                edge.node.company?.id === verifiedCompany.company?.id ||
-                edge.node.company?.name === verifiedCompany.company?.name
-              ) {
+              if (isVerifiedBy(edge.node.company)) {
                 return {
                   ...edge,
                   node: { ...edge.node, verified: true },
@@ -124,10 +130,7 @@ function VerifyExperienceModal({
           if ('edges' in currentData) {
             const updatedEdges = currentData.edges.map((edge) => {
               const node = edge.node as UserExperience;
-              if (
-                node.company?.id === verifiedCompany.company?.id ||
-                node.company?.name === verifiedCompany.company?.name
-              ) {
+              if (isVerifiedBy(node.company)) {
                 return {
                   ...edge,
                   node: { ...node, verified: true },
@@ -151,7 +154,7 @@ function VerifyExperienceModal({
           ? 'Verification successful'
           : 'Verification initiated',
       );
-      onRequestClose(null);
+      onRequestClose?.(undefined as never);
     },
     onError: () => displayToast(labels.error.generic),
   });
@@ -185,7 +188,7 @@ function VerifyExperienceModal({
               <Button
                 variant={ButtonVariant.Primary}
                 type="button"
-                disabled={!workEmail || timer > 0}
+                disabled={!workEmail || (timer ?? 0) > 0}
                 onClick={() => onSubmitCode()}
                 size={ButtonSize.Small}
               >
@@ -214,7 +217,11 @@ function VerifyExperienceModal({
             type="button"
             disabled={!code || !workEmail || !codeSent}
             variant={ButtonVariant.Primary}
-            onClick={() => verifyUserCompanyCode({ email: workEmail, code })}
+            onClick={() => {
+              if (code) {
+                verifyUserCompanyCode({ email: workEmail, code });
+              }
+            }}
           >
             Verify email
           </Button>
