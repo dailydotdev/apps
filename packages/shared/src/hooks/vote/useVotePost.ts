@@ -39,6 +39,7 @@ const prepareVotePostLogOptions = ({
 
 const useVotePost = ({
   onMutate,
+  mutationFn,
   variables,
 }: UseVotePostProps = {}): UseVotePost => {
   const client = useQueryClient();
@@ -81,6 +82,7 @@ const useVotePost = ({
     cancelVote: cancelPostVote,
   } = useVote({
     onMutate: onMutate || defaultOnMutate,
+    mutationFn,
     entity: UserVoteEntity.Post,
     variables,
   });
